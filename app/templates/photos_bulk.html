@@ -1,0 +1,291 @@
+{% extends "base.html" %}
+
+{% block content %}
+  <div class="largetitle">📸 Upload Your Photos</div>
+  <p class="subtitle">Take photos of all your rooms — our AI will detect everything automatically.</p>
+
+  <div id="liveToast" class="toast hidden" role="status" aria-live="polite"></div>
+
+  <div class="group">
+    <div style="padding: 32px 20px; border: 2px dashed var(--hair); border-radius:16px; text-align:center; background:rgba(255,255,255,.02);">
+      <div style="font-size:48px; margin-bottom:12px;">📷</div>
+      <div style="font-weight:700; font-size:16px; margin-bottom:8px;">Take 10-20 photos of your home</div>
+      <div style="font-size:14px; color:var(--muted); margin-bottom:20px;">
+        Living room, bedrooms, kitchen, bathroom — just snap wide shots of each space
+      </div>
+
+      <input id="photoInput" type="file" accept="image/*" capture="environment" multiple class="hidden" />
+      <button id="takeBtn" class="btn ready" type="button">📸 Start Taking Photos</button>
+
+      <div class="hint" style="margin-top:16px;">
+        💡 <strong>Pro tips:</strong>
+        <ul style="text-align:left; max-width:400px; margin:12px auto 0; padding-left:20px; font-size:13px; line-height:1.6;">
+          <li>Take wide shots to capture whole rooms</li>
+          <li>One photo per room is usually enough</li>
+          <li>Include any storage areas, garage, or loft</li>
+          <li>Don't worry about perfection — just point and shoot!</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div id="uploadWrap" class="uploadwrap hidden" aria-live="polite" style="margin-top:16px;">
+    <div class="uploadlabel" id="uploadLabel">Uploading…</div>
+    <div class="uploadbar"><div class="uploadfill" id="uploadFill" style="width:0%"></div></div>
+  </div>
+
+  <div id="photosCard" class="group hidden">
+    <div class="rowhead">
+      <div class="rowtitle">📸 Photos uploaded</div>
+      <div class="rowsub"><span id="photoCount">0</span></div>
+    </div>
+    <div id="photoGrid" class="photogrid"></div>
+  </div>
+
+  <div id="resultsCard" class="group hidden">
+    <div class="rowhead">
+      <div class="rowtitle">✨ AI detected</div>
+      <div class="rowsub" id="resultsStatus">Analyzing...</div>
+    </div>
+    <div id="resultsList" style="margin-top:12px;"></div>
+  </div>
+
+  <script>
+    (function () {
+      const uploadUrl = "/s/{{ company_slug }}/{{ token }}/photos/bulk-upload";
+      const continueUrl = "/s/{{ company_slug }}/{{ token }}/quote-preview";
+
+      const input = document.getElementById("photoInput");
+      const takeBtn = document.getElementById("takeBtn");
+
+      const wrap = document.getElementById("uploadWrap");
+      const fill = document.getElementById("uploadFill");
+      const label = document.getElementById("uploadLabel");
+
+      const toast = document.getElementById("liveToast");
+
+      const photosCard = document.getElementById("photosCard");
+      const photoGrid = document.getElementById("photoGrid");
+      const photoCount = document.getElementById("photoCount");
+
+      const resultsCard = document.getElementById("resultsCard");
+      const resultsStatus = document.getElementById("resultsStatus");
+      const resultsList = document.getElementById("resultsList");
+
+      const continueBtn = document.getElementById("continueBtn");
+
+      function showToast(msg){
+        toast.textContent = msg;
+        toast.classList.remove("hidden");
+        setTimeout(() => toast.classList.add("hidden"), 2500);
+      }
+
+      function setUploading(on){
+        if(on){
+          wrap.classList.remove("hidden");
+          fill.style.width = "0%";
+          label.textContent = "Uploading photos...";
+          takeBtn.disabled = true;
+          takeBtn.classList.remove("ready");
+          takeBtn.textContent = "⏳ Uploading...";
+        } else {
+          takeBtn.disabled = false;
+          takeBtn.classList.add("ready");
+          takeBtn.textContent = "📸 Add More Photos";
+        }
+      }
+
+      function setProgress(pct){
+        const clamped = Math.max(0, Math.min(100, pct));
+        fill.style.width = clamped + "%";
+        if (clamped >= 100) {
+          label.textContent = "✨ Analyzing with AI... (this takes 10-20 seconds)";
+        } else {
+          label.textContent = "Uploading… " + clamped + "%";
+        }
+      }
+
+      function escapeHtml(s){
+        return (s || "").replace(/[&<>"']/g, (c) => ({
+          "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
+        }[c]));
+      }
+
+      function renderPhotos(photos){
+        photosCard.classList.remove("hidden");
+        photoCount.textContent = String(photos.length);
+
+        photoGrid.innerHTML = photos.map(p =>
+          `<div class="photo"><img class="photoimg" src="${escapeHtml(p.url)}" alt="Photo" loading="lazy"/></div>`
+        ).join("");
+      }
+
+      function renderResults(data){
+        resultsCard.classList.remove("hidden");
+
+        if (!data.rooms || data.rooms.length === 0) {
+          resultsStatus.textContent = "No items detected";
+          resultsList.innerHTML = '<div class="empty"><div class="empty-title">No items found</div><div class="empty-sub">Try uploading clearer photos of your rooms</div></div>';
+          return;
+        }
+
+        const totalItems = data.rooms.reduce((sum, r) => sum + (r.item_count || 0), 0);
+        resultsStatus.textContent = `${data.rooms.length} rooms • ${totalItems} items`;
+
+        resultsList.innerHTML = data.rooms.map(room => `
+          <div style="padding:14px; border-radius:12px; background:rgba(255,255,255,.03); border:1px solid var(--hair); margin-bottom:10px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+              <div style="font-weight:700; font-size:15px;">${escapeHtml(room.name)}</div>
+              <div style="font-size:13px; color:var(--muted);">${room.item_count || 0} items</div>
+            </div>
+            ${room.summary ? `<div style="font-size:13px; color:var(--muted); font-style:italic;">${escapeHtml(room.summary)}</div>` : ''}
+          </div>
+        `).join("");
+      }
+
+      takeBtn.addEventListener("click", () => input.click());
+
+      input.addEventListener("change", async () => {
+        if (!input.files || input.files.length === 0) return;
+
+        const fileCount = input.files.length;
+
+        if (fileCount > 30) {
+          showToast("Maximum 30 photos at once");
+          input.value = "";
+          return;
+        }
+
+        if (fileCount < 3) {
+          showToast("Please upload at least 3 photos");
+          input.value = "";
+          return;
+        }
+
+        // Show upload UI
+        setUploading(true);
+        resultsStatus.textContent = "Analyzing...";
+
+        const data = new FormData();
+        for (const f of input.files) data.append("photos", f);
+
+        try {
+          const xhr = new XMLHttpRequest();
+          xhr.open("POST", uploadUrl, true);
+
+          xhr.upload.onprogress = function (evt) {
+            if (!evt.lengthComputable) return;
+            setProgress(Math.round((evt.loaded / evt.total) * 100));
+          };
+
+          xhr.onload = function () {
+            setUploading(false);
+
+            if (xhr.status < 200 || xhr.status >= 300) {
+              showToast("Upload failed - please try again");
+              wrap.classList.add("hidden");
+              return;
+            }
+
+            const payload = JSON.parse(xhr.responseText || "{}");
+            if (!payload.ok) {
+              showToast(payload.error || "Upload failed");
+              wrap.classList.add("hidden");
+              return;
+            }
+
+            renderPhotos(payload.photos || []);
+            renderResults(payload);
+
+            wrap.classList.add("hidden");
+            showToast(`✅ Detected ${payload.total_items || 0} items across ${payload.rooms?.length || 0} rooms!`);
+
+            // Auto-redirect after 2 seconds
+            setTimeout(() => {
+              window.location.href = continueUrl;
+            }, 2000);
+          };
+
+          xhr.onerror = function () {
+            setUploading(false);
+            wrap.classList.add("hidden");
+            showToast("Upload failed - check your connection");
+          };
+
+          xhr.send(data);
+        } catch (e) {
+          setUploading(false);
+          wrap.classList.add("hidden");
+          showToast("Upload failed");
+        } finally {
+          input.value = "";
+        }
+      });
+    })();
+  </script>
+
+  <style>
+    .photogrid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+    }
+
+    .photo {
+      aspect-ratio: 1;
+      border-radius: 8px;
+      overflow: hidden;
+      background: var(--hair);
+    }
+
+    .photoimg {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .uploadwrap {
+      padding: 16px;
+      border-radius: 12px;
+      background: rgba(46,229,157,.08);
+      border: 1px solid rgba(46,229,157,.2);
+    }
+
+    .uploadlabel {
+      font-size: 14px;
+      font-weight: 600;
+      margin-bottom: 8px;
+      color: #2ee59d;
+    }
+
+    .uploadbar {
+      height: 6px;
+      background: rgba(255,255,255,.1);
+      border-radius: 3px;
+      overflow: hidden;
+    }
+
+    .uploadfill {
+      height: 100%;
+      background: #2ee59d;
+      transition: width 0.3s;
+    }
+
+    @media (max-width: 480px) {
+      .photogrid {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 6px;
+      }
+    }
+  </style>
+{% endblock %}
+
+{% block footer %}
+  <div class="footer footer-clean">
+    <div class="footer-inner">
+      <div class="microhint" style="text-align:center; color:var(--muted);">
+        Upload 3-30 photos • AI will detect rooms & items automatically
+      </div>
+    </div>
+  </div>
+{% endblock %}

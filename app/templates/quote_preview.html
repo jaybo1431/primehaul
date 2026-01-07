@@ -1,12 +1,21 @@
 {% extends "base.html" %}
 
 {% block content %}
-  <div class="largetitle">💰 Your Quote</div>
-  <p class="subtitle">AI-powered estimate based on your photos. Final price confirmed by our team.</p>
+  {% if auto_approved %}
+    <div class="largetitle">✅ Instant Quote Ready!</div>
+    <p class="subtitle">Your quote is approved and ready to book — no waiting needed!</p>
+  {% else %}
+    <div class="largetitle">💰 Your Quote</div>
+    <p class="subtitle">AI-powered estimate. Our team will review and confirm within 2 hours.</p>
+  {% endif %}
 
   <div class="group">
     <div class="bigprice">£{{ estimate_low }} – £{{ estimate_high }}</div>
-    <div class="pill">{{ confidence }}</div>
+    {% if auto_approved %}
+      <div class="pill" style="background:rgba(46,229,157,.2); color:#2ee59d;">✅ Approved</div>
+    {% else %}
+      <div class="pill">{{ confidence }}</div>
+    {% endif %}
 
     <div style="margin-top:16px; padding-top:16px; border-top:1px solid var(--hair);">
       <div style="font-weight:700; margin-bottom:12px;">Move Summary</div>
@@ -14,40 +23,20 @@
         <div class="statrow">
           <div class="staticon">📦</div>
           <div class="statrow-text">
-            <span class="statrow-label">Total items</span>
+            <span class="statrow-label">Items detected</span>
             <span class="statrow-value">{{ total_items }}</span>
           </div>
         </div>
         <div class="statrow">
-          <div class="staticon">📐</div>
+          <div class="staticon">🏠</div>
           <div class="statrow-text">
-            <span class="statrow-label">Volume (CBM)</span>
-            <span class="statrow-value">{{ total_cbm }} m³</span>
+            <span class="statrow-label">Property type</span>
+            <span class="statrow-value">{{ job.property_type|title|replace('_', ' ') if job.property_type else 'Not specified' }}</span>
           </div>
         </div>
-        <div class="statrow">
-          <div class="staticon">⚖️</div>
-          <div class="statrow-text">
-            <span class="statrow-label">Est. weight</span>
-            <span class="statrow-value">{{ total_weight_kg }} kg</span>
-          </div>
-        </div>
-        <div class="statrow">
-          <div class="staticon">🏋️</div>
-          <div class="statrow-text">
-            <span class="statrow-label">Bulky items</span>
-            <span class="statrow-value">{{ bulky_items }}</span>
-          </div>
-        </div>
-        {% if fragile_items > 0 %}
-        <div class="statrow">
-          <div class="staticon">⚠️</div>
-          <div class="statrow-text">
-            <span class="statrow-label">Fragile items</span>
-            <span class="statrow-value">{{ fragile_items }}</span>
-          </div>
-        </div>
-        {% endif %}
+      </div>
+      <div style="margin-top:12px; padding:12px; border-radius:8px; background:rgba(46,229,157,.08); font-size:13px; color:var(--muted);">
+        💡 Our team will review your inventory and confirm the final quote within 2 hours
       </div>
     </div>
 
@@ -72,6 +61,17 @@
             <div style="font-size:14px; font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">{{ job.dropoff.label if job.dropoff else "Not set" }}</div>
           </div>
         </div>
+        {% if job.move_date %}
+        <div class="statrow">
+          <div class="staticon" style="background:rgba(46,229,157,.15);">
+            <span style="font-size:12px;">📅</span>
+          </div>
+          <div style="flex:1; min-width:0;">
+            <div style="font-size:11px; color:var(--muted); text-transform:uppercase; letter-spacing:0.5px; font-weight:600; margin-bottom:3px;">Moving Date</div>
+            <div style="font-size:14px; font-weight:600;">{{ job.move_date.strftime('%A, %d %B %Y') }}</div>
+          </div>
+        </div>
+        {% endif %}
       </div>
     </div>
   </div>
@@ -80,11 +80,18 @@
 {% block footer %}
   <div class="footer footer-clean">
     <div class="footer-inner">
-      {% if job.status == 'in_progress' %}
-        <form method="post" action="/s/{{ token }}/submit-quote">
-          <button class="btn" type="submit">✓ Submit to PrimeHaul</button>
+      {% if auto_approved or job.status == 'approved' %}
+        <a href="/s/{{ company_slug }}/{{ token }}/contact" class="btn" style="background:#00c853; color:#fff; text-decoration:none; display:block;">
+          🚀 Book Your Move Now
+        </a>
+        <div class="microhint" style="text-align:center; margin-top:8px;">
+          Quote pre-approved • Secure your moving date instantly
+        </div>
+      {% elif job.status == 'in_progress' %}
+        <form method="post" action="/s/{{ company_slug }}/{{ token }}/submit-quote">
+          <button class="btn" type="submit">✓ Submit for Review</button>
           <div class="microhint" style="text-align:center; margin-top:8px;">
-            Our team will review and confirm your final quote within 2 hours
+            Our team will confirm your quote within 2 hours
           </div>
         </form>
       {% elif job.status == 'awaiting_approval' %}
@@ -96,13 +103,9 @@
             We're reviewing your quote. You'll receive a text when it's ready!
           </div>
         </div>
-      {% elif job.status == 'approved' %}
-        <button class="btn" style="background:#00c853; color:#fff;">
-          ✓ Quote Approved - Book Now
-        </button>
       {% endif %}
-      <a href="/s/{{ token }}/rooms" class="btn secondary" style="margin-top:10px;">
-        ← Add More Rooms
+      <a href="/s/{{ company_slug }}/{{ token }}/photos/bulk" class="btn secondary" style="margin-top:10px;">
+        ← Upload More Photos
       </a>
     </div>
   </div>

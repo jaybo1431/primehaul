@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign Up - PrimeHaul OS</title>
+    <link rel="stylesheet" href="/static/app.css">
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>PrimeHaul OS</h1>
+            <p class="subtitle">Start Your 30-Day Free Trial</p>
+        </div>
+
+        <div class="card fade-in">
+            <h2>Create Your Account</h2>
+            <p style="color: #888; margin-bottom: 24px;">
+                No credit card required. Start generating AI-powered quotes instantly.
+            </p>
+
+            {% if error %}
+            <div class="alert alert-error">
+                {{ error }}
+            </div>
+            {% endif %}
+
+            <form method="POST" action="/auth/signup" class="form" id="signupForm">
+                <div class="form-group">
+                    <label for="company_name">Company Name *</label>
+                    <input
+                        type="text"
+                        id="company_name"
+                        name="company_name"
+                        required
+                        autofocus
+                        placeholder="Acme Removals Ltd"
+                        value="{{ company_name or '' }}"
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label for="slug">Company URL Slug *</label>
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <span style="color: #666; font-size: 14px;">primehaul.com/</span>
+                        <input
+                            type="text"
+                            id="slug"
+                            name="slug"
+                            required
+                            placeholder="acme-removals"
+                            pattern="[a-z0-9-]+"
+                            title="Lowercase letters, numbers, and hyphens only"
+                            value="{{ slug or '' }}"
+                            style="flex: 1;"
+                        >
+                    </div>
+                    <small style="color: #666; font-size: 12px;">
+                        Used in your custom URLs. Lowercase letters, numbers, and hyphens only.
+                    </small>
+                </div>
+
+                <div class="form-group">
+                    <label for="email">Email Address *</label>
+                    <input
+                        type="email"
+                        id="email"
+                        name="email"
+                        required
+                        placeholder="admin@yourcompany.com"
+                        value="{{ email or '' }}"
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label for="full_name">Your Full Name *</label>
+                    <input
+                        type="text"
+                        id="full_name"
+                        name="full_name"
+                        required
+                        placeholder="John Smith"
+                        value="{{ full_name or '' }}"
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label for="phone">Phone Number (Optional)</label>
+                    <input
+                        type="tel"
+                        id="phone"
+                        name="phone"
+                        placeholder="+44 20 1234 5678"
+                        value="{{ phone or '' }}"
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label for="password">Password *</label>
+                    <input
+                        type="password"
+                        id="password"
+                        name="password"
+                        required
+                        placeholder="Choose a strong password"
+                    >
+                    <small style="color: #666; font-size: 12px;">
+                        At least 8 characters with uppercase, lowercase, and numbers
+                    </small>
+                </div>
+
+                <div class="form-group">
+                    <label for="password_confirm">Confirm Password *</label>
+                    <input
+                        type="password"
+                        id="password_confirm"
+                        name="password_confirm"
+                        required
+                        placeholder="Re-enter your password"
+                    >
+                </div>
+
+                <div style="margin: 24px 0; padding: 16px; background: rgba(46, 229, 157, 0.1); border-radius: 8px;">
+                    <h4 style="margin: 0 0 8px 0; color: #2ee59d; font-size: 14px;">
+                        ✓ What's Included in Your Free Trial
+                    </h4>
+                    <ul style="margin: 0; padding-left: 20px; color: #aaa; font-size: 13px; line-height: 1.8;">
+                        <li>30 days free access (no credit card)</li>
+                        <li>Unlimited quotes and photo analysis</li>
+                        <li>Custom branding & pricing rules</li>
+                        <li>Multi-user team accounts</li>
+                        <li>Full analytics dashboard</li>
+                    </ul>
+                </div>
+
+                <button type="submit" class="btn btn-primary btn-block" id="submitBtn">
+                    Start Free Trial
+                </button>
+            </form>
+
+            <div style="margin-top: 24px; text-align: center;">
+                <p style="color: #888; font-size: 14px;">
+                    Already have an account?
+                    <a href="/auth/login" style="color: #2ee59d; text-decoration: none;">
+                        Sign in
+                    </a>
+                </p>
+            </div>
+        </div>
+
+        <div style="text-align: center; margin-top: 32px; color: #666; font-size: 13px;">
+            <p>&copy; 2025 PrimeHaul OS. All rights reserved.</p>
+        </div>
+    </div>
+
+    <script>
+        // Auto-generate slug from company name
+        const companyNameInput = document.getElementById('company_name');
+        const slugInput = document.getElementById('slug');
+
+        companyNameInput.addEventListener('input', function() {
+            if (!slugInput.value || slugInput.value === slugInput.defaultValue) {
+                const slug = this.value
+                    .toLowerCase()
+                    .replace(/[^a-z0-9\s-]/g, '')
+                    .replace(/\s+/g, '-')
+                    .replace(/-+/g, '-')
+                    .replace(/^-|-$/g, '');
+                slugInput.value = slug;
+            }
+        });
+
+        // Password confirmation validation
+        const form = document.getElementById('signupForm');
+        form.addEventListener('submit', function(e) {
+            const password = document.getElementById('password').value;
+            const passwordConfirm = document.getElementById('password_confirm').value;
+
+            if (password !== passwordConfirm) {
+                e.preventDefault();
+                alert('Passwords do not match!');
+                return false;
+            }
+        });
+    </script>
+</body>
+</html>

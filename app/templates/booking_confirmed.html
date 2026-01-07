@@ -1,0 +1,122 @@
+{% extends "base.html" %}
+
+{% block content %}
+  <div style="text-align:center; padding:40px 0 20px;">
+    <div style="font-size:80px; margin-bottom:16px;">🎉</div>
+    <div class="largetitle">Booking Confirmed!</div>
+    <p class="subtitle">We've received your booking request</p>
+  </div>
+
+  <!-- Success Card -->
+  <div class="group" style="background:rgba(46,229,157,.1); border-color:rgba(46,229,157,.3);">
+    <div style="text-align:center; padding:12px 0;">
+      <div style="font-size:18px; font-weight:800; margin-bottom:8px;">✅ All Set!</div>
+      <div style="font-size:14px; color:var(--muted);">
+        Your move is confirmed for<br/>
+        {% if job.move_date %}
+          <strong style="color:var(--text); font-size:16px;">{{ job.move_date.strftime('%A, %d %B %Y') }}</strong>
+        {% else %}
+          <strong style="color:var(--text);">Your Selected Date</strong>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+  <!-- What's Next -->
+  <div class="group">
+    <div style="font-weight:700; margin-bottom:12px;">📋 What Happens Next</div>
+
+    <div style="display:flex; flex-direction:column; gap:12px;">
+      <div style="display:flex; gap:12px;">
+        <div style="font-size:24px; flex-shrink:0;">1️⃣</div>
+        <div style="flex:1;">
+          <div style="font-weight:600; margin-bottom:4px;">Payment Instructions</div>
+          <div style="font-size:13px; color:var(--muted);">
+            We'll send you payment details via email and SMS within 2 hours
+          </div>
+        </div>
+      </div>
+
+      <div style="display:flex; gap:12px;">
+        <div style="font-size:24px; flex-shrink:0;">2️⃣</div>
+        <div style="flex:1;">
+          <div style="font-weight:600; margin-bottom:4px;">Final Confirmation</div>
+          <div style="font-size:13px; color:var(--muted);">
+            Once payment is received, we'll send you a booking confirmation with all the details
+          </div>
+        </div>
+      </div>
+
+      <div style="display:flex; gap:12px;">
+        <div style="font-size:24px; flex-shrink:0;">3️⃣</div>
+        <div style="flex:1;">
+          <div style="font-weight:600; margin-bottom:4px;">Moving Day</div>
+          <div style="font-size:13px; color:var(--muted);">
+            Our professional team will arrive on time to handle everything safely
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Contact Info -->
+  <div class="group">
+    <div style="font-weight:700; margin-bottom:12px;">📧 We'll Contact You At:</div>
+
+    <div style="background:rgba(255,255,255,.04); border-radius:12px; padding:16px; border:1px solid var(--hair);">
+      {% if job.customer_email %}
+      <div style="margin-bottom:8px;">
+        <div style="font-size:11px; color:var(--muted); margin-bottom:4px;">Email</div>
+        <div style="font-weight:600;">{{ job.customer_email }}</div>
+      </div>
+      {% endif %}
+
+      {% if job.customer_phone %}
+      <div>
+        <div style="font-size:11px; color:var(--muted); margin-bottom:4px;">Phone</div>
+        <div style="font-weight:600;">{{ job.customer_phone }}</div>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- Booking Reference -->
+  <div class="group">
+    <div style="font-weight:700; margin-bottom:12px;">🔖 Booking Reference</div>
+
+    <div style="background:rgba(255,255,255,.04); border-radius:12px; padding:16px; border:1px solid var(--hair); text-align:center;">
+      <div style="font-size:11px; color:var(--muted); margin-bottom:8px; text-transform:uppercase; letter-spacing:1px;">Reference Number</div>
+      <div style="font-size:24px; font-weight:800; font-family:monospace; letter-spacing:2px;">
+        {{ job.token[:8].upper() }}
+      </div>
+      <div style="font-size:11px; color:var(--muted); margin-top:8px;">
+        Quote this number in all communications
+      </div>
+    </div>
+  </div>
+
+  <!-- Help Card -->
+  <div class="group" style="background:rgba(46,229,157,.05); border-color:rgba(46,229,157,.2);">
+    <div style="text-align:center; padding:8px;">
+      <div style="font-size:16px; margin-bottom:8px;">💬 Questions?</div>
+      <div style="font-size:13px; color:var(--muted); margin-bottom:12px;">
+        Our team is here to help!
+      </div>
+      {% if company.email %}
+      <a href="mailto:{{ company.email }}" style="display:inline-block; padding:10px 20px; background:rgba(46,229,157,.2); border-radius:8px; text-decoration:none; color:var(--text); font-weight:600; font-size:14px;">
+        📧 Email Us
+      </a>
+      {% endif %}
+    </div>
+  </div>
+{% endblock %}
+
+{% block footer %}
+  <div class="footer footer-clean">
+    <div class="footer-inner">
+      <div class="microhint" style="text-align:center;">
+        Confirmation email sent to {{ job.customer_email }}
+      </div>
+    </div>
+  </div>
+{% endblock %}

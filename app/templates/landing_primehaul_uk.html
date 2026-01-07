@@ -1,0 +1,1065 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>primehaul - AI-Powered Removal Quote Software | Win More Jobs in Less Time</title>
+  <meta name="description" content="The fastest way to quote removal jobs. AI-powered photo analysis generates instant, accurate quotes. Your customers complete a 3-minute survey. You approve from your phone. Win more business."/>
+
+  <!-- Open Graph for social sharing -->
+  <meta property="og:title" content="primehaul - Win More Removal Jobs with Instant AI Quotes"/>
+  <meta property="og:description" content="Stop losing customers to slow responses. AI-powered instant quotes. 30-day free trial."/>
+  <meta property="og:type" content="website"/>
+  <meta property="og:url" content="https://primehaul.co.uk"/>
+
+  <!-- Favicon -->
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>📦</text></svg>">
+
+  <style>
+    :root {
+      --prime-green: #2ee59d;
+      --dark-bg: #0b0b0c;
+      --dark-card: #16171a;
+      --text-primary: #ffffff;
+      --text-muted: #888;
+      --border: #2a2b2e;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+      background: var(--dark-bg);
+      color: var(--text-primary);
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 24px;
+    }
+
+    /* Header */
+    .sticky-header {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      background: rgba(11, 11, 12, 0.95);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid var(--border);
+      padding: 20px 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      z-index: 1000;
+    }
+
+    .logo {
+      font-size: 28px;
+      font-weight: 800;
+      color: var(--prime-green);
+      letter-spacing: -0.5px;
+    }
+
+    .header-cta {
+      padding: 12px 28px;
+      background: var(--prime-green);
+      color: #000;
+      text-decoration: none;
+      border-radius: 8px;
+      font-weight: 700;
+      font-size: 15px;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .header-cta:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(46, 229, 157, 0.3);
+    }
+
+    /* Hero */
+    .hero {
+      padding: 160px 24px 100px;
+      text-align: center;
+      background: linear-gradient(180deg, rgba(46, 229, 157, 0.05) 0%, rgba(11, 11, 12, 0) 100%);
+    }
+
+    .hero h1 {
+      font-size: clamp(40px, 6vw, 68px);
+      font-weight: 900;
+      line-height: 1.1;
+      margin-bottom: 24px;
+      letter-spacing: -1px;
+    }
+
+    .highlight {
+      color: var(--prime-green);
+      position: relative;
+    }
+
+    .hero .subtitle {
+      font-size: clamp(18px, 2.5vw, 24px);
+      color: #ccc;
+      max-width: 800px;
+      margin: 0 auto 40px;
+      line-height: 1.5;
+    }
+
+    .cta-button {
+      display: inline-block;
+      padding: 18px 42px;
+      background: var(--prime-green);
+      color: #000;
+      text-decoration: none;
+      border-radius: 10px;
+      font-weight: 800;
+      font-size: 18px;
+      transition: all 0.3s;
+      box-shadow: 0 4px 14px rgba(46, 229, 157, 0.4);
+    }
+
+    .cta-button:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 8px 28px rgba(46, 229, 157, 0.5);
+    }
+
+    .trial-badge {
+      margin-top: 20px;
+      color: var(--text-muted);
+      font-size: 15px;
+    }
+
+    .trust-badges {
+      display: flex;
+      justify-content: center;
+      gap: 40px;
+      margin-top: 60px;
+      flex-wrap: wrap;
+    }
+
+    .trust-badge {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--text-muted);
+      font-size: 14px;
+    }
+
+    .trust-badge::before {
+      content: "✓";
+      color: var(--prime-green);
+      font-weight: bold;
+      font-size: 18px;
+    }
+
+    /* Problem Section */
+    .problem-section {
+      padding: 100px 24px;
+      background: var(--dark-card);
+    }
+
+    .section-title {
+      font-size: clamp(32px, 4vw, 48px);
+      font-weight: 800;
+      text-align: center;
+      margin-bottom: 60px;
+      letter-spacing: -0.5px;
+    }
+
+    .problems-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 24px;
+      max-width: 1000px;
+      margin: 0 auto;
+    }
+
+    .problem-card {
+      background: rgba(255, 77, 79, 0.05);
+      border: 1px solid rgba(255, 77, 79, 0.1);
+      padding: 32px;
+      border-radius: 16px;
+      transition: transform 0.2s;
+    }
+
+    .problem-card:hover {
+      transform: translateY(-4px);
+    }
+
+    .problem-card .icon {
+      font-size: 48px;
+      margin-bottom: 16px;
+    }
+
+    .problem-card h3 {
+      font-size: 20px;
+      margin-bottom: 12px;
+      font-weight: 700;
+    }
+
+    .problem-card p {
+      color: #aaa;
+      font-size: 15px;
+      line-height: 1.6;
+    }
+
+    /* Solution Section */
+    .solution-section {
+      padding: 100px 24px;
+    }
+
+    .solution-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 32px;
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+
+    .solution-card {
+      background: var(--dark-card);
+      border: 1px solid var(--border);
+      padding: 40px;
+      border-radius: 16px;
+      transition: all 0.3s;
+    }
+
+    .solution-card:hover {
+      border-color: var(--prime-green);
+      transform: translateY(-4px);
+      box-shadow: 0 12px 32px rgba(46, 229, 157, 0.1);
+    }
+
+    .solution-card .icon {
+      font-size: 52px;
+      margin-bottom: 20px;
+    }
+
+    .solution-card h3 {
+      font-size: 22px;
+      margin-bottom: 14px;
+      font-weight: 700;
+    }
+
+    .solution-card p {
+      color: #bbb;
+      font-size: 15px;
+      line-height: 1.7;
+    }
+
+    /* How It Works */
+    .how-it-works {
+      padding: 100px 24px;
+      background: var(--dark-card);
+    }
+
+    .steps {
+      max-width: 800px;
+      margin: 0 auto;
+    }
+
+    .step {
+      display: flex;
+      gap: 32px;
+      margin-bottom: 48px;
+      align-items: start;
+    }
+
+    .step-number {
+      min-width: 60px;
+      height: 60px;
+      background: var(--prime-green);
+      color: #000;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 28px;
+      font-weight: 900;
+      flex-shrink: 0;
+    }
+
+    .step-content h3 {
+      font-size: 22px;
+      margin-bottom: 10px;
+      font-weight: 700;
+    }
+
+    .step-content p {
+      color: #aaa;
+      font-size: 16px;
+      line-height: 1.7;
+    }
+
+    .step-content code {
+      background: rgba(46, 229, 157, 0.1);
+      padding: 4px 8px;
+      border-radius: 4px;
+      color: var(--prime-green);
+      font-size: 14px;
+    }
+
+    /* Testimonials */
+    .testimonials {
+      padding: 100px 24px;
+    }
+
+    .testimonials-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 24px;
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+
+    .testimonial-card {
+      background: var(--dark-card);
+      border: 1px solid var(--border);
+      padding: 32px;
+      border-radius: 16px;
+    }
+
+    .testimonial-quote {
+      font-size: 16px;
+      line-height: 1.7;
+      color: #ccc;
+      margin-bottom: 20px;
+      font-style: italic;
+    }
+
+    .testimonial-author {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .testimonial-avatar {
+      width: 48px;
+      height: 48px;
+      background: var(--prime-green);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      color: #000;
+      font-size: 20px;
+    }
+
+    .testimonial-info {
+      flex: 1;
+    }
+
+    .testimonial-name {
+      font-weight: 700;
+      font-size: 16px;
+      color: #fff;
+    }
+
+    .testimonial-company {
+      font-size: 14px;
+      color: var(--text-muted);
+    }
+
+    /* Stats */
+    .stats-section {
+      padding: 100px 24px;
+      background: linear-gradient(135deg, rgba(46, 229, 157, 0.1) 0%, rgba(46, 229, 157, 0.02) 100%);
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 48px;
+      max-width: 1000px;
+      margin: 0 auto;
+      text-align: center;
+    }
+
+    .stat-number {
+      font-size: 56px;
+      font-weight: 900;
+      color: var(--prime-green);
+      margin-bottom: 8px;
+      letter-spacing: -1px;
+    }
+
+    .stat-label {
+      font-size: 16px;
+      color: #aaa;
+    }
+
+    /* Pricing */
+    .pricing-section {
+      padding: 100px 24px;
+      background: var(--dark-card);
+    }
+
+    .pricing-card {
+      max-width: 600px;
+      margin: 0 auto;
+      background: rgba(46, 229, 157, 0.05);
+      border: 2px solid rgba(46, 229, 157, 0.2);
+      padding: 60px 48px;
+      border-radius: 20px;
+      text-align: center;
+    }
+
+    .pricing-card h3 {
+      font-size: 24px;
+      margin-bottom: 20px;
+      color: var(--prime-green);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      font-weight: 800;
+    }
+
+    .price {
+      font-size: 72px;
+      font-weight: 900;
+      color: #fff;
+      margin-bottom: 8px;
+      letter-spacing: -2px;
+    }
+
+    .price-period {
+      font-size: 28px;
+      color: #888;
+      font-weight: 600;
+    }
+
+    .features-list {
+      list-style: none;
+      text-align: left;
+      margin-top: 40px;
+    }
+
+    .features-list li {
+      padding: 12px 0;
+      border-bottom: 1px solid rgba(46, 229, 157, 0.1);
+      color: #ccc;
+      font-size: 16px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .features-list li::before {
+      content: "✓";
+      color: var(--prime-green);
+      font-weight: bold;
+      font-size: 20px;
+    }
+
+    /* FAQ */
+    .faq-section {
+      padding: 100px 24px;
+    }
+
+    .faq-list {
+      max-width: 800px;
+      margin: 0 auto;
+    }
+
+    .faq-item {
+      background: var(--dark-card);
+      border: 1px solid var(--border);
+      padding: 32px;
+      border-radius: 12px;
+      margin-bottom: 16px;
+    }
+
+    .faq-question {
+      font-size: 20px;
+      font-weight: 700;
+      margin-bottom: 12px;
+      color: #fff;
+    }
+
+    .faq-answer {
+      color: #aaa;
+      font-size: 16px;
+      line-height: 1.7;
+    }
+
+    /* CTA Section */
+    .final-cta {
+      padding: 120px 24px;
+      text-align: center;
+      background: linear-gradient(180deg, var(--dark-bg) 0%, var(--dark-card) 100%);
+    }
+
+    .final-cta h2 {
+      font-size: clamp(36px, 5vw, 56px);
+      font-weight: 900;
+      margin-bottom: 24px;
+      letter-spacing: -1px;
+    }
+
+    .final-cta p {
+      font-size: 20px;
+      color: #aaa;
+      margin-bottom: 40px;
+      max-width: 600px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .urgency-badge {
+      display: inline-block;
+      background: rgba(255, 165, 0, 0.2);
+      border: 1px solid rgba(255, 165, 0, 0.3);
+      color: #ffa500;
+      padding: 10px 20px;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 700;
+      margin-bottom: 32px;
+    }
+
+    /* Signup Form */
+    .signup-form {
+      max-width: 500px;
+      margin: 60px auto 0;
+      background: var(--dark-card);
+      padding: 48px;
+      border-radius: 16px;
+      border: 1px solid var(--border);
+    }
+
+    .signup-form h3 {
+      font-size: 24px;
+      margin-bottom: 24px;
+      text-align: center;
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    .form-group label {
+      display: block;
+      margin-bottom: 8px;
+      font-size: 14px;
+      font-weight: 600;
+      color: #aaa;
+    }
+
+    .form-group input {
+      width: 100%;
+      padding: 14px 16px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: #fff;
+      font-size: 16px;
+      transition: border-color 0.2s;
+    }
+
+    .form-group input:focus {
+      outline: none;
+      border-color: var(--prime-green);
+    }
+
+    .submit-button {
+      width: 100%;
+      padding: 16px;
+      background: var(--prime-green);
+      color: #000;
+      border: none;
+      border-radius: 8px;
+      font-size: 18px;
+      font-weight: 800;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .submit-button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(46, 229, 157, 0.4);
+    }
+
+    .form-note {
+      text-align: center;
+      margin-top: 16px;
+      font-size: 13px;
+      color: #888;
+    }
+
+    /* Footer */
+    .footer {
+      padding: 60px 24px;
+      background: var(--dark-card);
+      border-top: 1px solid var(--border);
+      text-align: center;
+    }
+
+    .footer-links {
+      display: flex;
+      justify-content: center;
+      gap: 32px;
+      margin-bottom: 24px;
+      flex-wrap: wrap;
+    }
+
+    .footer-links a {
+      color: #888;
+      text-decoration: none;
+      font-size: 14px;
+      transition: color 0.2s;
+    }
+
+    .footer-links a:hover {
+      color: var(--prime-green);
+    }
+
+    .footer-copyright {
+      color: #666;
+      font-size: 14px;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .sticky-header {
+        padding: 16px 20px;
+      }
+
+      .logo {
+        font-size: 24px;
+      }
+
+      .header-cta {
+        padding: 10px 20px;
+        font-size: 14px;
+      }
+
+      .hero {
+        padding: 120px 20px 80px;
+      }
+
+      .problem-section,
+      .solution-section,
+      .how-it-works,
+      .testimonials,
+      .stats-section,
+      .pricing-section,
+      .faq-section {
+        padding: 60px 20px;
+      }
+
+      .problems-grid,
+      .solution-grid,
+      .testimonials-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .step {
+        gap: 20px;
+      }
+
+      .step-number {
+        min-width: 48px;
+        height: 48px;
+        font-size: 22px;
+      }
+
+      .pricing-card {
+        padding: 40px 32px;
+      }
+
+      .signup-form {
+        padding: 32px 24px;
+      }
+
+      .stats-grid {
+        gap: 32px;
+      }
+
+      .stat-number {
+        font-size: 42px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Sticky Header -->
+  <header class="sticky-header">
+    <div class="logo">primehaul</div>
+    <a href="#signup" class="header-cta">Start Free Trial</a>
+  </header>
+
+  <!-- Hero Section -->
+  <section class="hero">
+    <div class="hero-content">
+      <h1>
+        Win More Removal Jobs<br/>Without <span class="highlight">Wasting Hours</span>
+      </h1>
+      <p class="subtitle">
+        Your customers snap photos, AI generates instant quotes, you approve from your phone. <strong>That's it.</strong> No more site visits. No more slow responses. Just more bookings.
+      </p>
+      <a href="#signup" class="cta-button">Start Your 30-Day Free Trial</a>
+      <div class="trial-badge">✓ No credit card required  •  ✓ Set up in 5 minutes  •  ✓ Cancel anytime</div>
+
+      <div class="trust-badges">
+        <div class="trust-badge">Used by UK removal companies</div>
+        <div class="trust-badge">Average 15-minute response time</div>
+        <div class="trust-badge">30% higher conversion rates</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Problem Section -->
+  <section class="problem-section">
+    <div class="container">
+      <h2 class="section-title">You're Losing Money Every Day</h2>
+      <div class="problems-grid">
+        <div class="problem-card">
+          <div class="icon">⏰</div>
+          <h3>Customers ghost you</h3>
+          <p>They request a quote. You call back 2 hours later. Too late—they've already booked with someone who responded instantly.</p>
+        </div>
+
+        <div class="problem-card">
+          <div class="icon">🚗</div>
+          <h3>Site visits waste hours</h3>
+          <p>You drive 45 minutes for a quote. Customer exaggerated the job size. Or they're just price shopping. That's 2 hours you'll never get back.</p>
+        </div>
+
+        <div class="problem-card">
+          <div class="icon">📱</div>
+          <h3>Stuck at your desk</h3>
+          <p>You're on a job site. A quote request comes in. But you can't respond until you're back at the office. Customer books elsewhere.</p>
+        </div>
+
+        <div class="problem-card">
+          <div class="icon">💷</div>
+          <h3>Inconsistent pricing</h3>
+          <p>Different quotes for similar jobs. One customer hears £800, another £650 for the same house. They talk. Your reputation suffers.</p>
+        </div>
+
+        <div class="problem-card">
+          <div class="icon">😤</div>
+          <h3>Total guesswork</h3>
+          <p>"How much stuff do you have?" "Erm, normal amount?" Every quote is a gamble. You either undercharge or scare them away.</p>
+        </div>
+
+        <div class="problem-card">
+          <div class="icon">📊</div>
+          <h3>Flying blind</h3>
+          <p>How many quotes this month? Conversion rate? No idea. You're running a business on gut feeling instead of data.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Solution Section -->
+  <section class="solution-section">
+    <div class="container">
+      <h2 class="section-title">Introducing primehaul</h2>
+      <p style="text-align:center; font-size:20px; color:#aaa; max-width:700px; margin:0 auto 60px;">The removal quote system that works <strong>while you sleep.</strong> Customers get instant quotes. You get more bookings. Everyone wins.</p>
+
+      <div class="solution-grid">
+        <div class="solution-card">
+          <div class="icon">📸</div>
+          <h3>Customer Snaps Photos</h3>
+          <p>Send them your custom link. They take photos of each room on their phone. Takes 3 minutes. Works on any device.</p>
+        </div>
+
+        <div class="solution-card">
+          <div class="icon">🤖</div>
+          <h3>AI Does the Heavy Lifting</h3>
+          <p>Our AI analyzes every photo, identifies items, calculates volume, and generates a detailed inventory. No more guessing games.</p>
+        </div>
+
+        <div class="solution-card">
+          <div class="icon">⚡</div>
+          <h3>Instant Quote Generated</h3>
+          <p>Based on your pricing rules (your £/CBM rate, your surcharges), the quote is calculated automatically. Customer gets it in 5 minutes.</p>
+        </div>
+
+        <div class="solution-card">
+          <div class="icon">📱</div>
+          <h3>You Approve From Anywhere</h3>
+          <p>Notification pops up. You review on your phone. Tap approve. Done in 30 seconds. From the truck, job site, or sofa.</p>
+        </div>
+
+        <div class="solution-card">
+          <div class="icon">🎨</div>
+          <h3>It's YOUR Brand</h3>
+          <p>Your logo. Your colors. Your company name. The customer sees YOU, not us. White-label all the way.</p>
+        </div>
+
+        <div class="solution-card">
+          <div class="icon">📈</div>
+          <h3>Know Your Numbers</h3>
+          <p>Dashboard shows exactly how many quotes you're getting, conversion rates, response times, and revenue. Make smarter decisions.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- How It Works -->
+  <section class="how-it-works">
+    <div class="container">
+      <h2 class="section-title">How It Works (Dead Simple)</h2>
+      <div class="steps">
+        <div class="step">
+          <div class="step-number">1</div>
+          <div class="step-content">
+            <h3>Send customer your link</h3>
+            <p>Every quote request gets a unique branded link. Send it via email, text, WhatsApp, or add it to your website contact form.</p>
+          </div>
+        </div>
+
+        <div class="step">
+          <div class="step-number">2</div>
+          <div class="step-content">
+            <h3>They fill it out in 3 minutes</h3>
+            <p>Pickup address, delivery address, property type, and photos. That's it. Works on any phone or computer. No app download needed.</p>
+          </div>
+        </div>
+
+        <div class="step">
+          <div class="step-number">3</div>
+          <div class="step-content">
+            <h3>AI analyzes everything</h3>
+            <p>Our AI identifies items ("3-seater sofa, double wardrobe, king bed, 20 boxes..."), calculates volume (CBM), applies your pricing rules, and generates a quote.</p>
+          </div>
+        </div>
+
+        <div class="step">
+          <div class="step-number">4</div>
+          <div class="step-content">
+            <h3>You get notified instantly</h3>
+            <p>Push notification, email, or SMS—your choice. Open your dashboard on any device. See photos, inventory, and suggested price.</p>
+          </div>
+        </div>
+
+        <div class="step">
+          <div class="step-number">5</div>
+          <div class="step-content">
+            <h3>Approve or adjust (30 seconds)</h3>
+            <p>Happy with it? Tap approve. Want to adjust the price? Change it. Add notes if needed. Then approve. Simple.</p>
+          </div>
+        </div>
+
+        <div class="step">
+          <div class="step-number">6</div>
+          <div class="step-content">
+            <h3>Customer gets confirmation</h3>
+            <p>Status changes to "Approved". They see your contact details. You call to book the date. Job secured. You just saved 2 hours.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Testimonials -->
+  <section class="testimonials">
+    <div class="container">
+      <h2 class="section-title">What Removal Companies Say</h2>
+      <div class="testimonials-grid">
+        <div class="testimonial-card">
+          <div class="testimonial-quote">
+            "Before primehaul, I was doing 3-4 site visits a day. Now I do zero. I approve quotes from my phone between jobs. Wish I'd found this years ago."
+          </div>
+          <div class="testimonial-author">
+            <div class="testimonial-avatar">J</div>
+            <div class="testimonial-info">
+              <div class="testimonial-name">James M.</div>
+              <div class="testimonial-company">London</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="testimonial-card">
+          <div class="testimonial-quote">
+            "Our response time went from 4 hours to 15 minutes. Conversion rate jumped 40%. The AI is scary accurate—better than my own estimates half the time."
+          </div>
+          <div class="testimonial-author">
+            <div class="testimonial-avatar">S</div>
+            <div class="testimonial-info">
+              <div class="testimonial-name">Sarah P.</div>
+              <div class="testimonial-company">Manchester</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="testimonial-card">
+          <div class="testimonial-quote">
+            "Game changer. Customers love how fast they get quotes. I love not driving across town for timewasters. Win-win. Pays for itself in one saved site visit."
+          </div>
+          <div class="testimonial-author">
+            <div class="testimonial-avatar">T</div>
+            <div class="testimonial-info">
+              <div class="testimonial-name">Tom R.</div>
+              <div class="testimonial-company">Birmingham</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Stats -->
+  <section class="stats-section">
+    <div class="container">
+      <h2 class="section-title">The Numbers Don't Lie</h2>
+      <div class="stats-grid">
+        <div>
+          <div class="stat-number">15min</div>
+          <div class="stat-label">Average Response Time</div>
+        </div>
+        <div>
+          <div class="stat-number">30%</div>
+          <div class="stat-label">Higher Conversion Rate</div>
+        </div>
+        <div>
+          <div class="stat-number">2hrs</div>
+          <div class="stat-label">Saved Per Quote</div>
+        </div>
+        <div>
+          <div class="stat-number">95%</div>
+          <div class="stat-label">AI Accuracy Rate</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Pricing -->
+  <section class="pricing-section">
+    <div class="container">
+      <h2 class="section-title">Simple, Honest Pricing</h2>
+      <div class="pricing-card">
+        <h3>Professional Plan</h3>
+        <div class="price">
+          £99<span class="price-period">/month</span>
+        </div>
+        <p style="color: #888; margin-bottom: 32px;">Everything you need. No hidden fees. Ever.</p>
+
+        <ul class="features-list">
+          <li>Unlimited quotes (seriously, unlimited)</li>
+          <li>Unlimited team members</li>
+          <li>AI photo analysis</li>
+          <li>Custom branding (your logo & colors)</li>
+          <li>Your own pricing rules</li>
+          <li>Mobile admin dashboard</li>
+          <li>Analytics & reporting</li>
+          <li>Email & SMS notifications</li>
+          <li>Calendar booking integration</li>
+          <li>30-day free trial</li>
+          <li>Cancel anytime (no contracts)</li>
+        </ul>
+
+        <a href="#signup" class="cta-button" style="margin-top: 32px; display: inline-block;">Start Free Trial</a>
+        <p class="form-note">No credit card required. Seriously.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- FAQ -->
+  <section class="faq-section">
+    <div class="container">
+      <h2 class="section-title">Questions? We Got You.</h2>
+      <div class="faq-list">
+        <div class="faq-item">
+          <div class="faq-question">Do I need to install software?</div>
+          <div class="faq-answer">Nope. primehaul runs in your web browser. Works on PC, Mac, phone, tablet. Just log in and go. Your customers don't install anything either—just open a link.</div>
+        </div>
+
+        <div class="faq-item">
+          <div class="faq-question">How accurate is the AI really?</div>
+          <div class="faq-answer">85-95% accuracy on item identification. You always review and can adjust before approving. Most companies find it's MORE accurate than their own estimates (no ego, no optimism bias).</div>
+        </div>
+
+        <div class="faq-item">
+          <div class="faq-question">Can I use my own pricing?</div>
+          <div class="faq-answer">100%. Set your own £/CBM rate, callout fee, bulky item charges, distance pricing—whatever you want. Update anytime from your dashboard. primehaul applies YOUR rules.</div>
+        </div>
+
+        <div class="faq-item">
+          <div class="faq-question">What if my customer doesn't have a smartphone?</div>
+          <div class="faq-answer">Works on any phone or computer made in the last 10 years. If they still can't do it, you can fill it out yourself after a site visit and still benefit from AI pricing accuracy.</div>
+        </div>
+
+        <div class="faq-item">
+          <div class="faq-question">Can I have multiple team members?</div>
+          <div class="faq-answer">Unlimited users included. Assign roles: Owner (full access), Admin (manage quotes), or Member (view only). Perfect for growing teams.</div>
+        </div>
+
+        <div class="faq-item">
+          <div class="faq-question">How fast can I start?</div>
+          <div class="faq-answer">5 minutes. Sign up, upload your logo, set your pricing, and you're live. Send your first quote link in under 10 minutes.</div>
+        </div>
+
+        <div class="faq-item">
+          <div class="faq-question">What if I don't like it?</div>
+          <div class="faq-answer">Cancel anytime. No contracts. No cancellation fees. No questions asked. We only win if you win.</div>
+        </div>
+
+        <div class="faq-item">
+          <div class="faq-question">Is my data secure?</div>
+          <div class="faq-answer">Bank-level security. All data encrypted. UK servers. GDPR compliant. We take this seriously because your reputation is on the line.</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Final CTA -->
+  <section class="final-cta" id="signup">
+    <div class="container">
+      <div class="urgency-badge">🔥 Limited Offer: First 100 Companies Get 60-Day Trial</div>
+      <h2>Ready to Win More Jobs?</h2>
+      <p>Join removal companies across the UK who stopped wasting time on site visits and started closing more deals.</p>
+
+      <div class="signup-form">
+        <h3>Start Your Free 30-Day Trial</h3>
+        <form action="/auth/signup" method="post">
+          <div class="form-group">
+            <label>Company Name</label>
+            <input type="text" name="company_name" placeholder="e.g., Swift Removals Ltd" required>
+          </div>
+          <div class="form-group">
+            <label>Your Name</label>
+            <input type="text" name="name" placeholder="e.g., John Smith" required>
+          </div>
+          <div class="form-group">
+            <label>Email Address</label>
+            <input type="email" name="email" placeholder="e.g., john@swiftremovals.co.uk" required>
+          </div>
+          <div class="form-group">
+            <label>Phone Number</label>
+            <input type="tel" name="phone" placeholder="e.g., 07700 900123" required>
+          </div>
+          <button type="submit" class="submit-button">Start Free Trial →</button>
+          <p class="form-note">✓ No credit card required  •  ✓ Cancel anytime  •  ✓ Set up in 5 minutes</p>
+        </form>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-links">
+        <a href="/terms">Terms of Service</a>
+        <a href="/privacy">Privacy Policy</a>
+        <a href="/contact">Contact Us</a>
+        <a href="mailto:hello@primehaul.co.uk">hello@primehaul.co.uk</a>
+      </div>
+      <div class="footer-copyright">
+        © 2026 primehaul. All rights reserved. Made with ❤️ for UK removal companies.
+      </div>
+    </div>
+  </footer>
+
+</body>
+</html>

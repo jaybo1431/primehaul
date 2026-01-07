@@ -1,0 +1,626 @@
+/**
+ * Mobile-First Admin Dashboard CSS
+ * Makes ALL admin features work perfectly on phone
+ */
+
+/* ============================================================================
+   MOBILE-FIRST BASE STYLES
+   ============================================================================ */
+
+@media (max-width: 768px) {
+
+    /* Container adjustments */
+    .container {
+        padding: 12px !important;
+        max-width: 100% !important;
+    }
+
+    /* Header optimizations */
+    .header {
+        padding: 16px 0 !important;
+    }
+
+    .header h1 {
+        font-size: 24px !important;
+        margin-bottom: 4px !important;
+    }
+
+    .header .subtitle {
+        font-size: 14px !important;
+    }
+
+    /* Card spacing */
+    .card {
+        padding: 16px !important;
+        margin-bottom: 16px !important;
+    }
+
+    /* Typography */
+    h2 {
+        font-size: 20px !important;
+        margin-bottom: 16px !important;
+    }
+
+    h3 {
+        font-size: 18px !important;
+    }
+
+    /* ========================================================================
+       BUTTONS - Touch-Friendly
+       ======================================================================== */
+
+    .btn {
+        min-height: 44px !important;  /* Apple's recommended touch target */
+        padding: 12px 20px !important;
+        font-size: 16px !important;
+        width: 100% !important;
+        margin-bottom: 12px !important;
+    }
+
+    .btn-primary,
+    .btn-success,
+    .btn-danger,
+    .btn-warning {
+        min-height: 44px !important;
+    }
+
+    /* Button groups */
+    .btn-group {
+        display: flex !important;
+        flex-direction: column !important;
+        gap: 8px !important;
+    }
+
+    .btn-group .btn {
+        width: 100% !important;
+        margin: 0 !important;
+    }
+
+    /* ========================================================================
+       DASHBOARD - Job Cards
+       ======================================================================== */
+
+    .job-card {
+        padding: 16px !important;
+        margin-bottom: 12px !important;
+    }
+
+    .job-header {
+        flex-direction: column !important;
+        align-items: flex-start !important;
+        gap: 8px !important;
+    }
+
+    .job-details {
+        display: flex !important;
+        flex-direction: column !important;
+        gap: 12px !important;
+    }
+
+    .job-detail-row {
+        display: flex !important;
+        flex-direction: column !important;
+        gap: 4px !important;
+    }
+
+    .job-actions {
+        display: flex !important;
+        flex-direction: column !important;
+        gap: 8px !important;
+        margin-top: 16px !important;
+    }
+
+    .job-actions .btn {
+        width: 100% !important;
+    }
+
+    /* ========================================================================
+       TABLES - Responsive
+       ======================================================================== */
+
+    table {
+        display: block !important;
+        overflow-x: auto !important;
+        white-space: nowrap !important;
+        -webkit-overflow-scrolling: touch !important;
+    }
+
+    thead {
+        display: none !important; /* Hide headers on mobile */
+    }
+
+    tbody tr {
+        display: block !important;
+        margin-bottom: 16px !important;
+        padding: 12px !important;
+        border: 1px solid #333 !important;
+        border-radius: 8px !important;
+        background: #1a1a1a !important;
+    }
+
+    tbody td {
+        display: block !important;
+        text-align: left !important;
+        padding: 8px 0 !important;
+        border: none !important;
+    }
+
+    tbody td:before {
+        content: attr(data-label) !important;
+        display: inline-block !important;
+        font-weight: 600 !important;
+        color: #888 !important;
+        margin-right: 8px !important;
+    }
+
+    /* ========================================================================
+       FORMS - Mobile Optimized
+       ======================================================================== */
+
+    .form-group {
+        margin-bottom: 16px !important;
+    }
+
+    .form-group label {
+        font-size: 14px !important;
+        margin-bottom: 6px !important;
+        display: block !important;
+    }
+
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+        font-size: 16px !important; /* Prevents zoom on iOS */
+        padding: 12px !important;
+        width: 100% !important;
+        min-height: 44px !important;
+    }
+
+    /* Two-column forms become single column */
+    .form-row {
+        grid-template-columns: 1fr !important;
+    }
+
+    /* ========================================================================
+       NAVIGATION - Mobile Menu
+       ======================================================================== */
+
+    .admin-nav {
+        display: flex !important;
+        flex-direction: column !important;
+        gap: 8px !important;
+        margin-bottom: 20px !important;
+    }
+
+    .admin-nav a {
+        padding: 12px 16px !important;
+        text-align: center !important;
+        border-radius: 6px !important;
+        background: #222 !important;
+        color: #fff !important;
+        text-decoration: none !important;
+        font-size: 14px !important;
+    }
+
+    .admin-nav a:hover,
+    .admin-nav a.active {
+        background: #2ee59d !important;
+        color: #000 !important;
+    }
+
+    /* ========================================================================
+       ANALYTICS - Charts & Metrics
+       ======================================================================== */
+
+    .metrics-grid {
+        grid-template-columns: 1fr !important;
+        gap: 12px !important;
+    }
+
+    .metric-card {
+        padding: 16px !important;
+    }
+
+    .metric-value {
+        font-size: 32px !important;
+    }
+
+    /* ========================================================================
+       BRANDING - Logo Upload
+       ======================================================================== */
+
+    .branding-preview {
+        flex-direction: column !important;
+    }
+
+    .logo-preview {
+        width: 100% !important;
+        max-width: 200px !important;
+        margin: 0 auto 16px !important;
+    }
+
+    /* Color pickers */
+    .color-picker-group {
+        flex-direction: column !important;
+        gap: 16px !important;
+    }
+
+    /* ========================================================================
+       PRICING - Configuration
+       ======================================================================== */
+
+    .pricing-grid {
+        grid-template-columns: 1fr !important;
+    }
+
+    /* Example calculation box */
+    .pricing-example {
+        font-size: 13px !important;
+        padding: 12px !important;
+    }
+
+    /* ========================================================================
+       MODALS - Full Screen on Mobile
+       ======================================================================== */
+
+    .modal {
+        padding: 0 !important;
+    }
+
+    .modal-content {
+        margin: 0 !important;
+        width: 100% !important;
+        height: 100vh !important;
+        border-radius: 0 !important;
+        max-height: none !important;
+    }
+
+    .modal-header {
+        padding: 16px !important;
+        position: sticky !important;
+        top: 0 !important;
+        background: #1a1a1a !important;
+        z-index: 10 !important;
+    }
+
+    .modal-body {
+        padding: 16px !important;
+        overflow-y: auto !important;
+        max-height: calc(100vh - 140px) !important;
+    }
+
+    .modal-footer {
+        padding: 16px !important;
+        position: sticky !important;
+        bottom: 0 !important;
+        background: #1a1a1a !important;
+    }
+
+    /* ========================================================================
+       ALERTS - Notifications
+       ======================================================================== */
+
+    .alert {
+        padding: 12px !important;
+        font-size: 14px !important;
+        margin-bottom: 16px !important;
+    }
+
+    /* ========================================================================
+       TABS - Mobile Friendly
+       ======================================================================== */
+
+    .tabs {
+        overflow-x: auto !important;
+        white-space: nowrap !important;
+        -webkit-overflow-scrolling: touch !important;
+        margin-bottom: 16px !important;
+    }
+
+    .tab {
+        display: inline-block !important;
+        padding: 10px 16px !important;
+        font-size: 14px !important;
+    }
+
+    /* ========================================================================
+       JOB REVIEW - Full Details
+       ======================================================================== */
+
+    .job-review-grid {
+        grid-template-columns: 1fr !important;
+    }
+
+    .room-card {
+        margin-bottom: 16px !important;
+    }
+
+    .item-list {
+        padding: 12px !important;
+    }
+
+    .item-row {
+        flex-direction: column !important;
+        align-items: flex-start !important;
+        padding: 12px !important;
+    }
+
+    /* Photo gallery */
+    .photo-gallery {
+        grid-template-columns: repeat(2, 1fr) !important; /* 2 columns on mobile */
+        gap: 8px !important;
+    }
+
+    .photo-thumbnail {
+        height: 120px !important;
+    }
+
+    /* ========================================================================
+       STICKY ACTIONS - Bottom Bar
+       ======================================================================== */
+
+    .sticky-actions {
+        position: fixed !important;
+        bottom: 0 !important;
+        left: 0 !important;
+        right: 0 !important;
+        padding: 12px !important;
+        background: #1a1a1a !important;
+        border-top: 1px solid #333 !important;
+        z-index: 100 !important;
+        box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.3) !important;
+    }
+
+    .sticky-actions .btn {
+        margin-bottom: 8px !important;
+    }
+
+    /* Add padding to bottom of page when sticky actions are present */
+    .has-sticky-actions {
+        padding-bottom: 180px !important;
+    }
+
+    /* ========================================================================
+       UTILITY CLASSES
+       ======================================================================== */
+
+    .mobile-hide {
+        display: none !important;
+    }
+
+    .mobile-show {
+        display: block !important;
+    }
+
+    .mobile-full-width {
+        width: 100% !important;
+    }
+
+    .mobile-text-center {
+        text-align: center !important;
+    }
+
+    .mobile-stack {
+        flex-direction: column !important;
+    }
+
+    /* ========================================================================
+       PULL TO REFRESH INDICATOR
+       ======================================================================== */
+
+    .refresh-indicator {
+        position: fixed !important;
+        top: 0 !important;
+        left: 0 !important;
+        right: 0 !important;
+        height: 60px !important;
+        background: #2ee59d !important;
+        color: #000 !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        transform: translateY(-60px) !important;
+        transition: transform 0.3s !important;
+    }
+
+    .refresh-indicator.active {
+        transform: translateY(0) !important;
+    }
+
+    /* ========================================================================
+       QUICK STATS - Swipeable Cards
+       ======================================================================== */
+
+    .stats-scroll {
+        display: flex !important;
+        overflow-x: auto !important;
+        -webkit-overflow-scrolling: touch !important;
+        scroll-snap-type: x mandatory !important;
+        gap: 12px !important;
+        padding: 4px !important;
+        margin: 0 -12px !important; /* Extend to edges */
+    }
+
+    .stat-card {
+        min-width: 280px !important;
+        scroll-snap-align: start !important;
+        flex-shrink: 0 !important;
+    }
+
+    /* Hide scrollbar but keep functionality */
+    .stats-scroll::-webkit-scrollbar {
+        display: none !important;
+    }
+
+    /* ========================================================================
+       FLOATING ACTION BUTTON (FAB)
+       ======================================================================== */
+
+    .fab {
+        position: fixed !important;
+        bottom: 20px !important;
+        right: 20px !important;
+        width: 56px !important;
+        height: 56px !important;
+        border-radius: 50% !important;
+        background: #2ee59d !important;
+        color: #000 !important;
+        border: none !important;
+        box-shadow: 0 4px 12px rgba(46, 229, 157, 0.4) !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        font-size: 24px !important;
+        cursor: pointer !important;
+        z-index: 999 !important;
+        transition: transform 0.2s !important;
+    }
+
+    .fab:active {
+        transform: scale(0.95) !important;
+    }
+
+    /* ========================================================================
+       TOUCH FEEDBACK
+       ======================================================================== */
+
+    .btn:active,
+    .card:active,
+    .job-card:active {
+        opacity: 0.8 !important;
+        transform: scale(0.98) !important;
+    }
+
+    /* Prevent text selection on buttons */
+    .btn,
+    .card,
+    .job-card {
+        -webkit-user-select: none !important;
+        user-select: none !important;
+        -webkit-tap-highlight-color: transparent !important;
+    }
+}
+
+/* ============================================================================
+   TABLET (768px - 1024px)
+   ============================================================================ */
+
+@media (min-width: 769px) and (max-width: 1024px) {
+
+    .container {
+        max-width: 720px !important;
+    }
+
+    /* Two-column layout for tablets */
+    .tablet-two-col {
+        grid-template-columns: repeat(2, 1fr) !important;
+    }
+
+    .btn {
+        min-width: 120px !important;
+        width: auto !important;
+    }
+
+    .job-actions {
+        flex-direction: row !important;
+        gap: 12px !important;
+    }
+
+    .job-actions .btn {
+        flex: 1 !important;
+    }
+}
+
+/* ============================================================================
+   LANDSCAPE MOBILE (Small height)
+   ============================================================================ */
+
+@media (max-height: 500px) and (orientation: landscape) {
+
+    .header {
+        padding: 8px 0 !important;
+    }
+
+    .header h1 {
+        font-size: 18px !important;
+    }
+
+    .card {
+        padding: 12px !important;
+    }
+
+    /* Reduce vertical spacing in landscape */
+    .btn {
+        margin-bottom: 8px !important;
+        padding: 8px 16px !important;
+        min-height: 36px !important;
+    }
+}
+
+/* ============================================================================
+   PRINT STYLES (for invoices, quotes)
+   ============================================================================ */
+
+@media print {
+
+    .mobile-hide,
+    .btn,
+    .admin-nav,
+    .fab {
+        display: none !important;
+    }
+
+    body {
+        background: white !important;
+        color: black !important;
+    }
+
+    .card {
+        border: 1px solid #ccc !important;
+        page-break-inside: avoid !important;
+    }
+}
+
+/* ============================================================================
+   DARK MODE ENHANCEMENTS (for OLED screens)
+   ============================================================================ */
+
+@media (prefers-color-scheme: dark) {
+
+    /* Pure black for OLED battery saving */
+    body {
+        background: #000 !important;
+    }
+
+    .card {
+        background: #0a0a0a !important;
+    }
+}
+
+/* ============================================================================
+   ACCESSIBILITY - High Contrast
+   ============================================================================ */
+
+@media (prefers-contrast: high) {
+
+    .btn {
+        border: 2px solid currentColor !important;
+    }
+
+    .card {
+        border: 2px solid #444 !important;
+    }
+}
+
+/* ============================================================================
+   REDUCED MOTION (for users with vestibular disorders)
+   ============================================================================ */
+
+@media (prefers-reduced-motion: reduce) {
+
+    * {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+}

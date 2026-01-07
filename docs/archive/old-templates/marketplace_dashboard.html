@@ -1,0 +1,541 @@
+{% extends "base.html" %}
+
+{% block title %}Marketplace Jobs - {{ company.company_name }}{% endblock %}
+
+{% block content %}
+<style>
+    .marketplace-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 30px;
+        border-radius: 15px;
+        margin-bottom: 30px;
+    }
+
+    .marketplace-header h1 {
+        font-size: 28px;
+        font-weight: 800;
+        margin-bottom: 10px;
+    }
+
+    .marketplace-header p {
+        opacity: 0.9;
+        font-size: 16px;
+    }
+
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 20px;
+        margin-bottom: 30px;
+    }
+
+    .stat-card {
+        background: white;
+        padding: 20px;
+        border-radius: 12px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+    }
+
+    .stat-value {
+        font-size: 32px;
+        font-weight: 800;
+        color: #2ee59d;
+        margin-bottom: 5px;
+    }
+
+    .stat-label {
+        font-size: 14px;
+        color: #666;
+    }
+
+    .tabs {
+        display: flex;
+        gap: 10px;
+        margin-bottom: 25px;
+        border-bottom: 2px solid #e5e5e5;
+    }
+
+    .tab {
+        padding: 12px 24px;
+        background: none;
+        border: none;
+        color: #666;
+        font-weight: 600;
+        cursor: pointer;
+        position: relative;
+        transition: color 0.2s;
+    }
+
+    .tab.active {
+        color: #2ee59d;
+    }
+
+    .tab.active::after {
+        content: '';
+        position: absolute;
+        bottom: -2px;
+        left: 0;
+        right: 0;
+        height: 2px;
+        background: #2ee59d;
+    }
+
+    .tab-content {
+        display: none;
+    }
+
+    .tab-content.active {
+        display: block;
+    }
+
+    .job-card {
+        background: white;
+        border-radius: 15px;
+        padding: 25px;
+        margin-bottom: 20px;
+        box-shadow: 0 2px 15px rgba(0, 0, 0, 0.08);
+        transition: transform 0.2s, box-shadow 0.2s;
+        cursor: pointer;
+    }
+
+    .job-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.12);
+    }
+
+    .job-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 15px;
+    }
+
+    .job-route {
+        font-size: 20px;
+        font-weight: 700;
+        color: #1a1a1a;
+        margin-bottom: 5px;
+    }
+
+    .job-posted {
+        font-size: 13px;
+        color: #999;
+    }
+
+    .job-estimate {
+        text-align: right;
+    }
+
+    .estimate-label {
+        font-size: 12px;
+        color: #999;
+        text-transform: uppercase;
+    }
+
+    .estimate-value {
+        font-size: 24px;
+        font-weight: 800;
+        color: #2ee59d;
+    }
+
+    .job-details-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+        gap: 15px;
+        margin: 20px 0;
+        padding: 20px;
+        background: #f9f9f9;
+        border-radius: 10px;
+    }
+
+    .detail-box {
+        text-align: center;
+    }
+
+    .detail-icon {
+        font-size: 24px;
+        margin-bottom: 5px;
+    }
+
+    .detail-value {
+        font-size: 18px;
+        font-weight: 700;
+        color: #1a1a1a;
+    }
+
+    .detail-label {
+        font-size: 12px;
+        color: #666;
+        margin-top: 3px;
+    }
+
+    .job-actions {
+        display: flex;
+        gap: 10px;
+        margin-top: 20px;
+    }
+
+    .btn {
+        padding: 12px 24px;
+        border-radius: 8px;
+        font-weight: 600;
+        font-size: 14px;
+        border: none;
+        cursor: pointer;
+        transition: all 0.2s;
+        text-decoration: none;
+        display: inline-block;
+        text-align: center;
+    }
+
+    .btn-primary {
+        background: linear-gradient(135deg, #2ee59d 0%, #26c785 100%);
+        color: white;
+        box-shadow: 0 2px 10px rgba(46, 229, 157, 0.2);
+    }
+
+    .btn-primary:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 4px 15px rgba(46, 229, 157, 0.3);
+    }
+
+    .btn-secondary {
+        background: white;
+        color: #666;
+        border: 2px solid #e5e5e5;
+    }
+
+    .btn-secondary:hover {
+        border-color: #2ee59d;
+        color: #2ee59d;
+    }
+
+    .badge {
+        display: inline-block;
+        padding: 5px 12px;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: 600;
+        margin-left: 10px;
+    }
+
+    .badge-new {
+        background: #fff3cd;
+        color: #856404;
+    }
+
+    .badge-urgent {
+        background: #f8d7da;
+        color: #721c24;
+    }
+
+    .badge-pending {
+        background: #d1ecf1;
+        color: #0c5460;
+    }
+
+    .badge-won {
+        background: #d4edda;
+        color: #155724;
+    }
+
+    .badge-lost {
+        background: #f8f9fa;
+        color: #999;
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 60px 20px;
+    }
+
+    .empty-state-icon {
+        font-size: 64px;
+        margin-bottom: 20px;
+        opacity: 0.3;
+    }
+
+    .empty-state h3 {
+        font-size: 20px;
+        font-weight: 700;
+        margin-bottom: 10px;
+        color: #1a1a1a;
+    }
+
+    .empty-state p {
+        color: #666;
+        max-width: 500px;
+        margin: 0 auto;
+    }
+
+    @media (max-width: 768px) {
+        .job-header {
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .job-estimate {
+            text-align: left;
+        }
+
+        .job-actions {
+            flex-direction: column;
+        }
+    }
+</style>
+
+<div class="marketplace-header">
+    <h1>📍 Marketplace Jobs</h1>
+    <p>Find new customers, submit bids, and grow your business</p>
+</div>
+
+<!-- Stats -->
+<div class="stats-grid">
+    <div class="stat-card">
+        <div class="stat-value">{{ stats.available_jobs }}</div>
+        <div class="stat-label">Available Jobs</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-value">{{ stats.active_bids }}</div>
+        <div class="stat-label">Your Active Bids</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-value">{{ stats.jobs_won }}</div>
+        <div class="stat-label">Jobs Won (Last 30 Days)</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-value">{{ stats.win_rate }}%</div>
+        <div class="stat-label">Win Rate</div>
+    </div>
+</div>
+
+<!-- Tabs -->
+<div class="tabs">
+    <button class="tab active" data-tab="available">Available Jobs</button>
+    <button class="tab" data-tab="my-bids">My Bids ({{ my_bids|length }})</button>
+    <button class="tab" data-tab="won">Won Jobs ({{ won_jobs|length }})</button>
+</div>
+
+<!-- Available Jobs Tab -->
+<div class="tab-content active" id="available">
+    {% if available_jobs|length > 0 %}
+        {% for job in available_jobs %}
+        <div class="job-card" onclick="window.location.href='/{{ company.slug }}/admin/marketplace/job/{{ job.id }}'">
+            <div class="job-header">
+                <div>
+                    <div class="job-route">
+                        {{ job.pickup_city or 'Unknown' }} → {{ job.dropoff_city or 'Unknown' }}
+                        {% if job.created_at > now - timedelta(hours=6) %}
+                        <span class="badge badge-new">NEW</span>
+                        {% endif %}
+                        {% if job.bid_deadline and (job.bid_deadline - now).total_seconds() < 21600 %}
+                        <span class="badge badge-urgent">URGENT</span>
+                        {% endif %}
+                    </div>
+                    <div class="job-posted">
+                        Posted {{ job.created_at.strftime('%d %b %Y at %H:%M') }}
+                    </div>
+                </div>
+                <div class="job-estimate">
+                    <div class="estimate-label">Estimated Value</div>
+                    <div class="estimate-value">
+                        £{{ job.estimate_low|int }}-{{ job.estimate_high|int }}
+                    </div>
+                </div>
+            </div>
+
+            <div class="job-details-grid">
+                <div class="detail-box">
+                    <div class="detail-icon">📦</div>
+                    <div class="detail-value">{{ job.total_cbm|round(1) }}</div>
+                    <div class="detail-label">CBM</div>
+                </div>
+                <div class="detail-box">
+                    <div class="detail-icon">🏠</div>
+                    <div class="detail-value">{{ job.property_type or 'N/A' }}</div>
+                    <div class="detail-label">Property</div>
+                </div>
+                <div class="detail-box">
+                    <div class="detail-icon">📋</div>
+                    <div class="detail-value">{{ job.total_items or 0 }}</div>
+                    <div class="detail-label">Items</div>
+                </div>
+                <div class="detail-box">
+                    <div class="detail-icon">⏰</div>
+                    <div class="detail-value">
+                        {% if job.bid_deadline %}
+                            {{ ((job.bid_deadline - now).total_seconds() / 3600)|int }}h
+                        {% else %}
+                            48h
+                        {% endif %}
+                    </div>
+                    <div class="detail-label">Time Left</div>
+                </div>
+            </div>
+
+            <div class="job-actions">
+                <a href="/{{ company.slug }}/admin/marketplace/job/{{ job.id }}" class="btn btn-primary">
+                    View Details & Submit Bid →
+                </a>
+            </div>
+        </div>
+        {% endfor %}
+    {% else %}
+        <div class="empty-state">
+            <div class="empty-state-icon">📭</div>
+            <h3>No Jobs Available Right Now</h3>
+            <p>Check back soon! New marketplace jobs are posted daily. We'll email you when new jobs match your area.</p>
+        </div>
+    {% endif %}
+</div>
+
+<!-- My Bids Tab -->
+<div class="tab-content" id="my-bids">
+    {% if my_bids|length > 0 %}
+        {% for bid in my_bids %}
+        <div class="job-card">
+            <div class="job-header">
+                <div>
+                    <div class="job-route">
+                        {{ bid.job.pickup_city }} → {{ bid.job.dropoff_city }}
+                        <span class="badge badge-pending">BID: £{{ "%.0f"|format(bid.price) }}</span>
+                    </div>
+                    <div class="job-posted">
+                        Bid submitted {{ bid.created_at.strftime('%d %b %Y at %H:%M') }}
+                    </div>
+                </div>
+            </div>
+
+            <div class="job-details-grid">
+                <div class="detail-box">
+                    <div class="detail-icon">💰</div>
+                    <div class="detail-value">£{{ "%.0f"|format(bid.price) }}</div>
+                    <div class="detail-label">Your Bid</div>
+                </div>
+                {% if bid.crew_size %}
+                <div class="detail-box">
+                    <div class="detail-icon">👥</div>
+                    <div class="detail-value">{{ bid.crew_size }}</div>
+                    <div class="detail-label">Crew</div>
+                </div>
+                {% endif %}
+                {% if bid.estimated_duration_hours %}
+                <div class="detail-box">
+                    <div class="detail-icon">⏱️</div>
+                    <div class="detail-value">{{ bid.estimated_duration_hours }}h</div>
+                    <div class="detail-label">Duration</div>
+                </div>
+                {% endif %}
+                <div class="detail-box">
+                    <div class="detail-icon">📊</div>
+                    <div class="detail-value">{{ bid.job.bid_count or 0 }}</div>
+                    <div class="detail-label">Total Bids</div>
+                </div>
+            </div>
+
+            {% if bid.message %}
+            <div style="background: #f0f9ff; padding: 12px; border-radius: 8px; margin: 15px 0; font-style: italic; color: #1a1a1a;">
+                "{{ bid.message }}"
+            </div>
+            {% endif %}
+
+            <div class="job-actions">
+                <a href="/{{ company.slug }}/admin/marketplace/job/{{ bid.job.id }}" class="btn btn-secondary">
+                    View Job Details
+                </a>
+            </div>
+        </div>
+        {% endfor %}
+    {% else %}
+        <div class="empty-state">
+            <div class="empty-state-icon">📝</div>
+            <h3>No Active Bids</h3>
+            <p>You haven't submitted any bids yet. Check the "Available Jobs" tab to find opportunities.</p>
+        </div>
+    {% endif %}
+</div>
+
+<!-- Won Jobs Tab -->
+<div class="tab-content" id="won">
+    {% if won_jobs|length > 0 %}
+        {% for bid in won_jobs %}
+        <div class="job-card">
+            <div class="job-header">
+                <div>
+                    <div class="job-route">
+                        {{ bid.job.pickup_city }} → {{ bid.job.dropoff_city }}
+                        <span class="badge badge-won">✓ WON</span>
+                    </div>
+                    <div class="job-posted">
+                        Awarded {{ bid.accepted_at.strftime('%d %b %Y') }}
+                    </div>
+                </div>
+                <div class="job-estimate">
+                    <div class="estimate-label">You Receive</div>
+                    <div class="estimate-value">
+                        £{{ "%.2f"|format(bid.price * 0.85) }}
+                    </div>
+                </div>
+            </div>
+
+            <div class="job-details-grid">
+                <div class="detail-box">
+                    <div class="detail-icon">💰</div>
+                    <div class="detail-value">£{{ "%.0f"|format(bid.price) }}</div>
+                    <div class="detail-label">Job Price</div>
+                </div>
+                <div class="detail-box">
+                    <div class="detail-icon">📊</div>
+                    <div class="detail-value">-15%</div>
+                    <div class="detail-label">Commission</div>
+                </div>
+                <div class="detail-box">
+                    <div class="detail-icon">📞</div>
+                    <div class="detail-value">{{ bid.job.customer_name or 'Customer' }}</div>
+                    <div class="detail-label">Contact</div>
+                </div>
+            </div>
+
+            <div style="background: #d4edda; padding: 15px; border-radius: 8px; margin: 15px 0;">
+                <strong style="color: #155724;">✓ Customer Contact:</strong><br>
+                <span style="color: #155724;">
+                    {{ bid.job.customer_email }} • {{ bid.job.customer_phone }}
+                </span>
+            </div>
+
+            <div class="job-actions">
+                <a href="/{{ company.slug }}/admin/marketplace/job/{{ bid.job.id }}" class="btn btn-primary">
+                    View Full Details
+                </a>
+            </div>
+        </div>
+        {% endfor %}
+    {% else %}
+        <div class="empty-state">
+            <div class="empty-state-icon">🏆</div>
+            <h3>No Won Jobs Yet</h3>
+            <p>Keep bidding on jobs to win your first marketplace customer!</p>
+        </div>
+    {% endif %}
+</div>
+
+<script>
+    // Tab switching
+    document.querySelectorAll('.tab').forEach(tab => {
+        tab.addEventListener('click', () => {
+            // Remove active class from all tabs and contents
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+
+            // Add active class to clicked tab
+            tab.classList.add('active');
+
+            // Show corresponding content
+            const tabName = tab.getAttribute('data-tab');
+            document.getElementById(tabName).classList.add('active');
+        });
+    });
+</script>
+
+{% endblock %}

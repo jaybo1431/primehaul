@@ -1,0 +1,586 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Free Removal Volume Calculator (CBM) | PrimeHaul OS</title>
+  <meta name="description" content="Free online CBM calculator for removal companies. Calculate cubic meters for furniture and moving boxes. Instant, accurate removal volume calculations."/>
+
+  <link rel="stylesheet" href="/static/app.css"/>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: #000;
+      color: #fff;
+      padding: 20px;
+    }
+
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+    }
+
+    .header {
+      text-align: center;
+      margin-bottom: 40px;
+      padding-top: 40px;
+    }
+
+    .header h1 {
+      font-size: 42px;
+      margin-bottom: 12px;
+      color: #2ee59d;
+    }
+
+    .header p {
+      font-size: 18px;
+      color: #888;
+    }
+
+    .calculator-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 40px;
+      margin-bottom: 40px;
+    }
+
+    .calculator-section {
+      background: #1a1a1a;
+      border: 1px solid #333;
+      border-radius: 12px;
+      padding: 32px;
+    }
+
+    .calculator-section h2 {
+      font-size: 24px;
+      margin-bottom: 24px;
+      color: #2ee59d;
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    .form-group label {
+      display: block;
+      font-size: 14px;
+      color: #ccc;
+      margin-bottom: 8px;
+      font-weight: 500;
+    }
+
+    .form-group input,
+    .form-group select {
+      width: 100%;
+      padding: 12px;
+      background: #0a0a0a;
+      border: 1px solid #333;
+      border-radius: 6px;
+      color: #fff;
+      font-size: 16px;
+    }
+
+    .form-group input:focus,
+    .form-group select:focus {
+      outline: none;
+      border-color: #2ee59d;
+    }
+
+    .dimension-inputs {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 12px;
+    }
+
+    .btn {
+      width: 100%;
+      padding: 14px;
+      background: #2ee59d;
+      color: #000;
+      border: none;
+      border-radius: 6px;
+      font-size: 16px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(46, 229, 157, 0.4);
+    }
+
+    .btn-secondary {
+      background: #333;
+      color: #fff;
+      margin-top: 8px;
+    }
+
+    .btn-secondary:hover {
+      background: #444;
+    }
+
+    .items-list {
+      margin-top: 24px;
+      max-height: 400px;
+      overflow-y: auto;
+    }
+
+    .item-card {
+      background: #0a0a0a;
+      border: 1px solid #333;
+      border-radius: 6px;
+      padding: 12px;
+      margin-bottom: 8px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .item-info {
+      flex: 1;
+    }
+
+    .item-name {
+      font-weight: 600;
+      color: #fff;
+      margin-bottom: 4px;
+    }
+
+    .item-dims {
+      font-size: 13px;
+      color: #888;
+    }
+
+    .item-cbm {
+      font-size: 18px;
+      font-weight: 700;
+      color: #2ee59d;
+      margin-right: 12px;
+    }
+
+    .item-remove {
+      background: #ff4d4f;
+      color: #fff;
+      border: none;
+      padding: 6px 12px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 12px;
+    }
+
+    .item-remove:hover {
+      background: #ff7875;
+    }
+
+    .results-panel {
+      background: linear-gradient(135deg, #2ee59d 0%, #1ab376 100%);
+      color: #000;
+      border-radius: 12px;
+      padding: 32px;
+      text-align: center;
+    }
+
+    .results-panel h2 {
+      font-size: 20px;
+      margin-bottom: 8px;
+      color: #000;
+    }
+
+    .total-cbm {
+      font-size: 72px;
+      font-weight: 800;
+      margin: 16px 0;
+    }
+
+    .cbm-label {
+      font-size: 24px;
+      margin-bottom: 24px;
+    }
+
+    .results-breakdown {
+      background: rgba(0, 0, 0, 0.1);
+      border-radius: 8px;
+      padding: 20px;
+      margin-bottom: 24px;
+      text-align: left;
+    }
+
+    .breakdown-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 8px 0;
+      border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+    }
+
+    .breakdown-row:last-child {
+      border-bottom: none;
+      font-weight: 700;
+      font-size: 18px;
+      margin-top: 8px;
+    }
+
+    .cta-box {
+      background: #000;
+      border-radius: 8px;
+      padding: 24px;
+      margin-top: 32px;
+    }
+
+    .cta-box h3 {
+      color: #2ee59d;
+      font-size: 20px;
+      margin-bottom: 12px;
+    }
+
+    .cta-box p {
+      color: #ccc;
+      margin-bottom: 16px;
+      line-height: 1.5;
+    }
+
+    .cta-box .btn {
+      background: #2ee59d;
+      color: #000;
+    }
+
+    .common-items {
+      margin-top: 24px;
+    }
+
+    .common-items h3 {
+      font-size: 16px;
+      color: #ccc;
+      margin-bottom: 12px;
+    }
+
+    .common-items-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+
+    .common-item-btn {
+      background: #0a0a0a;
+      border: 1px solid #333;
+      color: #fff;
+      padding: 10px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 13px;
+      transition: all 0.2s;
+      text-align: left;
+    }
+
+    .common-item-btn:hover {
+      border-color: #2ee59d;
+      background: #1a1a1a;
+    }
+
+    .info-box {
+      background: rgba(46, 229, 157, 0.1);
+      border: 1px solid #2ee59d;
+      border-radius: 8px;
+      padding: 16px;
+      margin-bottom: 24px;
+    }
+
+    .info-box-title {
+      font-weight: 700;
+      color: #2ee59d;
+      margin-bottom: 8px;
+    }
+
+    .info-box-text {
+      color: #ccc;
+      font-size: 14px;
+      line-height: 1.5;
+    }
+
+    @media (max-width: 768px) {
+      .calculator-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .header h1 {
+        font-size: 32px;
+      }
+
+      .total-cbm {
+        font-size: 56px;
+      }
+
+      .dimension-inputs {
+        grid-template-columns: 1fr;
+      }
+
+      .common-items-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 40px 20px;
+      color: #666;
+    }
+
+    .empty-state-icon {
+      font-size: 48px;
+      margin-bottom: 16px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>📦 Free CBM Calculator</h1>
+      <p>Calculate cubic meters (volume) for removal quotes</p>
+    </div>
+
+    <div class="info-box">
+      <div class="info-box-title">What is CBM?</div>
+      <div class="info-box-text">
+        CBM (Cubic Meter) is the standard measurement for removal jobs. It's calculated by: Length × Width × Height ÷ 1,000,000 (when measuring in cm). Most UK removal companies charge £30-£45 per CBM.
+      </div>
+    </div>
+
+    <div class="calculator-grid">
+      <!-- Left Panel: Input Form -->
+      <div class="calculator-section">
+        <h2>Add Items</h2>
+
+        <form id="item-form" onsubmit="addItem(event)">
+          <div class="form-group">
+            <label>Item Name</label>
+            <input type="text" id="item-name" placeholder="e.g. Double Bed" required/>
+          </div>
+
+          <div class="form-group">
+            <label>Dimensions (cm)</label>
+            <div class="dimension-inputs">
+              <input type="number" id="item-length" placeholder="Length" min="1" required/>
+              <input type="number" id="item-width" placeholder="Width" min="1" required/>
+              <input type="number" id="item-height" placeholder="Height" min="1" required/>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label>Quantity</label>
+            <input type="number" id="item-qty" value="1" min="1" required/>
+          </div>
+
+          <button type="submit" class="btn">Add Item</button>
+        </form>
+
+        <!-- Common Items Quick Add -->
+        <div class="common-items">
+          <h3>Quick Add Common Items</h3>
+          <div class="common-items-grid">
+            <button class="common-item-btn" onclick="quickAdd('Double Bed', 190, 135, 60)">Double Bed</button>
+            <button class="common-item-btn" onclick="quickAdd('Sofa 3-Seater', 210, 90, 80)">3-Seater Sofa</button>
+            <button class="common-item-btn" onclick="quickAdd('Wardrobe', 180, 60, 200)">Wardrobe</button>
+            <button class="common-item-btn" onclick="quickAdd('Dining Table', 150, 90, 75)">Dining Table</button>
+            <button class="common-item-btn" onclick="quickAdd('Fridge', 60, 60, 180)">Fridge</button>
+            <button class="common-item-btn" onclick="quickAdd('Washing Machine', 60, 60, 85)">Washing Machine</button>
+            <button class="common-item-btn" onclick="quickAdd('Chest of Drawers', 80, 40, 100)">Chest of Drawers</button>
+            <button class="common-item-btn" onclick="quickAdd('Bookshelf', 80, 30, 180)">Bookshelf</button>
+            <button class="common-item-btn" onclick="quickAdd('TV Stand', 120, 40, 50)">TV Stand</button>
+            <button class="common-item-btn" onclick="quickAdd('Office Desk', 120, 60, 75)">Office Desk</button>
+            <button class="common-item-btn" onclick="quickAdd('Moving Box (Large)', 60, 40, 40)">Large Box</button>
+            <button class="common-item-btn" onclick="quickAdd('Moving Box (Medium)', 45, 35, 35)">Medium Box</button>
+          </div>
+        </div>
+
+        <!-- Items List -->
+        <div class="items-list" id="items-list">
+          <div class="empty-state">
+            <div class="empty-state-icon">📦</div>
+            <div>No items added yet. Add items above or use quick add buttons.</div>
+          </div>
+        </div>
+
+        <button class="btn btn-secondary" onclick="clearAll()" id="clear-btn" style="display:none;">Clear All Items</button>
+      </div>
+
+      <!-- Right Panel: Results -->
+      <div class="calculator-section">
+        <div class="results-panel">
+          <h2>Total Volume</h2>
+          <div class="total-cbm" id="total-cbm">0.00</div>
+          <div class="cbm-label">cubic meters (m³)</div>
+
+          <div class="results-breakdown">
+            <div class="breakdown-row">
+              <span>Number of items:</span>
+              <span id="item-count">0</span>
+            </div>
+            <div class="breakdown-row">
+              <span>Estimated truck size:</span>
+              <span id="truck-size">Small van</span>
+            </div>
+            <div class="breakdown-row">
+              <span>Estimated price (£35/m³):</span>
+              <span id="est-price">£0</span>
+            </div>
+            <div class="breakdown-row">
+              <span>Total CBM:</span>
+              <span id="total-cbm-small">0.00 m³</span>
+            </div>
+          </div>
+
+          <div class="cta-box">
+            <h3>Want to automate this?</h3>
+            <p>PrimeHaul OS uses AI to analyze customer photos and calculate CBM automatically. No manual entry needed.</p>
+            <a href="/auth/signup" class="btn">Try PrimeHaul OS Free</a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Benefits Section -->
+    <div class="calculator-section" style="margin-top: 40px;">
+      <h2>Why Accurate CBM Matters</h2>
+      <div style="color: #ccc; line-height: 1.8;">
+        <p style="margin-bottom: 16px;">
+          <strong>Underestimate CBM:</strong> You lose money. The job takes longer, requires more crew, burns more fuel. Your £800 quote turns into a £1,200 job.
+        </p>
+        <p style="margin-bottom: 16px;">
+          <strong>Overestimate CBM:</strong> Customer picks a cheaper competitor. You lose the job entirely.
+        </p>
+        <p style="margin-bottom: 16px;">
+          <strong>Get it right:</strong> Accurate quotes mean happy customers, profitable jobs, and 5-star reviews.
+        </p>
+        <p>
+          <strong>PrimeHaul OS calculates CBM automatically</strong> using AI photo analysis. Your customers take photos, our AI identifies every item and calculates precise CBM. No more guessing.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let items = [];
+
+    function addItem(event) {
+      event.preventDefault();
+
+      const name = document.getElementById('item-name').value;
+      const length = parseFloat(document.getElementById('item-length').value);
+      const width = parseFloat(document.getElementById('item-width').value);
+      const height = parseFloat(document.getElementById('item-height').value);
+      const qty = parseInt(document.getElementById('item-qty').value);
+
+      // Calculate CBM (length x width x height / 1,000,000)
+      const cbmPerItem = (length * width * height) / 1000000;
+      const totalCbm = cbmPerItem * qty;
+
+      items.push({
+        name,
+        length,
+        width,
+        height,
+        qty,
+        cbmPerItem,
+        totalCbm
+      });
+
+      // Reset form
+      document.getElementById('item-form').reset();
+      document.getElementById('item-qty').value = 1;
+
+      renderItems();
+      updateResults();
+    }
+
+    function quickAdd(name, length, width, height) {
+      document.getElementById('item-name').value = name;
+      document.getElementById('item-length').value = length;
+      document.getElementById('item-width').value = width;
+      document.getElementById('item-height').value = height;
+      document.getElementById('item-qty').value = 1;
+
+      // Auto-add after short delay so user sees what was filled
+      setTimeout(() => {
+        document.getElementById('item-form').dispatchEvent(new Event('submit', {cancelable: true}));
+      }, 100);
+    }
+
+    function removeItem(index) {
+      items.splice(index, 1);
+      renderItems();
+      updateResults();
+    }
+
+    function clearAll() {
+      if (confirm('Clear all items?')) {
+        items = [];
+        renderItems();
+        updateResults();
+      }
+    }
+
+    function renderItems() {
+      const listEl = document.getElementById('items-list');
+      const clearBtn = document.getElementById('clear-btn');
+
+      if (items.length === 0) {
+        listEl.innerHTML = `
+          <div class="empty-state">
+            <div class="empty-state-icon">📦</div>
+            <div>No items added yet. Add items above or use quick add buttons.</div>
+          </div>
+        `;
+        clearBtn.style.display = 'none';
+        return;
+      }
+
+      clearBtn.style.display = 'block';
+
+      listEl.innerHTML = items.map((item, index) => `
+        <div class="item-card">
+          <div class="item-info">
+            <div class="item-name">${item.name} ${item.qty > 1 ? `× ${item.qty}` : ''}</div>
+            <div class="item-dims">${item.length}cm × ${item.width}cm × ${item.height}cm</div>
+          </div>
+          <div class="item-cbm">${item.totalCbm.toFixed(3)} m³</div>
+          <button class="item-remove" onclick="removeItem(${index})">Remove</button>
+        </div>
+      `).join('');
+    }
+
+    function updateResults() {
+      const totalCbm = items.reduce((sum, item) => sum + item.totalCbm, 0);
+      const itemCount = items.reduce((sum, item) => sum + item.qty, 0);
+
+      // Update total CBM displays
+      document.getElementById('total-cbm').textContent = totalCbm.toFixed(2);
+      document.getElementById('total-cbm-small').textContent = totalCbm.toFixed(2) + ' m³';
+      document.getElementById('item-count').textContent = itemCount;
+
+      // Estimate price (£35/CBM + £250 callout)
+      const estimatedPrice = Math.round(totalCbm * 35 + 250);
+      document.getElementById('est-price').textContent = '£' + estimatedPrice;
+
+      // Truck size recommendation
+      let truckSize;
+      if (totalCbm < 10) truckSize = 'Small van (Luton)';
+      else if (totalCbm < 20) truckSize = 'Medium van (3.5 tonne)';
+      else if (totalCbm < 35) truckSize = 'Large truck (7.5 tonne)';
+      else truckSize = 'Articulated lorry';
+
+      document.getElementById('truck-size').textContent = truckSize;
+    }
+
+    // Track page view if tracker.js is loaded
+    if (typeof tracker !== 'undefined') {
+      tracker.trackPageView();
+    }
+  </script>
+</body>
+</html>

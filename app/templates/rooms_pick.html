@@ -20,7 +20,7 @@
         "Other": "➕"
       } %}
       {% for opt in ["Living room","Bedroom","Kitchen","Bathroom","Dining room","Hallway","Office","Garage","Loft","Garden","Other"] %}
-        <form method="post" action="/s/{{ token }}/rooms/add">
+        <form method="post" action="/s/{{ company_slug }}/{{ token }}/rooms/add">
           <input type="hidden" name="room_name" value="{{ opt }}" />
           <button class="chip" type="submit">{{ room_icons[opt] }} {{ opt }}</button>
         </form>
@@ -54,14 +54,14 @@
           "Other": "➕"
         } %}
         {% for r in rooms %}
-          <a class="invlink" href="/s/{{ token }}/room/{{ r.id }}">
+          <a class="invlink" href="/s/{{ company_slug }}/{{ token }}/room/{{ r.id }}">
             <div class="invtop">
               <div class="invroom">{{ room_icons.get(r.name, "📦") }} {{ r.name }}</div>
               <div class="invmeta">{{ (r.photos|length) if r.photos else 0 }} photos</div>
             </div>
             <div class="invitems">
-              {% if r.get('items') and r.get('items')|length > 0 %}
-                ✅ <strong>{{ r.get('items')|length }} items detected</strong> • Tap to view
+              {% if r.items and r.items|length > 0 %}
+                ✅ <strong>{{ r.items|length }} items detected</strong> • Tap to view
               {% else %}
                 <span class="muted">📸 Tap to scan items</span>
               {% endif %}
@@ -77,9 +77,9 @@
   <div class="footer footer-clean">
     <div class="footer-inner">
       {% if rooms and rooms|length > 0 %}
-        <a class="btn" href="/s/{{ token }}/quote-preview">💰 See My Quote</a>
+        <a class="btn" href="/s/{{ company_slug }}/{{ token }}/quote-preview">💰 See My Quote</a>
         <div class="microhint" style="text-align:center; margin-top:8px;">
-          Based on {% set total = namespace(items=0) %}{% for r in rooms %}{% set total.items = total.items + (r.get('items')|length if r.get('items') else 0) %}{% endfor %}{{ total.items }} items detected in {{ rooms|length }} room{{ 's' if rooms|length > 1 else '' }}
+          Based on {% set total = namespace(items=0) %}{% for r in rooms %}{% set total.items = total.items + (r.items|length if r.items else 0) %}{% endfor %}{{ total.items }} items detected in {{ rooms|length }} room{{ 's' if rooms|length > 1 else '' }}
         </div>
       {% else %}
         <button class="btn" style="opacity:.55; pointer-events:none;">Select rooms to continue</button>

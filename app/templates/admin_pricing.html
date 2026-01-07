@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pricing Configuration - PrimeHaul OS</title>
+    <link rel="stylesheet" href="/static/app.css">
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>{{ company.company_name }}</h1>
+            <p class="subtitle">Pricing Configuration</p>
+        </div>
+
+        <div class="card fade-in">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+                <h2>Custom Pricing Rules</h2>
+                <a href="/{{ company_slug }}/admin/dashboard" class="btn" style="background: #444;">
+                    Back to Dashboard
+                </a>
+            </div>
+
+            {% if success %}
+            <div class="alert" style="background: rgba(46, 229, 157, 0.1); border-left: 4px solid #2ee59d; margin-bottom: 24px;">
+                <p style="margin: 0; color: #2ee59d;">
+                    ✓ Pricing configuration updated successfully
+                </p>
+            </div>
+            {% endif %}
+
+            {% if error %}
+            <div class="alert alert-error">
+                {{ error }}
+            </div>
+            {% endif %}
+
+            <p style="color: #888; margin-bottom: 32px;">
+                Configure your custom pricing rules. These rates will be used to calculate all quotes for your company.
+            </p>
+
+            <form method="POST" action="/{{ company_slug }}/admin/pricing" class="form">
+                <!-- Base Pricing -->
+                <div style="margin-bottom: 32px; padding-bottom: 32px; border-bottom: 1px solid #333;">
+                    <h3 style="margin-bottom: 16px;">Base Pricing</h3>
+
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                        <div class="form-group">
+                            <label for="price_per_cbm">Price per CBM (£)</label>
+                            <input
+                                type="number"
+                                id="price_per_cbm"
+                                name="price_per_cbm"
+                                step="0.01"
+                                min="0"
+                                required
+                                value="{{ pricing.price_per_cbm }}"
+                                placeholder="35.00"
+                            >
+                            <small style="color: #666; font-size: 12px;">
+                                Cost per cubic meter of items
+                            </small>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="callout_fee">Callout Fee (£)</label>
+                            <input
+                                type="number"
+                                id="callout_fee"
+                                name="callout_fee"
+                                step="0.01"
+                                min="0"
+                                required
+                                value="{{ pricing.callout_fee }}"
+                                placeholder="250.00"
+                            >
+                            <small style="color: #666; font-size: 12px;">
+                                Fixed base charge for all jobs
+                            </small>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Item Surcharges -->
+                <div style="margin-bottom: 32px; padding-bottom: 32px; border-bottom: 1px solid #333;">
+                    <h3 style="margin-bottom: 16px;">Item Surcharges</h3>
+
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                        <div class="form-group">
+                            <label for="bulky_item_fee">Bulky Item Fee (£)</label>
+                            <input
+                                type="number"
+                                id="bulky_item_fee"
+                                name="bulky_item_fee"
+                                step="0.01"
+                                min="0"
+                                required
+                                value="{{ pricing.bulky_item_fee }}"
+                                placeholder="25.00"
+                            >
+                            <small style="color: #666; font-size: 12px;">
+                                Extra charge per bulky item (sofas, wardrobes, etc.)
+                            </small>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="fragile_item_fee">Fragile Item Fee (£)</label>
+                            <input
+                                type="number"
+                                id="fragile_item_fee"
+                                name="fragile_item_fee"
+                                step="0.01"
+                                min="0"
+                                required
+                                value="{{ pricing.fragile_item_fee }}"
+                                placeholder="15.00"
+                            >
+                            <small style="color: #666; font-size: 12px;">
+                                Extra charge per fragile item requiring special care
+                            </small>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Weight-Based Pricing -->
+                <div style="margin-bottom: 32px; padding-bottom: 32px; border-bottom: 1px solid #333;">
+                    <h3 style="margin-bottom: 16px;">Weight-Based Pricing</h3>
+
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                        <div class="form-group">
+                            <label for="weight_threshold_kg">Weight Threshold (kg)</label>
+                            <input
+                                type="number"
+                                id="weight_threshold_kg"
+                                name="weight_threshold_kg"
+                                step="1"
+                                min="0"
+                                required
+                                value="{{ pricing.weight_threshold_kg }}"
+                                placeholder="1000"
+                            >
+                            <small style="color: #666; font-size: 12px;">
+                                Threshold before additional weight charges apply
+                            </small>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="price_per_kg_over_threshold">Price per kg Over Threshold (£)</label>
+                            <input
+                                type="number"
+                                id="price_per_kg_over_threshold"
+                                name="price_per_kg_over_threshold"
+                                step="0.01"
+                                min="0"
+                                required
+                                value="{{ pricing.price_per_kg_over_threshold }}"
+                                placeholder="0.50"
+                            >
+                            <small style="color: #666; font-size: 12px;">
+                                Additional cost per kg over the threshold
+                            </small>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Estimate Range -->
+                <div style="margin-bottom: 32px;">
+                    <h3 style="margin-bottom: 16px;">Estimate Range Multipliers</h3>
+                    <p style="color: #888; font-size: 14px; margin-bottom: 16px;">
+                        These multipliers determine the price range shown to customers.
+                    </p>
+
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                        <div class="form-group">
+                            <label for="estimate_low_multiplier">Low Estimate Multiplier</label>
+                            <input
+                                type="number"
+                                id="estimate_low_multiplier"
+                                name="estimate_low_multiplier"
+                                step="0.01"
+                                min="0"
+                                max="2"
+                                required
+                                value="{{ pricing.estimate_low_multiplier }}"
+                                placeholder="0.85"
+                            >
+                            <small style="color: #666; font-size: 12px;">
+                                Default: 0.85 (15% below base price)
+                            </small>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="estimate_high_multiplier">High Estimate Multiplier</label>
+                            <input
+                                type="number"
+                                id="estimate_high_multiplier"
+                                name="estimate_high_multiplier"
+                                step="0.01"
+                                min="1"
+                                max="3"
+                                required
+                                value="{{ pricing.estimate_high_multiplier }}"
+                                placeholder="1.15"
+                            >
+                            <small style="color: #666; font-size: 12px;">
+                                Default: 1.15 (15% above base price)
+                            </small>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Example Calculation -->
+                <div style="background: #222; padding: 24px; border-radius: 8px; margin-bottom: 24px;">
+                    <h4 style="margin: 0 0 16px 0; color: #2ee59d;">Example Calculation</h4>
+                    <div style="color: #aaa; font-size: 14px; line-height: 1.8;">
+                        <div style="margin-bottom: 8px;">
+                            <strong>Scenario:</strong> 2-bedroom flat, 15 CBM, 800kg, 2 bulky items, 3 fragile items
+                        </div>
+                        <div style="margin: 16px 0; padding: 12px; background: #1a1a1a; border-radius: 4px; font-family: monospace;">
+                            Callout Fee: £<span id="calc_callout">250</span><br>
+                            Volume: <span id="calc_cbm">15</span> CBM × £<span id="calc_cbm_rate">35</span> = £<span id="calc_cbm_total">525</span><br>
+                            Bulky Items: <span id="calc_bulky">2</span> × £<span id="calc_bulky_rate">25</span> = £<span id="calc_bulky_total">50</span><br>
+                            Fragile Items: <span id="calc_fragile">3</span> × £<span id="calc_fragile_rate">15</span> = £<span id="calc_fragile_total">45</span><br>
+                            Weight Surcharge: £<span id="calc_weight">0</span> (under threshold)<br>
+                            <hr style="border: none; border-top: 1px solid #333; margin: 8px 0;">
+                            <strong>Base Total: £<span id="calc_base">870</span></strong><br>
+                            <strong style="color: #2ee59d;">Estimate Range: £<span id="calc_low">740</span> - £<span id="calc_high">1,001</span></strong>
+                        </div>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-primary btn-block">
+                    Save Pricing Configuration
+                </button>
+            </form>
+        </div>
+
+        <div style="text-align: center; margin-top: 32px; color: #666; font-size: 13px;">
+            <p>&copy; 2025 PrimeHaul OS. All rights reserved.</p>
+        </div>
+    </div>
+
+    <script>
+        // Live calculation updates
+        const fields = {
+            callout_fee: document.getElementById('callout_fee'),
+            price_per_cbm: document.getElementById('price_per_cbm'),
+            bulky_item_fee: document.getElementById('bulky_item_fee'),
+            fragile_item_fee: document.getElementById('fragile_item_fee'),
+            estimate_low_multiplier: document.getElementById('estimate_low_multiplier'),
+            estimate_high_multiplier: document.getElementById('estimate_high_multiplier'),
+        };
+
+        function updateCalculation() {
+            const callout = parseFloat(fields.callout_fee.value) || 0;
+            const cbmRate = parseFloat(fields.price_per_cbm.value) || 0;
+            const bulkyRate = parseFloat(fields.bulky_item_fee.value) || 0;
+            const fragileRate = parseFloat(fields.fragile_item_fee.value) || 0;
+            const lowMult = parseFloat(fields.estimate_low_multiplier.value) || 0.85;
+            const highMult = parseFloat(fields.estimate_high_multiplier.value) || 1.15;
+
+            const cbmTotal = 15 * cbmRate;
+            const bulkyTotal = 2 * bulkyRate;
+            const fragileTotal = 3 * fragileRate;
+            const baseTotal = callout + cbmTotal + bulkyTotal + fragileTotal;
+            const lowEstimate = Math.round(baseTotal * lowMult);
+            const highEstimate = Math.round(baseTotal * highMult);
+
+            document.getElementById('calc_callout').textContent = callout.toFixed(0);
+            document.getElementById('calc_cbm_rate').textContent = cbmRate.toFixed(0);
+            document.getElementById('calc_cbm_total').textContent = cbmTotal.toFixed(0);
+            document.getElementById('calc_bulky_rate').textContent = bulkyRate.toFixed(0);
+            document.getElementById('calc_bulky_total').textContent = bulkyTotal.toFixed(0);
+            document.getElementById('calc_fragile_rate').textContent = fragileRate.toFixed(0);
+            document.getElementById('calc_fragile_total').textContent = fragileTotal.toFixed(0);
+            document.getElementById('calc_base').textContent = baseTotal.toFixed(0);
+            document.getElementById('calc_low').textContent = lowEstimate.toLocaleString();
+            document.getElementById('calc_high').textContent = highEstimate.toLocaleString();
+        }
+
+        // Add event listeners
+        Object.values(fields).forEach(field => {
+            field.addEventListener('input', updateCalculation);
+        });
+
+        // Initial calculation
+        updateCalculation();
+    </script>
+</body>
+</html>

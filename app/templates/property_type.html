@@ -4,7 +4,7 @@
   <div class="largetitle">🏠 Property Type</div>
   <p class="subtitle">What type of property are you moving from?</p>
 
-  <form id="propForm" method="post" action="/s/{{ token }}/property">
+  <form id="propForm" method="post" action="/s/{{ company_slug }}/{{ token }}/property">
     <input type="hidden" id="property_type" name="property_type" value="{{ property_type or '' }}"/>
 
     <div class="tilegrid" role="group" aria-label="Property type">

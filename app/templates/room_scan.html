@@ -80,7 +80,7 @@
 
   <script>
     (function () {
-      const uploadUrl = "/s/{{ token }}/room/{{ room_id }}/upload-json";
+      const uploadUrl = "/s/{{ company_slug }}/{{ token }}/room/{{ room_id }}/upload-json";
 
       const input = document.getElementById("photoInput");
       const takeBtn = document.getElementById("takeBtn");
@@ -231,7 +231,7 @@
 {% block footer %}
   <div class="footer footer-clean">
     <div class="footer-inner">
-      <a class="btn" href="/s/{{ token }}/rooms">✓ Done with this room</a>
+      <a class="btn" href="/s/{{ company_slug }}/{{ token }}/rooms">✓ Done with this room</a>
       <div class="microhint" style="text-align:center; margin-top:8px;">
         You can always come back and add more photos later
       </div>

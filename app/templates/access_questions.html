@@ -1,0 +1,469 @@
+{% extends "base.html" %}
+
+{% block content %}
+  <div class="largetitle">🚪 Access Details</div>
+  <p class="subtitle">Help us plan the perfect move by telling us about access at both locations</p>
+
+  <form id="accessForm" method="post" action="/s/{{ company_slug }}/{{ token }}/access">
+
+    <!-- PICKUP LOCATION SECTION -->
+    <div class="group">
+      <div class="section-header">
+        <div class="section-icon" style="background:rgba(46,229,157,.15);">📍</div>
+        <div>
+          <div class="section-title">Pickup Location</div>
+          <div class="section-subtitle">{{ job.pickup.label if job.pickup else "Collection address" }}</div>
+        </div>
+      </div>
+
+      <!-- FLOORS -->
+      <div class="form-field">
+        <label class="form-label">
+          <span>Which floor?</span>
+          <span class="form-label-hint">Ground floor = 0</span>
+        </label>
+        <div class="floor-selector">
+          <button type="button" class="floor-btn {% if pickup_access.get('floors') == 0 %}selected{% endif %}" data-target="pickup_floors" data-value="0">Ground</button>
+          <button type="button" class="floor-btn {% if pickup_access.get('floors') == 1 %}selected{% endif %}" data-target="pickup_floors" data-value="1">1st</button>
+          <button type="button" class="floor-btn {% if pickup_access.get('floors') == 2 %}selected{% endif %}" data-target="pickup_floors" data-value="2">2nd</button>
+          <button type="button" class="floor-btn {% if pickup_access.get('floors') == 3 %}selected{% endif %}" data-target="pickup_floors" data-value="3">3rd</button>
+          <button type="button" class="floor-btn {% if pickup_access.get('floors', 0) >= 4 %}selected{% endif %}" data-target="pickup_floors" data-value="4">4th+</button>
+        </div>
+        <input type="hidden" id="pickup_floors" name="pickup_floors" value="{{ pickup_access.get('floors', 0) }}" required />
+        <div id="pickup_floors_custom" class="custom-floor-input" style="{% if pickup_access.get('floors', 0) < 4 %}display:none;{% endif %} margin-top:12px;">
+          <input type="number" id="pickup_floors_number" min="4" max="50" value="{{ pickup_access.get('floors', 4) if pickup_access.get('floors', 0) >= 4 else 4 }}" placeholder="Enter floor number" style="width:100%; padding:14px; border-radius:12px; border:1px solid var(--hair); background:rgba(255,255,255,.04); color:var(--text); font-size:16px;" />
+        </div>
+      </div>
+
+      <!-- LIFT -->
+      <div class="form-field">
+        <label class="form-label">Is there a working lift/elevator?</label>
+        <div class="radio-group">
+          <label class="radio-card">
+            <input type="radio" name="pickup_has_lift" value="yes" {% if pickup_access.get('has_lift') %}checked{% endif %} required />
+            <div class="radio-card-content">
+              <div class="radio-card-icon">✓</div>
+              <div class="radio-card-label">Yes, there's a lift</div>
+            </div>
+          </label>
+          <label class="radio-card">
+            <input type="radio" name="pickup_has_lift" value="no" {% if not pickup_access.get('has_lift') and pickup_access %}checked{% endif %} />
+            <div class="radio-card-content">
+              <div class="radio-card-icon">⚠️</div>
+              <div class="radio-card-label">No lift (stairs only)</div>
+            </div>
+          </label>
+        </div>
+      </div>
+
+      <!-- PARKING -->
+      <div class="form-field">
+        <label class="form-label">What's the parking situation?</label>
+        <select name="pickup_parking_type" class="form-select" required>
+          <option value="" disabled {% if not pickup_access.get('parking_type') %}selected{% endif %}>Select parking type...</option>
+          <option value="driveway" {% if pickup_access.get('parking_type') == 'driveway' %}selected{% endif %}>Driveway / Private parking (easiest)</option>
+          <option value="street" {% if pickup_access.get('parking_type') == 'street' %}selected{% endif %}>Street parking (free)</option>
+          <option value="permit_zone" {% if pickup_access.get('parking_type') == 'permit_zone' %}selected{% endif %}>Permit zone / Paid parking</option>
+          <option value="limited" {% if pickup_access.get('parking_type') == 'limited' %}selected{% endif %}>Very limited / Double yellow lines</option>
+          <option value="none" {% if pickup_access.get('parking_type') == 'none' %}selected{% endif %}>No parking nearby</option>
+        </select>
+      </div>
+
+      <!-- PARKING DISTANCE -->
+      <div class="form-field" id="pickup_parking_distance_field" style="{% if pickup_access.get('parking_type') in ['driveway', '', None] %}display:none;{% endif %}">
+        <label for="pickup_parking_distance" class="form-label">
+          <span>Distance from parking to property</span>
+          <span class="form-label-hint">Approximate meters</span>
+        </label>
+        <div class="range-input-group">
+          <input type="range" id="pickup_parking_distance" name="pickup_parking_distance" min="0" max="500" step="10" value="{{ pickup_access.get('parking_distance_meters', 50) }}" class="form-range" />
+          <div class="range-value"><span id="pickup_parking_distance_value">{{ pickup_access.get('parking_distance_meters', 50) }}</span>m</div>
+        </div>
+      </div>
+
+      <!-- RESTRICTIONS -->
+      <div class="form-field">
+        <label class="form-label">Any access challenges? (check all that apply)</label>
+        <div class="checkbox-group">
+          <label class="checkbox-card">
+            <input type="checkbox" name="pickup_restrictions" value="narrow_stairs" {% if 'narrow_stairs' in pickup_access.get('building_restrictions', []) %}checked{% endif %} />
+            <div class="checkbox-card-content">
+              <div class="checkbox-card-label">Narrow stairs</div>
+            </div>
+          </label>
+          <label class="checkbox-card">
+            <input type="checkbox" name="pickup_restrictions" value="narrow_doorways" {% if 'narrow_doorways' in pickup_access.get('building_restrictions', []) %}checked{% endif %} />
+            <div class="checkbox-card-content">
+              <div class="checkbox-card-label">Narrow doorways</div>
+            </div>
+          </label>
+          <label class="checkbox-card">
+            <input type="checkbox" name="pickup_restrictions" value="narrow_hallway" {% if 'narrow_hallway' in pickup_access.get('building_restrictions', []) %}checked{% endif %} />
+            <div class="checkbox-card-content">
+              <div class="checkbox-card-label">Narrow hallway</div>
+            </div>
+          </label>
+          <label class="checkbox-card">
+            <input type="checkbox" name="pickup_restrictions" value="time_restrictions" {% if 'time_restrictions' in pickup_access.get('building_restrictions', []) %}checked{% endif %} />
+            <div class="checkbox-card-content">
+              <div class="checkbox-card-label">Time restrictions</div>
+            </div>
+          </label>
+          <label class="checkbox-card">
+            <input type="checkbox" name="pickup_restrictions" value="booking_required" {% if 'booking_required' in pickup_access.get('building_restrictions', []) %}checked{% endif %} />
+            <div class="checkbox-card-content">
+              <div class="checkbox-card-label">Booking required</div>
+            </div>
+          </label>
+        </div>
+      </div>
+
+      <!-- OUTDOOR ACCESS -->
+      <div class="form-field">
+        <label class="form-label">Outdoor access from parking to entrance?</label>
+        <select name="pickup_outdoor_access" class="form-select" required>
+          <option value="direct" {% if pickup_access.get('outdoor_access', 'direct') == 'direct' %}selected{% endif %}>Direct access (flat surface)</option>
+          <option value="path" {% if pickup_access.get('outdoor_access') == 'path' %}selected{% endif %}>Garden path / Uneven surface</option>
+          <option value="steps" {% if pickup_access.get('outdoor_access') == 'steps' %}selected{% endif %}>Outdoor steps</option>
+        </select>
+      </div>
+
+      <!-- OUTDOOR STEPS -->
+      <div class="form-field" id="pickup_outdoor_steps_field" style="{% if pickup_access.get('outdoor_access') != 'steps' %}display:none;{% endif %}">
+        <label for="pickup_outdoor_steps" class="form-label">How many outdoor steps?</label>
+        <input type="number" id="pickup_outdoor_steps" name="pickup_outdoor_steps" min="0" max="50" value="{{ pickup_access.get('outdoor_steps', 0) }}" placeholder="e.g. 5" style="width:100%; padding:14px; border-radius:12px; border:1px solid var(--hair); background:rgba(255,255,255,.04); color:var(--text); font-size:16px;" />
+      </div>
+
+      <!-- NOTES -->
+      <div class="form-field">
+        <label for="pickup_notes" class="form-label">
+          <span>Additional notes (optional)</span>
+          <span class="form-label-hint">Any special access considerations?</span>
+        </label>
+        <textarea id="pickup_notes" name="pickup_notes" rows="3" placeholder="e.g. Need to book lift, narrow Victorian stairs, etc." style="width:100%; padding:14px; border-radius:12px; border:1px solid var(--hair); background:rgba(255,255,255,.04); color:var(--text); font-size:15px; font-family:inherit; resize:vertical;">{{ pickup_access.get('notes', '') }}</textarea>
+      </div>
+    </div>
+
+    <!-- DROPOFF LOCATION SECTION -->
+    <div class="group" style="margin-top:24px;">
+      <div class="section-header">
+        <div class="section-icon" style="background:rgba(255,77,79,.15);">📍</div>
+        <div>
+          <div class="section-title">Dropoff Location</div>
+          <div class="section-subtitle">{{ job.dropoff.label if job.dropoff else "Delivery address" }}</div>
+        </div>
+      </div>
+
+      <!-- COPY BUTTON -->
+      <div class="hint" style="margin-bottom:16px; padding:12px; background:rgba(46,229,157,.1); border-radius:10px; border:1px solid rgba(46,229,157,.3);">
+        <button type="button" id="copyPickupBtn" class="btn secondary" style="width:100%; margin:0;">
+          📋 Copy from Pickup Location
+        </button>
+      </div>
+
+      <!-- FLOORS (DROPOFF) -->
+      <div class="form-field">
+        <label class="form-label">
+          <span>Which floor?</span>
+          <span class="form-label-hint">Ground floor = 0</span>
+        </label>
+        <div class="floor-selector">
+          <button type="button" class="floor-btn {% if dropoff_access.get('floors') == 0 %}selected{% endif %}" data-target="dropoff_floors" data-value="0">Ground</button>
+          <button type="button" class="floor-btn {% if dropoff_access.get('floors') == 1 %}selected{% endif %}" data-target="dropoff_floors" data-value="1">1st</button>
+          <button type="button" class="floor-btn {% if dropoff_access.get('floors') == 2 %}selected{% endif %}" data-target="dropoff_floors" data-value="2">2nd</button>
+          <button type="button" class="floor-btn {% if dropoff_access.get('floors') == 3 %}selected{% endif %}" data-target="dropoff_floors" data-value="3">3rd</button>
+          <button type="button" class="floor-btn {% if dropoff_access.get('floors', 0) >= 4 %}selected{% endif %}" data-target="dropoff_floors" data-value="4">4th+</button>
+        </div>
+        <input type="hidden" id="dropoff_floors" name="dropoff_floors" value="{{ dropoff_access.get('floors', 0) }}" required />
+        <div id="dropoff_floors_custom" class="custom-floor-input" style="{% if dropoff_access.get('floors', 0) < 4 %}display:none;{% endif %} margin-top:12px;">
+          <input type="number" id="dropoff_floors_number" min="4" max="50" value="{{ dropoff_access.get('floors', 4) if dropoff_access.get('floors', 0) >= 4 else 4 }}" placeholder="Enter floor number" style="width:100%; padding:14px; border-radius:12px; border:1px solid var(--hair); background:rgba(255,255,255,.04); color:var(--text); font-size:16px;" />
+        </div>
+      </div>
+
+      <!-- LIFT (DROPOFF) -->
+      <div class="form-field">
+        <label class="form-label">Is there a working lift/elevator?</label>
+        <div class="radio-group">
+          <label class="radio-card">
+            <input type="radio" name="dropoff_has_lift" value="yes" {% if dropoff_access.get('has_lift') %}checked{% endif %} required />
+            <div class="radio-card-content">
+              <div class="radio-card-icon">✓</div>
+              <div class="radio-card-label">Yes, there's a lift</div>
+            </div>
+          </label>
+          <label class="radio-card">
+            <input type="radio" name="dropoff_has_lift" value="no" {% if not dropoff_access.get('has_lift') and dropoff_access %}checked{% endif %} />
+            <div class="radio-card-content">
+              <div class="radio-card-icon">⚠️</div>
+              <div class="radio-card-label">No lift (stairs only)</div>
+            </div>
+          </label>
+        </div>
+      </div>
+
+      <!-- PARKING (DROPOFF) -->
+      <div class="form-field">
+        <label class="form-label">What's the parking situation?</label>
+        <select name="dropoff_parking_type" class="form-select" required>
+          <option value="" disabled {% if not dropoff_access.get('parking_type') %}selected{% endif %}>Select parking type...</option>
+          <option value="driveway" {% if dropoff_access.get('parking_type') == 'driveway' %}selected{% endif %}>Driveway / Private parking (easiest)</option>
+          <option value="street" {% if dropoff_access.get('parking_type') == 'street' %}selected{% endif %}>Street parking (free)</option>
+          <option value="permit_zone" {% if dropoff_access.get('parking_type') == 'permit_zone' %}selected{% endif %}>Permit zone / Paid parking</option>
+          <option value="limited" {% if dropoff_access.get('parking_type') == 'limited' %}selected{% endif %}>Very limited / Double yellow lines</option>
+          <option value="none" {% if dropoff_access.get('parking_type') == 'none' %}selected{% endif %}>No parking nearby</option>
+        </select>
+      </div>
+
+      <!-- PARKING DISTANCE (DROPOFF) -->
+      <div class="form-field" id="dropoff_parking_distance_field" style="{% if dropoff_access.get('parking_type') in ['driveway', '', None] %}display:none;{% endif %}">
+        <label for="dropoff_parking_distance" class="form-label">
+          <span>Distance from parking to property</span>
+          <span class="form-label-hint">Approximate meters</span>
+        </label>
+        <div class="range-input-group">
+          <input type="range" id="dropoff_parking_distance" name="dropoff_parking_distance" min="0" max="500" step="10" value="{{ dropoff_access.get('parking_distance_meters', 50) }}" class="form-range" />
+          <div class="range-value"><span id="dropoff_parking_distance_value">{{ dropoff_access.get('parking_distance_meters', 50) }}</span>m</div>
+        </div>
+      </div>
+
+      <!-- RESTRICTIONS (DROPOFF) -->
+      <div class="form-field">
+        <label class="form-label">Any access challenges? (check all that apply)</label>
+        <div class="checkbox-group">
+          <label class="checkbox-card">
+            <input type="checkbox" name="dropoff_restrictions" value="narrow_stairs" {% if 'narrow_stairs' in dropoff_access.get('building_restrictions', []) %}checked{% endif %} />
+            <div class="checkbox-card-content">
+              <div class="checkbox-card-label">Narrow stairs</div>
+            </div>
+          </label>
+          <label class="checkbox-card">
+            <input type="checkbox" name="dropoff_restrictions" value="narrow_doorways" {% if 'narrow_doorways' in dropoff_access.get('building_restrictions', []) %}checked{% endif %} />
+            <div class="checkbox-card-content">
+              <div class="checkbox-card-label">Narrow doorways</div>
+            </div>
+          </label>
+          <label class="checkbox-card">
+            <input type="checkbox" name="dropoff_restrictions" value="narrow_hallway" {% if 'narrow_hallway' in dropoff_access.get('building_restrictions', []) %}checked{% endif %} />
+            <div class="checkbox-card-content">
+              <div class="checkbox-card-label">Narrow hallway</div>
+            </div>
+          </label>
+          <label class="checkbox-card">
+            <input type="checkbox" name="dropoff_restrictions" value="time_restrictions" {% if 'time_restrictions' in dropoff_access.get('building_restrictions', []) %}checked{% endif %} />
+            <div class="checkbox-card-content">
+              <div class="checkbox-card-label">Time restrictions</div>
+            </div>
+          </label>
+          <label class="checkbox-card">
+            <input type="checkbox" name="dropoff_restrictions" value="booking_required" {% if 'booking_required' in dropoff_access.get('building_restrictions', []) %}checked{% endif %} />
+            <div class="checkbox-card-content">
+              <div class="checkbox-card-label">Booking required</div>
+            </div>
+          </label>
+        </div>
+      </div>
+
+      <!-- OUTDOOR ACCESS (DROPOFF) -->
+      <div class="form-field">
+        <label class="form-label">Outdoor access from parking to entrance?</label>
+        <select name="dropoff_outdoor_access" class="form-select" required>
+          <option value="direct" {% if dropoff_access.get('outdoor_access', 'direct') == 'direct' %}selected{% endif %}>Direct access (flat surface)</option>
+          <option value="path" {% if dropoff_access.get('outdoor_access') == 'path' %}selected{% endif %}>Garden path / Uneven surface</option>
+          <option value="steps" {% if dropoff_access.get('outdoor_access') == 'steps' %}selected{% endif %}>Outdoor steps</option>
+        </select>
+      </div>
+
+      <!-- OUTDOOR STEPS (DROPOFF) -->
+      <div class="form-field" id="dropoff_outdoor_steps_field" style="{% if dropoff_access.get('outdoor_access') != 'steps' %}display:none;{% endif %}">
+        <label for="dropoff_outdoor_steps" class="form-label">How many outdoor steps?</label>
+        <input type="number" id="dropoff_outdoor_steps" name="dropoff_outdoor_steps" min="0" max="50" value="{{ dropoff_access.get('outdoor_steps', 0) }}" placeholder="e.g. 5" style="width:100%; padding:14px; border-radius:12px; border:1px solid var(--hair); background:rgba(255,255,255,.04); color:var(--text); font-size:16px;" />
+      </div>
+
+      <!-- NOTES (DROPOFF) -->
+      <div class="form-field">
+        <label for="dropoff_notes" class="form-label">
+          <span>Additional notes (optional)</span>
+          <span class="form-label-hint">Any special access considerations?</span>
+        </label>
+        <textarea id="dropoff_notes" name="dropoff_notes" rows="3" placeholder="e.g. Need to book lift, narrow Victorian stairs, etc." style="width:100%; padding:14px; border-radius:12px; border:1px solid var(--hair); background:rgba(255,255,255,.04); color:var(--text); font-size:15px; font-family:inherit; resize:vertical;">{{ dropoff_access.get('notes', '') }}</textarea>
+      </div>
+    </div>
+
+    <div class="hint" style="margin-top:20px; text-align:center;">
+      💡 <strong>Why we ask:</strong> Access difficulty affects crew size, equipment, and time. Accurate details help us give you a precise quote!
+    </div>
+  </form>
+
+  <script>
+  (function() {
+    // Floor selector logic
+    function setupFloorSelector(prefix) {
+      const btns = document.querySelectorAll(`.floor-btn[data-target="${prefix}_floors"]`);
+      const input = document.getElementById(`${prefix}_floors`);
+      const customDiv = document.getElementById(`${prefix}_floors_custom`);
+      const numberInput = document.getElementById(`${prefix}_floors_number`);
+
+      btns.forEach(btn => {
+        btn.addEventListener('click', function(e) {
+          e.preventDefault();
+          btns.forEach(b => b.classList.remove('selected'));
+          this.classList.add('selected');
+
+          const value = this.getAttribute('data-value');
+          if (value === '4') {
+            customDiv.style.display = 'block';
+            numberInput.focus();
+            input.value = numberInput.value;
+          } else {
+            customDiv.style.display = 'none';
+            input.value = value;
+          }
+        });
+      });
+
+      if (numberInput) {
+        numberInput.addEventListener('input', function() {
+          input.value = this.value;
+        });
+      }
+    }
+
+    setupFloorSelector('pickup');
+    setupFloorSelector('dropoff');
+
+    // Parking distance slider
+    function setupParkingSlider(prefix) {
+      const slider = document.getElementById(`${prefix}_parking_distance`);
+      const value = document.getElementById(`${prefix}_parking_distance_value`);
+
+      if (slider) {
+        slider.addEventListener('input', function() {
+          value.textContent = this.value;
+        });
+        value.textContent = slider.value;
+      }
+    }
+
+    setupParkingSlider('pickup');
+    setupParkingSlider('dropoff');
+
+    // Show/hide parking distance based on parking type
+    function setupParkingVisibility(prefix) {
+      const select = document.querySelector(`select[name="${prefix}_parking_type"]`);
+      const field = document.getElementById(`${prefix}_parking_distance_field`);
+
+      if (select) {
+        select.addEventListener('change', function() {
+          if (this.value !== 'driveway' && this.value !== '') {
+            field.style.display = 'block';
+          } else {
+            field.style.display = 'none';
+          }
+        });
+      }
+    }
+
+    setupParkingVisibility('pickup');
+    setupParkingVisibility('dropoff');
+
+    // Show/hide outdoor steps based on outdoor access
+    function setupOutdoorVisibility(prefix) {
+      const select = document.querySelector(`select[name="${prefix}_outdoor_access"]`);
+      const field = document.getElementById(`${prefix}_outdoor_steps_field`);
+
+      if (select) {
+        select.addEventListener('change', function() {
+          if (this.value === 'steps') {
+            field.style.display = 'block';
+          } else {
+            field.style.display = 'none';
+          }
+        });
+      }
+    }
+
+    setupOutdoorVisibility('pickup');
+    setupOutdoorVisibility('dropoff');
+
+    // Copy from Pickup button
+    const copyBtn = document.getElementById('copyPickupBtn');
+    if (copyBtn) {
+      copyBtn.addEventListener('click', function(e) {
+        e.preventDefault();
+
+        // Copy floors
+        const pickupFloors = document.getElementById('pickup_floors').value;
+        document.getElementById('dropoff_floors').value = pickupFloors;
+        const dropoffFloorBtns = document.querySelectorAll('.floor-btn[data-target="dropoff_floors"]');
+        dropoffFloorBtns.forEach(b => b.classList.remove('selected'));
+        if (pickupFloors >= 4) {
+          dropoffFloorBtns[4].classList.add('selected');
+          document.getElementById('dropoff_floors_custom').style.display = 'block';
+          document.getElementById('dropoff_floors_number').value = pickupFloors;
+        } else {
+          dropoffFloorBtns[pickupFloors].classList.add('selected');
+          document.getElementById('dropoff_floors_custom').style.display = 'none';
+        }
+
+        // Copy lift
+        const pickupLift = document.querySelector('input[name="pickup_has_lift"]:checked');
+        if (pickupLift) {
+          document.querySelector(`input[name="dropoff_has_lift"][value="${pickupLift.value}"]`).checked = true;
+        }
+
+        // Copy parking type
+        const pickupParking = document.querySelector('select[name="pickup_parking_type"]').value;
+        document.querySelector('select[name="dropoff_parking_type"]').value = pickupParking;
+        document.querySelector('select[name="dropoff_parking_type"]').dispatchEvent(new Event('change'));
+
+        // Copy parking distance
+        const pickupDistance = document.getElementById('pickup_parking_distance').value;
+        document.getElementById('dropoff_parking_distance').value = pickupDistance;
+        document.getElementById('dropoff_parking_distance_value').textContent = pickupDistance;
+
+        // Copy restrictions
+        const pickupRestrictions = document.querySelectorAll('input[name="pickup_restrictions"]:checked');
+        document.querySelectorAll('input[name="dropoff_restrictions"]').forEach(cb => cb.checked = false);
+        pickupRestrictions.forEach(checkbox => {
+          const dropoffCheckbox = document.querySelector(`input[name="dropoff_restrictions"][value="${checkbox.value}"]`);
+          if (dropoffCheckbox) dropoffCheckbox.checked = true;
+        });
+
+        // Copy outdoor access
+        const pickupOutdoor = document.querySelector('select[name="pickup_outdoor_access"]').value;
+        document.querySelector('select[name="dropoff_outdoor_access"]').value = pickupOutdoor;
+        document.querySelector('select[name="dropoff_outdoor_access"]').dispatchEvent(new Event('change'));
+
+        // Copy outdoor steps
+        const pickupSteps = document.getElementById('pickup_outdoor_steps').value;
+        document.getElementById('dropoff_outdoor_steps').value = pickupSteps;
+
+        // Copy notes
+        const pickupNotes = document.getElementById('pickup_notes').value;
+        document.getElementById('dropoff_notes').value = pickupNotes;
+
+        // Visual feedback
+        this.textContent = '✓ Copied!';
+        this.style.background = 'rgba(46,229,157,.2)';
+        setTimeout(() => {
+          this.textContent = '📋 Copy from Pickup Location';
+          this.style.background = '';
+        }, 2000);
+      });
+    }
+  })();
+  </script>
+{% endblock %}
+
+{% block footer %}
+  <div class="footer footer-clean">
+    <div class="footer-inner">
+      <button id="continueBtn" class="btn ready" type="submit" form="accessForm">
+        Continue to Move Date
+      </button>
+      <div class="microhint" style="text-align:center; margin-top:8px;">
+        This helps us plan the perfect move
+      </div>
+    </div>
+  </div>
+{% endblock %}

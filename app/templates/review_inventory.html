@@ -8,7 +8,7 @@
     <div class="group">
       <div class="invlist">
         {% for r in rooms %}
-          <a class="invlink" href="/s/{{ token }}/room/{{ r.id }}">
+          <a class="invlink" href="/s/{{ company_slug }}/{{ token }}/room/{{ r.id }}">
             <div class="invtop">
               <div class="invroom">{{ r.name }}</div>
               <div class="invmeta">{{ (r.photos|length) if r.photos else 0 }} photos</div>
@@ -37,7 +37,7 @@
 {% block footer %}
   <div class="footer footer-clean">
     <div class="footer-inner">
-      <form id="finishForm" method="post" action="/s/{{ token }}/review/finish"></form>
+      <form id="finishForm" method="post" action="/s/{{ company_slug }}/{{ token }}/review/finish"></form>
       <button class="btn" type="submit" form="finishForm" {% if not rooms or rooms|length==0 %}disabled{% endif %}>
         Get quote
       </button>

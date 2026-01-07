@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+
+{% block content %}
+  <div class="largetitle">📅 When's your move?</div>
+  <p class="subtitle">Choose your preferred moving date. We'll make sure we're available!</p>
+
+  <form id="dateForm" method="post" action="/s/{{ company_slug }}/{{ token }}/move-date">
+    <div class="group">
+      <label for="move_date" style="display:block; font-weight:600; margin-bottom:12px; font-size:15px;">
+        Moving Date
+      </label>
+
+      <input
+        type="date"
+        id="move_date"
+        name="move_date"
+        required
+        min="{{ today }}"
+        value="{{ job.move_date.strftime('%Y-%m-%d') if job.move_date else '' }}"
+        style="
+          width:100%;
+          padding:16px;
+          border-radius:12px;
+          border:1px solid var(--hair);
+          background:rgba(255,255,255,.04);
+          color:var(--text);
+          font-size:16px;
+          font-family:inherit;
+          font-weight:600;
+        "
+      />
+
+      <div class="hint" style="margin-top:12px;">
+        💡 <strong>Tip:</strong> Book at least 2 weeks in advance for the best rates and availability.
+      </div>
+
+      <div class="hint" style="margin-top:8px; padding:12px; background:rgba(46,229,157,.1); border-radius:10px; border:1px solid rgba(46,229,157,.3);">
+        <div style="font-weight:700; margin-bottom:4px;">✨ Flexible dates?</div>
+        <div style="font-size:13px;">Moving mid-week (Tue-Thu) often means better availability and rates!</div>
+      </div>
+    </div>
+  </form>
+{% endblock %}
+
+{% block footer %}
+  <div class="footer footer-clean">
+    <div class="footer-inner">
+      <button id="continueBtn" class="btn ready" type="submit" form="dateForm">
+        Continue to Rooms
+      </button>
+    </div>
+  </div>
+{% endblock %}

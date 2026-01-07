@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Analytics - PrimeHaul OS</title>
+    <link rel="stylesheet" href="/static/app.css">
+</head>
+<body>
+    <div class="container" style="max-width: 1200px;">
+        <div class="header">
+            <h1>{{ company.company_name }}</h1>
+            <p class="subtitle">Analytics & Insights</p>
+        </div>
+
+        <div class="card fade-in">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+                <h2>Performance Overview</h2>
+                <a href="/{{ company_slug }}/admin/dashboard" class="btn" style="background: #444;">
+                    Back to Dashboard
+                </a>
+            </div>
+
+            <!-- Key Metrics -->
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 32px;">
+                <div style="background: #222; padding: 20px; border-radius: 8px; border-left: 4px solid #2ee59d;">
+                    <div style="color: #888; font-size: 13px; text-transform: uppercase; margin-bottom: 8px;">Total Quotes</div>
+                    <div style="font-size: 32px; font-weight: 700; color: #fff;">{{ metrics.total_quotes }}</div>
+                    <div style="color: #666; font-size: 12px; margin-top: 4px;">Last 30 days</div>
+                </div>
+
+                <div style="background: #222; padding: 20px; border-radius: 8px; border-left: 4px solid #3b82f6;">
+                    <div style="color: #888; font-size: 13px; text-transform: uppercase; margin-bottom: 8px;">Submitted</div>
+                    <div style="font-size: 32px; font-weight: 700; color: #fff;">{{ metrics.submitted_quotes }}</div>
+                    <div style="color: #666; font-size: 12px; margin-top: 4px;">
+                        {{ metrics.submission_rate }}% conversion
+                    </div>
+                </div>
+
+                <div style="background: #222; padding: 20px; border-radius: 8px; border-left: 4px solid #10b981;">
+                    <div style="color: #888; font-size: 13px; text-transform: uppercase; margin-bottom: 8px;">Approved</div>
+                    <div style="font-size: 32px; font-weight: 700; color: #fff;">{{ metrics.approved_quotes }}</div>
+                    <div style="color: #666; font-size: 12px; margin-top: 4px;">
+                        {{ metrics.approval_rate }}% of submitted
+                    </div>
+                </div>
+
+                <div style="background: #222; padding: 20px; border-radius: 8px; border-left: 4px solid #f59e0b;">
+                    <div style="color: #888; font-size: 13px; text-transform: uppercase; margin-bottom: 8px;">Photos Analyzed</div>
+                    <div style="font-size: 32px; font-weight: 700; color: #fff;">{{ metrics.photos_analyzed }}</div>
+                    <div style="color: #666; font-size: 12px; margin-top: 4px;">
+                        AI vision API calls
+                    </div>
+                </div>
+            </div>
+
+            <!-- Cost Tracking -->
+            <div style="background: #222; padding: 24px; border-radius: 8px; margin-bottom: 32px;">
+                <h3 style="margin: 0 0 16px 0;">AI API Costs</h3>
+                <div style="display: flex; align-items: baseline; gap: 8px;">
+                    <span style="font-size: 48px; font-weight: 700; color: #2ee59d;">
+                        £{{ "%.2f"|format(metrics.total_ai_cost_gbp) }}
+                    </span>
+                    <span style="color: #888;">this month</span>
+                </div>
+                <div style="color: #666; font-size: 14px; margin-top: 8px;">
+                    Average £{{ "%.3f"|format(metrics.avg_cost_per_photo) }} per photo
+                    <span style="margin-left: 16px;">•</span>
+                    <span style="margin-left: 16px;">Estimated ${{ "%.2f"|format(metrics.total_ai_cost_usd) }} USD</span>
+                </div>
+            </div>
+
+            <!-- Conversion Funnel -->
+            <div style="margin-bottom: 32px;">
+                <h3 style="margin-bottom: 16px;">Conversion Funnel</h3>
+                <div style="background: #222; padding: 24px; border-radius: 8px;">
+                    <div style="margin-bottom: 24px;">
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                            <span style="color: #aaa;">Quotes Started</span>
+                            <span style="color: #fff; font-weight: 600;">{{ metrics.total_quotes }} (100%)</span>
+                        </div>
+                        <div style="height: 30px; background: #1a1a1a; border-radius: 4px; overflow: hidden;">
+                            <div style="height: 100%; background: linear-gradient(90deg, #2ee59d 0%, #2ee59d 100%); width: 100%;"></div>
+                        </div>
+                    </div>
+
+                    <div style="margin-bottom: 24px;">
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                            <span style="color: #aaa;">Contact Submitted</span>
+                            <span style="color: #fff; font-weight: 600;">{{ metrics.submitted_quotes }} ({{ metrics.submission_rate }}%)</span>
+                        </div>
+                        <div style="height: 30px; background: #1a1a1a; border-radius: 4px; overflow: hidden;">
+                            <div style="height: 100%; background: linear-gradient(90deg, #3b82f6 0%, #3b82f6 100%); width: {{ metrics.submission_rate }}%;"></div>
+                        </div>
+                    </div>
+
+                    <div>
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                            <span style="color: #aaa;">Quote Approved</span>
+                            <span style="color: #fff; font-weight: 600;">{{ metrics.approved_quotes }} ({{ metrics.approval_rate_overall }}%)</span>
+                        </div>
+                        <div style="height: 30px; background: #1a1a1a; border-radius: 4px; overflow: hidden;">
+                            <div style="height: 100%; background: linear-gradient(90deg, #10b981 0%, #10b981 100%); width: {{ metrics.approval_rate_overall }}%;"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Response Time -->
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 32px;">
+                <div style="background: #222; padding: 24px; border-radius: 8px;">
+                    <h3 style="margin: 0 0 16px 0;">Avg Response Time</h3>
+                    <div style="font-size: 36px; font-weight: 700; color: #2ee59d;">
+                        {{ metrics.avg_response_hours }}h
+                    </div>
+                    <div style="color: #666; font-size: 14px; margin-top: 8px;">
+                        From submission to approval
+                    </div>
+                </div>
+
+                <div style="background: #222; padding: 24px; border-radius: 8px;">
+                    <h3 style="margin: 0 0 16px 0;">Quote Value</h3>
+                    <div style="font-size: 36px; font-weight: 700; color: #2ee59d;">
+                        £{{ metrics.avg_quote_value }}
+                    </div>
+                    <div style="color: #666; font-size: 14px; margin-top: 8px;">
+                        Average approved quote
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recent Activity -->
+            <div>
+                <h3 style="margin-bottom: 16px;">Recent Events</h3>
+                <div style="background: #222; border-radius: 8px; overflow: hidden;">
+                    {% if recent_events %}
+                    <div style="overflow-x: auto;">
+                        <table style="width: 100%; border-collapse: collapse;">
+                            <thead>
+                                <tr style="background: #1a1a1a; border-bottom: 1px solid #333;">
+                                    <th style="padding: 12px; text-align: left; color: #888; font-size: 13px; font-weight: 600; text-transform: uppercase;">Event</th>
+                                    <th style="padding: 12px; text-align: left; color: #888; font-size: 13px; font-weight: 600; text-transform: uppercase;">Details</th>
+                                    <th style="padding: 12px; text-align: left; color: #888; font-size: 13px; font-weight: 600; text-transform: uppercase;">Time</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for event in recent_events %}
+                                <tr style="border-bottom: 1px solid #2a2a2a;">
+                                    <td style="padding: 12px; color: #fff;">
+                                        {% if event.event_type == 'quote_generated' %}
+                                        <span style="color: #2ee59d;">📊 Quote Generated</span>
+                                        {% elif event.event_type == 'photo_analyzed' %}
+                                        <span style="color: #f59e0b;">📸 Photos Analyzed</span>
+                                        {% elif event.event_type == 'job_submitted' %}
+                                        <span style="color: #3b82f6;">✉️ Contact Submitted</span>
+                                        {% elif event.event_type == 'job_approved' %}
+                                        <span style="color: #10b981;">✅ Job Approved</span>
+                                        {% elif event.event_type == 'job_rejected' %}
+                                        <span style="color: #ef4444;">❌ Job Rejected</span>
+                                        {% endif %}
+                                    </td>
+                                    <td style="padding: 12px; color: #aaa; font-size: 14px;">
+                                        {{ event.metadata.get('description', 'N/A') }}
+                                    </td>
+                                    <td style="padding: 12px; color: #666; font-size: 13px;">
+                                        {{ event.recorded_at.strftime('%Y-%m-%d %H:%M') }}
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                    <div style="padding: 48px; text-align: center; color: #666;">
+                        No recent events found
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <div style="text-align: center; margin-top: 32px; color: #666; font-size: 13px;">
+            <p>&copy; 2025 PrimeHaul OS. All rights reserved.</p>
+        </div>
+    </div>
+</body>
+</html>

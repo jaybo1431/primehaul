@@ -1,0 +1,587 @@
+{% extends "base.html" %}
+
+{% block title %}Job Details - {{ company.company_name }}{% endblock %}
+
+{% block content %}
+<style>
+    .back-link {
+        display: inline-block;
+        color: #666;
+        text-decoration: none;
+        margin-bottom: 20px;
+        font-weight: 600;
+    }
+
+    .back-link:hover {
+        color: #2ee59d;
+    }
+
+    .job-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 30px;
+        border-radius: 15px;
+        margin-bottom: 30px;
+    }
+
+    .job-header h1 {
+        font-size: 28px;
+        font-weight: 800;
+        margin-bottom: 10px;
+    }
+
+    .job-meta {
+        display: flex;
+        gap: 20px;
+        flex-wrap: wrap;
+        opacity: 0.9;
+        font-size: 14px;
+    }
+
+    .two-col-layout {
+        display: grid;
+        grid-template-columns: 2fr 1fr;
+        gap: 30px;
+        margin-bottom: 30px;
+    }
+
+    .card {
+        background: white;
+        border-radius: 15px;
+        padding: 25px;
+        box-shadow: 0 2px 15px rgba(0, 0, 0, 0.08);
+    }
+
+    .card h2 {
+        font-size: 20px;
+        font-weight: 700;
+        margin-bottom: 20px;
+        color: #1a1a1a;
+    }
+
+    .info-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 20px;
+        margin-bottom: 20px;
+    }
+
+    .info-item {
+        padding: 15px;
+        background: #f9f9f9;
+        border-radius: 10px;
+        text-align: center;
+    }
+
+    .info-icon {
+        font-size: 28px;
+        margin-bottom: 8px;
+    }
+
+    .info-value {
+        font-size: 22px;
+        font-weight: 700;
+        color: #1a1a1a;
+        margin-bottom: 3px;
+    }
+
+    .info-label {
+        font-size: 13px;
+        color: #666;
+    }
+
+    .inventory-section {
+        margin-top: 20px;
+    }
+
+    .room-card {
+        background: #f9f9f9;
+        padding: 20px;
+        border-radius: 10px;
+        margin-bottom: 15px;
+    }
+
+    .room-header {
+        font-size: 18px;
+        font-weight: 700;
+        color: #1a1a1a;
+        margin-bottom: 15px;
+    }
+
+    .items-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+        gap: 10px;
+    }
+
+    .item {
+        padding: 12px;
+        background: white;
+        border-radius: 8px;
+        font-size: 14px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .item-name {
+        font-weight: 600;
+        color: #1a1a1a;
+    }
+
+    .item-details {
+        color: #666;
+        font-size: 12px;
+    }
+
+    .item-tag {
+        display: inline-block;
+        background: #fff3cd;
+        color: #856404;
+        padding: 3px 8px;
+        border-radius: 12px;
+        font-size: 11px;
+        font-weight: 600;
+        margin-left: 8px;
+    }
+
+    .item-tag.bulky {
+        background: #f8d7da;
+        color: #721c24;
+    }
+
+    .item-tag.fragile {
+        background: #d1ecf1;
+        color: #0c5460;
+    }
+
+    .photos-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+        gap: 15px;
+        margin-top: 15px;
+    }
+
+    .photo-thumb {
+        aspect-ratio: 1;
+        border-radius: 8px;
+        overflow: hidden;
+        cursor: pointer;
+        transition: transform 0.2s;
+    }
+
+    .photo-thumb:hover {
+        transform: scale(1.05);
+    }
+
+    .photo-thumb img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .pricing-calculator {
+        position: sticky;
+        top: 20px;
+    }
+
+    .calculator-section {
+        margin-bottom: 20px;
+    }
+
+    .calc-row {
+        display: flex;
+        justify-content: space-between;
+        padding: 12px 0;
+        border-bottom: 1px solid #e5e5e5;
+    }
+
+    .calc-row:last-child {
+        border-bottom: none;
+    }
+
+    .calc-label {
+        color: #666;
+        font-size: 14px;
+    }
+
+    .calc-value {
+        font-weight: 700;
+        color: #1a1a1a;
+        font-size: 14px;
+    }
+
+    .suggested-price {
+        background: linear-gradient(135deg, #2ee59d 0%, #26c785 100%);
+        color: white;
+        padding: 20px;
+        border-radius: 12px;
+        text-align: center;
+        margin: 20px 0;
+    }
+
+    .suggested-price-label {
+        font-size: 13px;
+        opacity: 0.9;
+        margin-bottom: 8px;
+    }
+
+    .suggested-price-value {
+        font-size: 36px;
+        font-weight: 800;
+    }
+
+    .commission-note {
+        background: #fff3cd;
+        border-left: 4px solid #ffc107;
+        padding: 15px;
+        border-radius: 8px;
+        margin: 20px 0;
+        font-size: 14px;
+    }
+
+    .commission-breakdown {
+        margin-top: 10px;
+    }
+
+    .commission-row {
+        display: flex;
+        justify-content: space-between;
+        padding: 5px 0;
+        font-size: 13px;
+    }
+
+    .commission-row.total {
+        border-top: 2px solid #ffc107;
+        margin-top: 8px;
+        padding-top: 8px;
+        font-weight: 700;
+        font-size: 15px;
+    }
+
+    .bid-form {
+        margin-top: 30px;
+    }
+
+    .form-group {
+        margin-bottom: 20px;
+    }
+
+    .form-label {
+        display: block;
+        font-weight: 600;
+        margin-bottom: 8px;
+        color: #1a1a1a;
+    }
+
+    .form-input {
+        width: 100%;
+        padding: 12px;
+        border: 2px solid #e5e5e5;
+        border-radius: 8px;
+        font-size: 16px;
+        font-family: inherit;
+        transition: border-color 0.2s;
+    }
+
+    .form-input:focus {
+        outline: none;
+        border-color: #2ee59d;
+    }
+
+    .form-input.price-input {
+        font-size: 24px;
+        font-weight: 700;
+        color: #2ee59d;
+    }
+
+    .form-textarea {
+        min-height: 100px;
+        resize: vertical;
+    }
+
+    .form-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 15px;
+    }
+
+    .btn {
+        width: 100%;
+        padding: 16px;
+        border-radius: 10px;
+        font-weight: 700;
+        font-size: 16px;
+        border: none;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+
+    .btn-primary {
+        background: linear-gradient(135deg, #2ee59d 0%, #26c785 100%);
+        color: white;
+        box-shadow: 0 4px 15px rgba(46, 229, 157, 0.3);
+    }
+
+    .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(46, 229, 157, 0.4);
+    }
+
+    .btn-primary:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+        transform: none;
+    }
+
+    .alert {
+        padding: 15px;
+        border-radius: 8px;
+        margin-bottom: 20px;
+    }
+
+    .alert-success {
+        background: #d4edda;
+        color: #155724;
+        border-left: 4px solid #28a745;
+    }
+
+    .alert-info {
+        background: #d1ecf1;
+        color: #0c5460;
+        border-left: 4px solid #17a2b8;
+    }
+
+    @media (max-width: 968px) {
+        .two-col-layout {
+            grid-template-columns: 1fr;
+        }
+
+        .pricing-calculator {
+            position: static;
+        }
+
+        .form-row {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+
+<a href="/{{ company.slug }}/admin/marketplace" class="back-link">← Back to Marketplace</a>
+
+<div class="job-header">
+    <h1>{{ job.pickup_city or 'Unknown' }} → {{ job.dropoff_city or 'Unknown' }}</h1>
+    <div class="job-meta">
+        <span>📅 Posted {{ job.created_at.strftime('%d %b %Y at %H:%M') }}</span>
+        <span>⏰ {{ hours_until_deadline }} hours left to bid</span>
+        <span>📊 {{ bid_count }} bids submitted</span>
+    </div>
+</div>
+
+{% if existing_bid %}
+<div class="alert alert-success">
+    <strong>✓ You've already bid on this job</strong><br>
+    Your bid: £{{ "%.2f"|format(existing_bid.price) }} • Submitted {{ existing_bid.created_at.strftime('%d %b at %H:%M') }}
+</div>
+{% endif %}
+
+<div class="two-col-layout">
+    <!-- Left Column: Job Details -->
+    <div>
+        <!-- Key Stats -->
+        <div class="card">
+            <h2>Job Summary</h2>
+            <div class="info-grid">
+                <div class="info-item">
+                    <div class="info-icon">📦</div>
+                    <div class="info-value">{{ job.total_cbm|round(1) }}</div>
+                    <div class="info-label">Cubic Meters</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-icon">⚖️</div>
+                    <div class="info-value">{{ job.total_weight_kg|round(0)|int if job.total_weight_kg else 'N/A' }}</div>
+                    <div class="info-label">Total Weight (kg)</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-icon">📋</div>
+                    <div class="info-value">{{ job.total_items or 0 }}</div>
+                    <div class="info-label">Items Detected</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-icon">🏠</div>
+                    <div class="info-value">{{ job.property_type or 'N/A' }}</div>
+                    <div class="info-label">Property Type</div>
+                </div>
+            </div>
+
+            {% if job.inventory_summary %}
+            <div style="margin-top: 20px; padding: 15px; background: #f9f9f9; border-radius: 10px;">
+                <strong>Quick Inventory:</strong><br>
+                {% if job.inventory_summary.bulky_items %}
+                ⚠️ {{ job.inventory_summary.bulky_items }} bulky items<br>
+                {% endif %}
+                {% if job.inventory_summary.fragile_items %}
+                🔸 {{ job.inventory_summary.fragile_items }} fragile items<br>
+                {% endif %}
+                📦 {{ job.inventory_summary.total_boxes or 0 }} estimated boxes needed
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Inventory Breakdown -->
+        <div class="card inventory-section">
+            <h2>Complete Inventory (AI-Analyzed)</h2>
+
+            {% for room in rooms %}
+            <div class="room-card">
+                <div class="room-header">{{ room.name }}</div>
+
+                <div class="items-grid">
+                    {% for item in room.items %}
+                    <div class="item">
+                        <div>
+                            <div class="item-name">{{ item.name }}</div>
+                            <div class="item-details">
+                                {{ item.quantity }}x • {{ item.cbm|round(2) }} CBM
+                                {% if item.bulky %}<span class="item-tag bulky">BULKY</span>{% endif %}
+                                {% if item.fragile %}<span class="item-tag fragile">FRAGILE</span>{% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+
+                {% if room.photos|length > 0 %}
+                <div class="photos-grid">
+                    {% for photo in room.photos %}
+                    <div class="photo-thumb" onclick="window.open('{{ photo.storage_path }}', '_blank')">
+                        <img src="{{ photo.storage_path }}" alt="Room photo">
+                    </div>
+                    {% endfor %}
+                </div>
+                {% endif %}
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Right Column: Pricing & Bid Form -->
+    <div class="pricing-calculator">
+        <div class="card">
+            <h2>💰 Pricing Calculator</h2>
+
+            <div class="calculator-section">
+                <div class="calc-row">
+                    <span class="calc-label">Callout fee</span>
+                    <span class="calc-value">£{{ "%.2f"|format(pricing.callout_fee) }}</span>
+                </div>
+                <div class="calc-row">
+                    <span class="calc-label">Volume ({{ job.total_cbm|round(1) }} CBM × £{{ pricing.price_per_cbm }})</span>
+                    <span class="calc-value">£{{ "%.2f"|format(job.total_cbm * pricing.price_per_cbm) }}</span>
+                </div>
+                {% if job.inventory_summary and job.inventory_summary.bulky_items %}
+                <div class="calc-row">
+                    <span class="calc-label">Bulky items ({{ job.inventory_summary.bulky_items }} × £{{ pricing.bulky_item_fee }})</span>
+                    <span class="calc-value">£{{ "%.2f"|format(job.inventory_summary.bulky_items * pricing.bulky_item_fee) }}</span>
+                </div>
+                {% endif %}
+                {% if job.inventory_summary and job.inventory_summary.fragile_items %}
+                <div class="calc-row">
+                    <span class="calc-label">Fragile items ({{ job.inventory_summary.fragile_items }} × £{{ pricing.fragile_item_fee }})</span>
+                    <span class="calc-value">£{{ "%.2f"|format(job.inventory_summary.fragile_items * pricing.fragile_item_fee) }}</span>
+                </div>
+                {% endif %}
+            </div>
+
+            <div class="suggested-price">
+                <div class="suggested-price-label">Your Suggested Price</div>
+                <div class="suggested-price-value">£{{ suggested_price|int }}</div>
+            </div>
+
+            <div class="commission-note">
+                <strong>⚠️ Commission Breakdown:</strong>
+                <div class="commission-breakdown">
+                    <div class="commission-row">
+                        <span>If you bid £{{ suggested_price|int }}:</span>
+                        <span></span>
+                    </div>
+                    <div class="commission-row">
+                        <span>Job price:</span>
+                        <span>£{{ suggested_price|int }}</span>
+                    </div>
+                    <div class="commission-row">
+                        <span>PrimeHaul commission (15%):</span>
+                        <span>-£{{ (suggested_price * 0.15)|round(2) }}</span>
+                    </div>
+                    <div class="commission-row total">
+                        <span>You receive:</span>
+                        <span>£{{ (suggested_price * 0.85)|round(2) }}</span>
+                    </div>
+                </div>
+            </div>
+
+            {% if not existing_bid %}
+            <!-- Bid Submission Form -->
+            <form method="POST" action="/{{ company.slug }}/admin/marketplace/job/{{ job.id }}/bid" class="bid-form">
+                <div class="form-group">
+                    <label class="form-label">Your Bid Price (£)</label>
+                    <input type="number" name="price" class="form-input price-input" value="{{ suggested_price|int }}" min="1" step="1" required>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">Crew Size</label>
+                        <input type="number" name="crew_size" class="form-input" value="2" min="1" max="10">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Duration (hours)</label>
+                        <input type="number" name="estimated_duration_hours" class="form-input" value="{{ (job.total_cbm * 0.5 + 4)|int }}" min="1" max="24">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Message to Customer (Optional)</label>
+                    <textarea name="message" class="form-input form-textarea" placeholder="Add a personal message to stand out..."></textarea>
+                </div>
+
+                <button type="submit" class="btn btn-primary">
+                    Submit Bid →
+                </button>
+            </form>
+            {% else %}
+            <div class="alert alert-info">
+                You've already submitted a bid. Wait for the customer to review all quotes and select a winner.
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<script>
+    // Update commission preview when price changes
+    const priceInput = document.querySelector('input[name="price"]');
+    if (priceInput) {
+        priceInput.addEventListener('input', function() {
+            const price = parseFloat(this.value) || 0;
+            const commission = price * 0.15;
+            const netReceive = price * 0.85;
+
+            // Update commission breakdown
+            document.querySelectorAll('.commission-row').forEach((row, index) => {
+                if (index === 1) row.querySelector('span:last-child').textContent = `£${price.toFixed(0)}`;
+                if (index === 2) row.querySelector('span:last-child').textContent = `-£${commission.toFixed(2)}`;
+                if (index === 3) row.querySelector('span:last-child').textContent = `£${netReceive.toFixed(2)}`;
+            });
+        });
+    }
+
+    // Confirm before submitting bid
+    document.querySelector('.bid-form')?.addEventListener('submit', function(e) {
+        const price = parseFloat(document.querySelector('input[name="price"]').value);
+        if (!confirm(`Confirm bid of £${price.toFixed(2)}?\n\nYou will receive £${(price * 0.85).toFixed(2)} after 15% commission.`)) {
+            e.preventDefault();
+        }
+    });
+</script>
+
+{% endblock %}

@@ -104,7 +104,27 @@
       <div class="nav-inner">
         <div style="font-size:20px;">👔</div>
         <div class="nav-center">Boss Dashboard</div>
-        <a href="/admin/logout" style="color:var(--text); text-decoration:none; font-size:14px; opacity:.8;">Logout</a>
+        <form method="post" action="/auth/logout" style="margin:0;">
+          <button type="submit" style="background:none; border:none; color:var(--text); text-decoration:none; font-size:14px; opacity:.8; cursor:pointer; font-family:inherit;">Logout</button>
+        </form>
+      </div>
+    </div>
+
+    <!-- Quick Links -->
+    <div style="padding:12px 16px; background:rgba(255,255,255,.02); border-bottom:1px solid var(--hair); overflow-x:auto;">
+      <div style="display:flex; gap:8px; min-width:max-content;">
+        <a href="/{{ company_slug }}/admin/dashboard" class="chip" style="background:rgba(46,229,157,.2); border-color:rgba(46,229,157,.3); text-decoration:none;">
+          📊 Dashboard
+        </a>
+        <a href="/{{ company_slug }}/admin/analytics" class="chip" style="text-decoration:none;">
+          📈 Analytics
+        </a>
+        <a href="/{{ company_slug }}/admin/pricing" class="chip" style="text-decoration:none;">
+          💰 Pricing
+        </a>
+        <a href="/{{ company_slug }}/admin/branding" class="chip" style="text-decoration:none;">
+          🎨 Branding
+        </a>
       </div>
     </div>
 
@@ -160,20 +180,20 @@
                 <div class="invitems" style="margin-top:10px;">
                   <div style="display:flex; justify-content:space-between; align-items:center;">
                     <div>
-                      <strong style="font-size:18px; color:#ffa500;">£{{ "%.0f"|format((job.custom_price_low or (job.get('total_cbm', 0) * 35 + 250))) }}</strong>
+                      <strong style="font-size:18px; color:#ffa500;">£{{ "%.0f"|format((job.custom_price_low or ((job.total_cbm or 0) * 35 + 250))) }}</strong>
                       <span style="color:var(--muted);">
-                        • {{ job.get('total_cbm', 0) }} m³
-                        • {{ job.get('total_weight_kg', 0) }} kg
+                        • {{ job.total_cbm or 0 }} m³
+                        • {{ job.total_weight_kg or 0 }} kg
                       </span>
                       <span class="photo-count">
-                        📸 {{ job.rooms|sum(attribute='photos')|length if job.rooms else 0 }}
+                        📸 {{ job.rooms|map(attribute='photos')|map('length')|sum if job.rooms else 0 }}
                       </span>
                     </div>
                     <div style="display:flex; gap:8px;">
                       <button class="quick-approve-btn" onclick="quickApprove('{{ job.token }}', event)">
                         ⚡ Quick Approve
                       </button>
-                      <a href="/admin/job/{{ job.token }}" class="btn secondary" style="padding:8px 16px; margin:0; font-size:13px;">
+                      <a href="/{{ company_slug }}/admin/job/{{ job.token }}" class="btn secondary" style="padding:8px 16px; margin:0; font-size:13px;">
                         View Details
                       </a>
                     </div>
@@ -181,6 +201,11 @@
                   {% if job.pickup and job.dropoff %}
                     <div style="font-size:11px; color:var(--muted); margin-top:8px;">
                       📍 {{ job.pickup.label[:40] }}... → {{ job.dropoff.label[:40] }}...
+                    </div>
+                  {% endif %}
+                  {% if job.move_date %}
+                    <div style="font-size:11px; color:var(--muted); margin-top:4px;">
+                      📅 Move date: {{ job.move_date.strftime('%d %b %Y') }}
                     </div>
                   {% endif %}
                 </div>
@@ -205,7 +230,7 @@
 
           <div class="invlist">
             {% for job in approved_jobs %}
-              <a class="invlink" href="/admin/job/{{ job.token }}" style="border-color:rgba(46,229,157,.3); background:rgba(46,229,157,.05);">
+              <a class="invlink" href="/{{ company_slug }}/admin/job/{{ job.token }}" style="border-color:rgba(46,229,157,.3); background:rgba(46,229,157,.05);">
                 <div class="invtop">
                   <div style="flex:1;">
                     <div class="invroom">
@@ -218,9 +243,9 @@
                   <div class="invmeta" style="color:#2ee59d; font-weight:700;">Approved</div>
                 </div>
                 <div class="invitems">
-                  <strong>£{{ "%.0f"|format((job.custom_price_low or (job.get('total_cbm', 0) * 35 + 250))) }}</strong>
-                  • {{ job.get('total_cbm', 0) }} m³
-                  • {{ job.get('total_weight_kg', 0) }} kg
+                  <strong>£{{ "%.0f"|format((job.custom_price_low or ((job.total_cbm or 0) * 35 + 250))) }}</strong>
+                  • {{ job.total_cbm or 0 }} m³
+                  • {{ job.total_weight_kg or 0 }} kg
                 </div>
               </a>
             {% endfor %}
@@ -289,7 +314,7 @@
       btn.textContent = '⏳ Approving...';
 
       try {
-        const response = await fetch(`/admin/job/${token}/quick-approve`, {
+        const response = await fetch(`/{{ company_slug }}/admin/job/${token}/quick-approve`, {
           method: 'POST',
           credentials: 'include'
         });
@@ -343,14 +368,17 @@
       document.getElementById('pendingRevenue').textContent = pendingTotal.toLocaleString();
 
       // Calculate approved revenue
-      let approvedTotal = {{ approved_jobs|sum(attribute='custom_price_low') or (approved_jobs|map(attribute='total_cbm')|sum * 35 + approved_jobs|length * 250) }};
+      let approvedTotal = 0;
+      {% for job in approved_jobs %}
+        approvedTotal += {{ job.custom_price_low or ((job.total_cbm or 0) * 35 + 250) }};
+      {% endfor %}
       document.getElementById('approvedRevenue').textContent = Math.round(approvedTotal).toLocaleString();
     }
 
     // Auto-refresh with notification
     let refreshInterval = setInterval(async () => {
       try {
-        const response = await fetch('/admin/dashboard');
+        const response = await fetch('/{{ company_slug }}/admin/dashboard');
         const html = await response.text();
         const parser = new DOMParser();
         const doc = parser.parseFromString(html, 'text/html');

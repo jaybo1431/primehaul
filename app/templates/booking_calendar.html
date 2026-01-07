@@ -1,0 +1,257 @@
+{% extends "base.html" %}
+
+{% block content %}
+  <div class="largetitle">📅 Book Your Move</div>
+  <p class="subtitle">Select your preferred moving date and time slot</p>
+
+  <div class="group">
+    <div style="font-weight:700; margin-bottom:12px;">Your Quote Summary</div>
+    <div style="padding:16px; border-radius:12px; background:rgba(46,229,157,.1); border:1px solid rgba(46,229,157,.3);">
+      <div style="font-size:24px; font-weight:800; color:#2ee59d; margin-bottom:8px;">
+        £{{ estimate_low }} - £{{ estimate_high }}
+      </div>
+      <div style="font-size:14px; color:var(--muted);">
+        📍 {{ job.pickup.label[:50] if job.pickup else 'Not set' }}... →
+        {{ job.dropoff.label[:50] if job.dropoff else 'Not set' }}...
+      </div>
+    </div>
+  </div>
+
+  <form method="post" action="/s/{{ company_slug }}/{{ token }}/booking/confirm" id="bookingForm">
+    <!-- Calendar -->
+    <div class="group">
+      <div style="font-weight:700; margin-bottom:12px;">📆 Select Move Date</div>
+      <input
+        type="date"
+        id="move-date"
+        name="move_date"
+        class="form-input"
+        required
+        min="{{ min_date }}"
+        max="{{ max_date }}"
+        value="{{ job.move_date.strftime('%Y-%m-%d') if job and job.move_date else '' }}"
+      />
+      <div class="microhint" style="margin-top:8px;">
+        💡 Weekday moves (Mon-Fri) are typically 10-15% cheaper
+      </div>
+    </div>
+
+    <!-- Time Slots -->
+    <div class="group" id="timeslots-section" style="display:none;">
+      <div style="font-weight:700; margin-bottom:12px;">⏰ Preferred Time Slot</div>
+      <div class="timeslots-grid">
+        <label class="timeslot-card">
+          <input type="radio" name="time_slot" value="morning" required />
+          <div class="timeslot-content">
+            <div class="timeslot-icon">🌅</div>
+            <div class="timeslot-time">Morning</div>
+            <div class="timeslot-desc">8:00 AM - 12:00 PM</div>
+            <div class="timeslot-badge">Most Popular</div>
+          </div>
+        </label>
+
+        <label class="timeslot-card">
+          <input type="radio" name="time_slot" value="afternoon" />
+          <div class="timeslot-content">
+            <div class="timeslot-icon">☀️</div>
+            <div class="timeslot-time">Afternoon</div>
+            <div class="timeslot-desc">12:00 PM - 4:00 PM</div>
+          </div>
+        </label>
+
+        <label class="timeslot-card">
+          <input type="radio" name="time_slot" value="flexible" />
+          <div class="timeslot-content">
+            <div class="timeslot-icon">🤝</div>
+            <div class="timeslot-time">Flexible</div>
+            <div class="timeslot-desc">Any time works</div>
+            <div class="timeslot-badge" style="background:rgba(46,229,157,.2);">Save 5%</div>
+          </div>
+        </label>
+      </div>
+    </div>
+
+    <!-- Availability Notice -->
+    <div class="group" id="availability-notice" style="display:none;">
+      <div style="padding:14px; border-radius:10px; background:rgba(46,229,157,.1); border:1px solid rgba(46,229,157,.3);">
+        <div style="display:flex; align-items:start; gap:10px;">
+          <div style="font-size:20px;">✅</div>
+          <div style="flex:1;">
+            <div style="font-weight:700; margin-bottom:4px;">Date Available!</div>
+            <div style="font-size:13px; color:var(--muted);" id="availability-text">
+              We have availability on this date
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Special Requirements -->
+    <div class="group">
+      <div style="font-weight:700; margin-bottom:12px;">📝 Special Requirements <span style="font-weight:400; color:var(--muted);">(Optional)</span></div>
+      <textarea
+        name="special_requirements"
+        class="form-textarea"
+        placeholder="Any special instructions? (e.g., need to be finished by 3pm, careful with antique piano, etc.)"
+        rows="3"
+      >{{ job.special_requirements if job and job.special_requirements else '' }}</textarea>
+    </div>
+  </form>
+
+  <script>
+    const dateInput = document.getElementById('move-date');
+    const timeslotsSection = document.getElementById('timeslots-section');
+    const availabilityNotice = document.getElementById('availability-notice');
+    const availabilityText = document.getElementById('availability-text');
+
+    // Blocked dates (Sundays, for example)
+    const blockedDaysOfWeek = [0]; // 0 = Sunday
+
+    dateInput.addEventListener('change', () => {
+      const selectedDate = new Date(dateInput.value + 'T00:00:00');
+      const dayOfWeek = selectedDate.getDay();
+      const dayName = selectedDate.toLocaleDateString('en-GB', { weekday: 'long' });
+
+      // Check if date is blocked
+      if (blockedDaysOfWeek.includes(dayOfWeek)) {
+        alert(`Sorry, we don't operate moves on Sundays. Please choose another date.`);
+        dateInput.value = '';
+        timeslotsSection.style.display = 'none';
+        availabilityNotice.style.display = 'none';
+        return;
+      }
+
+      // Show timeslots
+      timeslotsSection.style.display = 'block';
+      availabilityNotice.style.display = 'block';
+
+      // Check if weekend (Saturday)
+      if (dayOfWeek === 6) {
+        availabilityText.textContent = `Saturday moves available! Note: Weekend rates may apply (+10%)`;
+      } else {
+        availabilityText.textContent = `${dayName} is available! Weekday moves save 10% vs weekends.`;
+      }
+    });
+
+    // Trigger change if date already selected
+    if (dateInput.value) {
+      dateInput.dispatchEvent(new Event('change'));
+    }
+  </script>
+
+  <style>
+    .form-input {
+      width: 100%;
+      padding: 14px 16px;
+      font-size: 15px;
+      border: 1.5px solid var(--hair);
+      border-radius: 12px;
+      background: var(--bg);
+      color: var(--text);
+      transition: all 0.2s;
+    }
+
+    .form-input:focus {
+      outline: none;
+      border-color: #2ee59d;
+      background: rgba(46,229,157,.05);
+    }
+
+    .form-textarea {
+      width: 100%;
+      padding: 14px 16px;
+      font-size: 14px;
+      border: 1.5px solid var(--hair);
+      border-radius: 12px;
+      background: var(--bg);
+      color: var(--text);
+      font-family: inherit;
+      resize: vertical;
+      transition: all 0.2s;
+    }
+
+    .form-textarea:focus {
+      outline: none;
+      border-color: #2ee59d;
+      background: rgba(46,229,157,.05);
+    }
+
+    .timeslots-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      gap: 10px;
+    }
+
+    .timeslot-card {
+      cursor: pointer;
+      position: relative;
+    }
+
+    .timeslot-card input {
+      position: absolute;
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .timeslot-content {
+      padding: 16px;
+      border: 2px solid var(--hair);
+      border-radius: 12px;
+      text-align: center;
+      transition: all 0.2s;
+      background: var(--bg);
+    }
+
+    .timeslot-card input:checked + .timeslot-content {
+      border-color: #2ee59d;
+      background: rgba(46,229,157,.1);
+    }
+
+    .timeslot-icon {
+      font-size: 32px;
+      margin-bottom: 8px;
+    }
+
+    .timeslot-time {
+      font-size: 15px;
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+
+    .timeslot-desc {
+      font-size: 12px;
+      color: var(--muted);
+      margin-bottom: 8px;
+    }
+
+    .timeslot-badge {
+      display: inline-block;
+      padding: 3px 8px;
+      border-radius: 6px;
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      background: rgba(255,165,0,.2);
+      color: #ffa500;
+    }
+
+    @media (max-width: 480px) {
+      .timeslots-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+{% endblock %}
+
+{% block footer %}
+  <div class="footer footer-clean">
+    <div class="footer-inner">
+      <button class="btn" type="submit" form="bookingForm">
+        ✅ Confirm Booking
+      </button>
+      <div class="microhint" style="text-align:center; margin-top:8px;">
+        You'll receive a confirmation text within 5 minutes
+      </div>
+    </div>
+  </div>
+{% endblock %}

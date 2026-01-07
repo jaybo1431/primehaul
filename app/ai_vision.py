@@ -83,6 +83,8 @@ def extract_removal_inventory(image_paths: List[str]) -> Dict[str, Any]:
                 '      "cbm": 0.4,\n'
                 '      "bulky": false,\n'
                 '      "fragile": false,\n'
+                '      "item_category": "furniture",\n'
+                '      "packing_requirement": "none",\n'
                 '      "notes": "string"\n'
                 '    }\n'
                 "  ],\n"
@@ -96,7 +98,27 @@ def extract_removal_inventory(image_paths: List[str]) -> Dict[str, Any]:
                 "5. FRAGILE: Mark as true if item is glass, electronics, or breakable\n"
                 "6. QTY: Count ALL visible items of same type (e.g., if you see 10 boxes, qty=10)\n"
                 "7. NAMES: Be specific (e.g., '3-seater fabric sofa', 'double wardrobe', 'cardboard boxes')\n"
-                "8. ACCURACY: This is used for professional moving quotes - be thorough and realistic\n\n"
+                "8. ACCURACY: This is used for professional moving quotes - be thorough and realistic\n"
+                "9. ITEM_CATEGORY: Classify each item:\n"
+                "   - 'furniture': Large furniture that moves as-is (sofa, bed frame, table, chairs)\n"
+                "   - 'loose_items': Small items that need boxing (books, kitchen items, clothes, toys, decorations)\n"
+                "   - 'wardrobe': Wardrobes with hanging clothes\n"
+                "   - 'mattress': Mattresses (note size in notes: single/double/king)\n"
+                "   - 'already_boxed': Items already in boxes or containers\n"
+                "10. PACKING_REQUIREMENT: Specify what packing is needed:\n"
+                "   - 'none': Furniture, moves as-is\n"
+                "   - 'small_box': Books, small electronics, heavy items (Pack 1: 18×18×10\")\n"
+                "   - 'medium_box': Kitchen items, clothes, linens (Pack 2: 18×18×20\")\n"
+                "   - 'large_box': Large items, bedding, cushions (Pack 3: 18×18×30\")\n"
+                "   - 'robe_carton': Hanging clothes in wardrobes (1 per wardrobe door, note door count in notes)\n"
+                "   - 'mattress_cover': Mattresses\n\n"
+                "PACKING EXAMPLES:\n"
+                "- Books (50 books on shelf) → item_category: 'loose_items', packing_requirement: 'small_box', qty: 50\n"
+                "- Kitchen plates and cups → item_category: 'loose_items', packing_requirement: 'medium_box'\n"
+                "- 3-seater sofa → item_category: 'furniture', packing_requirement: 'none'\n"
+                "- Double wardrobe → item_category: 'wardrobe', packing_requirement: 'robe_carton', notes: '2 doors'\n"
+                "- King size mattress → item_category: 'mattress', packing_requirement: 'mattress_cover', notes: 'king size'\n"
+                "- Folded clothes in drawers → item_category: 'loose_items', packing_requirement: 'medium_box'\n\n"
                 "Common item dimensions:\n"
                 "- Sofa (3-seater): 200×90×85cm, ~30kg\n"
                 "- Wardrobe (double): 120×60×190cm, ~80kg\n"

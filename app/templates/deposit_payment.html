@@ -1,0 +1,127 @@
+{% extends "base.html" %}
+
+{% block content %}
+  <div class="largetitle">💳 Secure Your Move</div>
+  <p class="subtitle">Pay a 20% deposit to confirm your booking</p>
+
+  <!-- Booking Summary -->
+  <div class="group" style="background:rgba(46,229,157,.1); border-color:rgba(46,229,157,.3);">
+    <div style="text-align:center; padding:8px 0;">
+      <div style="font-size:13px; color:var(--muted); margin-bottom:6px;">✅ Quote Approved</div>
+      <div style="font-size:32px; font-weight:800; letter-spacing:-.5px; margin:8px 0;">
+        £{{ quote_low }} – £{{ quote_high }}
+      </div>
+      <div style="font-size:13px; color:var(--muted); margin-top:4px;">
+        {{ total_items }} items • {{ total_cbm }} m³
+      </div>
+    </div>
+  </div>
+
+  <!-- Deposit Info -->
+  <div class="group">
+    <div style="font-weight:700; margin-bottom:12px;">💰 Deposit Required</div>
+
+    <div style="background:rgba(255,255,255,.04); border-radius:12px; padding:16px; border:1px solid var(--hair);">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+        <span style="font-size:15px;">Deposit Amount (20%)</span>
+        <span style="font-size:24px; font-weight:800;">£{{ deposit_amount }}</span>
+      </div>
+
+      <div style="font-size:13px; color:var(--muted); padding-top:12px; border-top:1px solid var(--hair);">
+        <div style="margin-bottom:6px;">✓ Secures your moving date: {{ job.move_date.strftime('%d %b %Y') if job.move_date else 'TBD' }}</div>
+        <div style="margin-bottom:6px;">✓ Remaining balance due on completion: £{{ balance_due }}</div>
+        <div>✓ Full refund if we cancel (minus £50 admin fee if you cancel)</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Payment Method -->
+  <div class="group">
+    <div style="font-weight:700; margin-bottom:12px;">💳 Payment Method</div>
+
+    {% if stripe_configured %}
+      <!-- Stripe Payment Form will go here -->
+      <form method="post" action="/s/{{ company_slug }}/{{ token }}/create-checkout-session">
+        <button class="btn ready" type="submit" style="width:100%; font-size:16px; padding:18px;">
+          💳 Pay £{{ deposit_amount }} with Card
+        </button>
+      </form>
+
+      <div class="hint" style="margin-top:12px; text-align:center;">
+        🔒 Secure payment powered by Stripe
+      </div>
+    {% else %}
+      <!-- Placeholder for when Stripe is not configured -->
+      <div style="background:rgba(255,165,0,.1); border:1px solid rgba(255,165,0,.3); border-radius:12px; padding:20px; text-align:center;">
+        <div style="font-size:24px; margin-bottom:8px;">⚙️</div>
+        <div style="font-weight:700; margin-bottom:8px;">Payment Setup In Progress</div>
+        <div style="font-size:13px; color:var(--muted); margin-bottom:16px;">
+          Our payment system is being configured. We'll contact you shortly to arrange payment.
+        </div>
+        <form method="post" action="/s/{{ company_slug }}/{{ token }}/confirm-booking-manual">
+          <button class="btn" type="submit" style="background:#ffa500; color:#000;">
+            ✓ Confirm Booking (Pay Later)
+          </button>
+        </form>
+      </div>
+
+      <div class="hint" style="margin-top:12px; text-align:center;">
+        💡 We'll send you payment instructions via email/SMS
+      </div>
+    {% endif %}
+  </div>
+
+  <!-- Booking Details -->
+  <div class="group">
+    <div style="font-weight:700; margin-bottom:12px;">📋 Booking Summary</div>
+    <div style="display:flex; flex-direction:column; gap:8px;">
+      {% if job.pickup %}
+      <div class="statrow">
+        <div class="staticon" style="background:rgba(46,229,157,.15);">📍</div>
+        <div style="flex:1;">
+          <div style="font-size:11px; color:var(--muted); margin-bottom:2px;">From</div>
+          <div style="font-size:14px; font-weight:600;">{{ job.pickup.label[:50] }}</div>
+        </div>
+      </div>
+      {% endif %}
+
+      {% if job.dropoff %}
+      <div class="statrow">
+        <div class="staticon" style="background:rgba(255,77,79,.15);">📍</div>
+        <div style="flex:1;">
+          <div style="font-size:11px; color:var(--muted); margin-bottom:2px;">To</div>
+          <div style="font-size:14px; font-weight:600;">{{ job.dropoff.label[:50] }}</div>
+        </div>
+      </div>
+      {% endif %}
+
+      {% if job.move_date %}
+      <div class="statrow">
+        <div class="staticon" style="background:rgba(46,229,157,.15);">📅</div>
+        <div style="flex:1;">
+          <div style="font-size:11px; color:var(--muted); margin-bottom:2px;">Moving Date</div>
+          <div style="font-size:14px; font-weight:600;">{{ job.move_date.strftime('%A, %d %B %Y') }}</div>
+        </div>
+      </div>
+      {% endif %}
+
+      <div class="statrow">
+        <div class="staticon" style="background:rgba(46,229,157,.15);">🏠</div>
+        <div style="flex:1;">
+          <div style="font-size:11px; color:var(--muted); margin-bottom:2px;">Property Type</div>
+          <div style="font-size:14px; font-weight:600;">{{ job.property_type or 'Not specified' }}</div>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock %}
+
+{% block footer %}
+  <div class="footer footer-clean">
+    <div class="footer-inner">
+      <a href="/s/{{ company_slug }}/{{ token }}/quote-preview" class="btn secondary">
+        ← Back to Quote
+      </a>
+    </div>
+  </div>
+{% endblock %}

@@ -10,7 +10,7 @@
     </div>
   {% endif %}
 
-  <form id="contactForm" method="post" action="/s/{{ token }}/submit-contact">
+  <form id="contactForm" method="post" action="/s/{{ company_slug }}/{{ token }}/submit-contact">
     <div class="group">
       <div style="margin-bottom:16px;">
         <label for="customer_name" style="display:block; font-weight:600; margin-bottom:8px; font-size:14px;">
@@ -104,7 +104,7 @@
   <div class="footer footer-clean">
     <div class="footer-inner">
       <button id="submitBtn" class="btn ready" type="submit" form="contactForm">
-        ✓ Submit to PrimeHaul
+        ✓ Submit to primehaul
       </button>
       <div class="microhint" style="text-align:center; margin-top:8px;">
         Our team will review and confirm within 2 hours

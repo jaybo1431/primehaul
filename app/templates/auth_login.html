@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - PrimeHaul OS</title>
+    <link rel="stylesheet" href="/static/app.css">
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>PrimeHaul OS</h1>
+            <p class="subtitle">AI-Powered Moving Quote Platform</p>
+        </div>
+
+        <div class="card fade-in">
+            <h2>Admin Login</h2>
+
+            {% if error %}
+            <div class="alert alert-error">
+                {{ error }}
+            </div>
+            {% endif %}
+
+            <form method="POST" action="/auth/login" class="form">
+                <div class="form-group">
+                    <label for="email">Email Address</label>
+                    <input
+                        type="email"
+                        id="email"
+                        name="email"
+                        required
+                        autofocus
+                        placeholder="admin@yourcompany.com"
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input
+                        type="password"
+                        id="password"
+                        name="password"
+                        required
+                        placeholder="Enter your password"
+                    >
+                </div>
+
+                <button type="submit" class="btn btn-primary btn-block">
+                    Sign In
+                </button>
+            </form>
+
+            <div style="margin-top: 24px; text-align: center;">
+                <p style="color: #888; font-size: 14px;">
+                    Don't have an account?
+                    <a href="/auth/signup" style="color: #2ee59d; text-decoration: none;">
+                        Sign up for free trial
+                    </a>
+                </p>
+            </div>
+        </div>
+
+        <div style="text-align: center; margin-top: 32px; color: #666; font-size: 13px;">
+            <p>&copy; 2025 PrimeHaul OS. All rights reserved.</p>
+        </div>
+    </div>
+</body>
+</html>
