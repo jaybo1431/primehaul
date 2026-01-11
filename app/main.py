@@ -2046,9 +2046,9 @@ def booking_calendar_get(request: Request, company_slug: str, token: str, db: Se
     job = get_or_create_job(company.id, token, db)
     quote = calculate_quote(job, db)
 
-    # Set date range (today + 3 days to 90 days out)
-    min_date = (date.today() + timedelta(days=3)).isoformat()
-    max_date = (date.today() + timedelta(days=90)).isoformat()
+    # Set date range (today to 180 days out for flexibility)
+    min_date = date.today().isoformat()
+    max_date = (date.today() + timedelta(days=180)).isoformat()
 
     return templates.TemplateResponse("booking_calendar.html", {
         "request": request,
