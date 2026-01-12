@@ -9,9 +9,14 @@
     <!-- PICKUP LOCATION SECTION -->
     <div class="group">
       <div class="section-header">
-        <div class="section-icon" style="background:rgba(46,229,157,.15);">📍</div>
+        <div class="section-icon" style="background:var(--success-light); color:var(--success);">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10"></circle>
+            <circle cx="12" cy="12" r="3"></circle>
+          </svg>
+        </div>
         <div>
-          <div class="section-title">Pickup Location</div>
+          <div class="section-title">Pickup location</div>
           <div class="section-subtitle">{{ job.pickup.label if job.pickup else "Collection address" }}</div>
         </div>
       </div>
@@ -42,14 +47,24 @@
           <label class="radio-card">
             <input type="radio" name="pickup_has_lift" value="yes" {% if pickup_access.get('has_lift') %}checked{% endif %} required />
             <div class="radio-card-content">
-              <div class="radio-card-icon">✓</div>
+              <div class="radio-card-icon">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                  <polyline points="20 6 9 17 4 12"></polyline>
+                </svg>
+              </div>
               <div class="radio-card-label">Yes, there's a lift</div>
             </div>
           </label>
           <label class="radio-card">
             <input type="radio" name="pickup_has_lift" value="no" {% if not pickup_access.get('has_lift') and pickup_access %}checked{% endif %} />
             <div class="radio-card-content">
-              <div class="radio-card-icon">⚠️</div>
+              <div class="radio-card-icon">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
+                  <line x1="12" y1="9" x2="12" y2="13"></line>
+                  <line x1="12" y1="17" x2="12.01" y2="17"></line>
+                </svg>
+              </div>
               <div class="radio-card-label">No lift (stairs only)</div>
             </div>
           </label>
@@ -147,17 +162,26 @@
     <!-- DROPOFF LOCATION SECTION -->
     <div class="group" style="margin-top:24px;">
       <div class="section-header">
-        <div class="section-icon" style="background:rgba(255,77,79,.15);">📍</div>
+        <div class="section-icon" style="background:rgba(255,77,79,.15); color:#ff4d4f;">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+            <circle cx="12" cy="10" r="3"></circle>
+          </svg>
+        </div>
         <div>
-          <div class="section-title">Dropoff Location</div>
+          <div class="section-title">Dropoff location</div>
           <div class="section-subtitle">{{ job.dropoff.label if job.dropoff else "Delivery address" }}</div>
         </div>
       </div>
 
       <!-- COPY BUTTON -->
-      <div class="hint" style="margin-bottom:16px; padding:12px; background:rgba(46,229,157,.1); border-radius:10px; border:1px solid rgba(46,229,157,.3);">
-        <button type="button" id="copyPickupBtn" class="btn secondary" style="width:100%; margin:0;">
-          📋 Copy from Pickup Location
+      <div class="hint" style="margin-bottom:16px; padding:12px; background:var(--accent-light); border-radius:10px; border:1px solid rgba(0,102,204,.3);">
+        <button type="button" id="copyPickupBtn" class="btn secondary" style="width:100%; margin:0; display:flex; align-items:center; justify-content:center; gap:8px;">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+            <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+          </svg>
+          Copy from pickup location
         </button>
       </div>
 
@@ -187,14 +211,24 @@
           <label class="radio-card">
             <input type="radio" name="dropoff_has_lift" value="yes" {% if dropoff_access.get('has_lift') %}checked{% endif %} required />
             <div class="radio-card-content">
-              <div class="radio-card-icon">✓</div>
+              <div class="radio-card-icon">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                  <polyline points="20 6 9 17 4 12"></polyline>
+                </svg>
+              </div>
               <div class="radio-card-label">Yes, there's a lift</div>
             </div>
           </label>
           <label class="radio-card">
             <input type="radio" name="dropoff_has_lift" value="no" {% if not dropoff_access.get('has_lift') and dropoff_access %}checked{% endif %} />
             <div class="radio-card-content">
-              <div class="radio-card-icon">⚠️</div>
+              <div class="radio-card-icon">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
+                  <line x1="12" y1="9" x2="12" y2="13"></line>
+                  <line x1="12" y1="17" x2="12.01" y2="17"></line>
+                </svg>
+              </div>
               <div class="radio-card-label">No lift (stairs only)</div>
             </div>
           </label>
