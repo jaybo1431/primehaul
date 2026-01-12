@@ -1,0 +1,20 @@
+<svg width="32" height="32" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+  <!-- PrimeHaul OS Favicon - Speed Arrow + Box (Optimized for small sizes) -->
+  
+  <defs>
+    <linearGradient id="faviconGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#2EE59D;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#34C759;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Box/Container (simplified for small sizes) -->
+  <rect x="40" y="60" width="80" height="80" rx="8" fill="none" stroke="url(#faviconGradient)" stroke-width="4"/>
+  
+  <!-- Speed Arrow -->
+  <path d="M 60 100 L 140 100 L 130 90 L 140 100 L 130 110 Z" fill="url(#faviconGradient)"/>
+  
+  <!-- Motion Lines (simplified) -->
+  <line x1="145" y1="98" x2="160" y2="98" stroke="url(#faviconGradient)" stroke-width="3" stroke-linecap="round"/>
+  <line x1="145" y1="102" x2="160" y2="102" stroke="url(#faviconGradient)" stroke-width="3" stroke-linecap="round"/>
+</svg>

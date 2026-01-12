@@ -1,13 +1,13 @@
 {% extends "base.html" %}
 
 {% block content %}
-  <div class="largetitle">✨ Get Your Quote</div>
-  <p class="subtitle">Professional moving quote in 3 minutes — just answer a few questions and snap some photos.</p>
+  <div class="largetitle">Get an instant quote</div>
+  <p class="subtitle">Professional moving quote in 3 minutes. Answer a few questions and scan your rooms with your camera.</p>
 
   <form id="startForm" method="post" action="/s/{{ company_slug }}/{{ token }}/start-v2">
     <!-- Step 1: Addresses -->
     <div class="group">
-      <div style="font-weight:700; margin-bottom:12px;">📍 Where are you moving?</div>
+      <div style="font-weight:700; margin-bottom:12px;">Move locations</div>
 
       <div style="margin-bottom:16px;">
         <label style="display:block; font-size:13px; font-weight:600; margin-bottom:6px; color:var(--muted);">
@@ -24,8 +24,13 @@
             required
             value="{{ job.pickup.label if job and job.pickup else '' }}"
           />
-          <button type="button" id="pickup-voice-btn" class="voice-btn" title="Click to speak address">
-            🎤
+          <button type="button" id="pickup-voice-btn" class="voice-btn" title="Speak address">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path>
+              <path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>
+              <line x1="12" y1="19" x2="12" y2="23"></line>
+              <line x1="8" y1="23" x2="16" y2="23"></line>
+            </svg>
           </button>
         </div>
         <input type="hidden" id="pickup-lat" name="pickup_lat" value="{{ job.pickup.lat if job and job.pickup else '' }}" />
@@ -48,8 +53,13 @@
             required
             value="{{ job.dropoff.label if job and job.dropoff else '' }}"
           />
-          <button type="button" id="dropoff-voice-btn" class="voice-btn" title="Click to speak address">
-            🎤
+          <button type="button" id="dropoff-voice-btn" class="voice-btn" title="Speak address">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path>
+              <path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>
+              <line x1="12" y1="19" x2="12" y2="23"></line>
+              <line x1="8" y1="23" x2="16" y2="23"></line>
+            </svg>
           </button>
         </div>
         <input type="hidden" id="dropoff-lat" name="dropoff_lat" value="{{ job.dropoff.lat if job and job.dropoff else '' }}" />
@@ -60,7 +70,7 @@
 
     <!-- Step 2: Property Type -->
     <div class="group">
-      <div style="font-weight:700; margin-bottom:12px;">🏠 What type of property?</div>
+      <div style="font-weight:700; margin-bottom:12px;">Property type</div>
       <div class="property-grid">
         <label class="property-card">
           <input type="radio" name="property_type" value="studio_flat" required {% if job and job.property_type == 'studio_flat' %}checked{% endif %} />
@@ -123,7 +133,7 @@
 
     <!-- Step 3: Move Date (Optional but helpful) -->
     <div class="group">
-      <div style="font-weight:700; margin-bottom:12px;">📅 When are you moving? <span style="font-weight:400; color:var(--muted);">(Optional)</span></div>
+      <div style="font-weight:700; margin-bottom:12px;">Move date <span style="font-weight:400; color:var(--muted);">(Optional)</span></div>
       <input
         type="date"
         name="move_date"
@@ -131,7 +141,7 @@
         min="{{ today }}"
         value="{{ job.move_date.strftime('%Y-%m-%d') if job and job.move_date else '' }}"
       />
-      <div class="microhint" style="margin-top:6px;">Helps us check availability and plan your move</div>
+      <div class="microhint" style="margin-top:6px;">Helps us check availability</div>
     </div>
   </form>
 
@@ -223,7 +233,6 @@
       recognition.interimResults = false;
 
       btn.addEventListener('click', () => {
-        btn.textContent = '🔴';
         btn.classList.add('listening');
         recognition.start();
       });
@@ -232,13 +241,11 @@
         const transcript = event.results[0][0].transcript;
         input.value = transcript;
         input.dispatchEvent(new Event('input', { bubbles: true })); // Trigger autocomplete
-        btn.textContent = '🎤';
         btn.classList.remove('listening');
       };
 
       recognition.onerror = (event) => {
         console.error('Speech recognition error:', event.error);
-        btn.textContent = '🎤';
         btn.classList.remove('listening');
         if (event.error === 'no-speech') {
           alert('No speech detected. Please try again.');
@@ -248,7 +255,6 @@
       };
 
       recognition.onend = () => {
-        btn.textContent = '🎤';
         btn.classList.remove('listening');
       };
     }
@@ -271,8 +277,8 @@
 
     .form-input:focus {
       outline: none;
-      border-color: #2ee59d;
-      background: rgba(46,229,157,.05);
+      border-color: var(--accent);
+      background: var(--accent-light);
     }
 
     .voice-btn {
@@ -284,9 +290,9 @@
       height: 36px;
       border-radius: 8px;
       border: none;
-      background: rgba(46,229,157,.15);
+      background: var(--accent-light);
+      color: var(--accent);
       cursor: pointer;
-      font-size: 18px;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -294,12 +300,13 @@
     }
 
     .voice-btn:hover {
-      background: rgba(46,229,157,.25);
+      background: rgba(0,102,204,.2);
       transform: translateY(-50%) scale(1.05);
     }
 
     .voice-btn.listening {
-      background: rgba(255,77,79,.3);
+      background: rgba(255,77,79,.2);
+      color: #ff4d4f;
       animation: pulse 1s ease-in-out infinite;
     }
 
@@ -332,7 +339,7 @@
     }
 
     .suggestion-item:hover {
-      background: rgba(46,229,157,.1);
+      background: var(--accent-light);
     }
 
     .property-grid {
@@ -362,8 +369,8 @@
     }
 
     .property-card input:checked + .property-card-content {
-      border-color: #2ee59d;
-      background: rgba(46,229,157,.1);
+      border-color: var(--accent);
+      background: var(--accent-light);
     }
 
     .property-icon {
@@ -395,7 +402,7 @@
 {% block footer %}
   <div class="footer footer-clean">
     <div class="footer-inner">
-      <button class="btn ready" type="submit" form="startForm">Continue →</button>
+      <button class="btn ready" type="submit" form="startForm">Continue</button>
       <div class="microhint" style="text-align:center; margin-top:8px;">Takes 2-3 minutes • No signup required</div>
     </div>
   </div>

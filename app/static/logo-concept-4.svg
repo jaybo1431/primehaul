@@ -1,0 +1,17 @@
+<svg width="200" height="200" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+  <!-- Concept 4: Interlocking "PH" Monogram -->
+  
+  <!-- Letter P -->
+  <path d="M 50 40 L 50 160 L 90 160 Q 110 160 110 140 Q 110 120 90 120 L 70 120 L 70 100 L 90 100 Q 110 100 110 80 Q 110 60 90 60 L 50 60 Z" 
+        fill="#2EE59D"/>
+  
+  <!-- Letter H (interlocking) -->
+  <path d="M 110 40 L 110 60 L 130 60 L 130 100 L 150 100 L 150 60 L 170 60 L 170 160 L 150 160 L 150 120 L 130 120 L 130 160 L 110 160 Z" 
+        fill="#1A1A1C"/>
+  
+  <!-- Connecting element (creates interlock) -->
+  <rect x="105" y="95" width="50" height="10" fill="#2EE59D" opacity="0.8"/>
+  
+  <!-- Subtle background circle -->
+  <circle cx="100" cy="100" r="75" fill="none" stroke="#2EE59D" stroke-width="2" opacity="0.1"/>
+</svg>

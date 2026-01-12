@@ -1,0 +1,27 @@
+<svg width="200" height="200" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+  <!-- Concept 1: Speed Arrow + Box -->
+  
+  <!-- Box/Container -->
+  <rect x="40" y="60" width="80" height="80" rx="8" fill="none" stroke="#2EE59D" stroke-width="4"/>
+  
+  <!-- Speed Arrow -->
+  <path d="M 60 100 L 140 100 L 130 90 L 140 100 L 130 110 Z" fill="#2EE59D"/>
+  
+  <!-- Motion Lines -->
+  <line x1="145" y1="95" x2="160" y2="95" stroke="#2EE59D" stroke-width="3" stroke-linecap="round"/>
+  <line x1="145" y1="100" x2="160" y2="100" stroke="#2EE59D" stroke-width="3" stroke-linecap="round"/>
+  <line x1="145" y1="105" x2="160" y2="105" stroke="#2EE59D" stroke-width="3" stroke-linecap="round"/>
+  
+  <!-- Subtle gradient effect -->
+  <defs>
+    <linearGradient id="primeGreen" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#2EE59D;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#34C759;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Alternative filled version -->
+  <g opacity="0.1">
+    <rect x="40" y="60" width="80" height="80" rx="8" fill="url(#primeGreen)"/>
+  </g>
+</svg>

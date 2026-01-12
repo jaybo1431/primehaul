@@ -1,0 +1,20 @@
+<svg width="200" height="200" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+  <!-- Concept 3: Geometric House + Arrow -->
+  
+  <!-- House Base -->
+  <rect x="60" y="100" width="80" height="60" rx="4" fill="none" stroke="#2EE59D" stroke-width="4"/>
+  
+  <!-- House Roof -->
+  <path d="M 50 100 L 100 50 L 150 100 Z" fill="none" stroke="#2EE59D" stroke-width="4" stroke-linejoin="round"/>
+  
+  <!-- Door -->
+  <rect x="85" y="120" width="30" height="40" rx="2" fill="none" stroke="#2EE59D" stroke-width="3"/>
+  
+  <!-- Forward Arrow -->
+  <path d="M 160 100 L 180 100 L 175 95 L 180 100 L 175 105 Z" fill="#2EE59D"/>
+  
+  <!-- Motion Lines -->
+  <line x1="185" y1="98" x2="195" y2="98" stroke="#2EE59D" stroke-width="3" stroke-linecap="round"/>
+  <line x1="185" y1="100" x2="195" y2="100" stroke="#2EE59D" stroke-width="3" stroke-linecap="round"/>
+  <line x1="185" y1="102" x2="195" y2="102" stroke="#2EE59D" stroke-width="3" stroke-linecap="round"/>
+</svg>

@@ -1,0 +1,534 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PrimeHaul OS - One Pager</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --prime-green: #2EE59D;
+            --deep-charcoal: #1A1A1C;
+            --light-gray: #F5F5F7;
+            --accent-blue: #0066FF;
+            --text-muted: #6B6B6B;
+            --border-color: #E5E5E5;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            line-height: 1.6;
+            color: var(--deep-charcoal);
+            background: #FFFFFF;
+            padding: 0;
+            margin: 0;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 60px 40px;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 60px;
+            padding-bottom: 40px;
+            border-bottom: 2px solid var(--prime-green);
+        }
+
+        h1 {
+            font-size: 48px;
+            font-weight: 700;
+            color: var(--deep-charcoal);
+            margin-bottom: 12px;
+            letter-spacing: -0.5px;
+        }
+
+        h2 {
+            font-size: 24px;
+            font-weight: 400;
+            color: var(--text-muted);
+            margin-bottom: 0;
+        }
+
+        section {
+            margin-bottom: 50px;
+        }
+
+        h3 {
+            font-size: 28px;
+            font-weight: 600;
+            color: var(--deep-charcoal);
+            margin-bottom: 20px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .problem-list, .feature-list, .milestone-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .problem-list li, .feature-list li {
+            padding: 12px 0;
+            padding-left: 24px;
+            position: relative;
+            font-size: 16px;
+            line-height: 1.8;
+        }
+
+        .problem-list li:before {
+            content: "→";
+            position: absolute;
+            left: 0;
+            color: var(--prime-green);
+            font-weight: bold;
+        }
+
+        .feature-list li:before {
+            content: "✓";
+            position: absolute;
+            left: 0;
+            color: var(--prime-green);
+            font-weight: bold;
+        }
+
+        .milestone-list li {
+            padding: 8px 0;
+            padding-left: 24px;
+            position: relative;
+        }
+
+        .milestone-list li:before {
+            content: "•";
+            position: absolute;
+            left: 8px;
+            color: var(--prime-green);
+            font-weight: bold;
+            font-size: 20px;
+        }
+
+        .how-it-works {
+            background: var(--light-gray);
+            padding: 30px;
+            border-radius: 12px;
+            margin: 20px 0;
+        }
+
+        .how-it-works ol {
+            padding-left: 24px;
+        }
+
+        .how-it-works li {
+            margin: 12px 0;
+            font-size: 16px;
+            line-height: 1.8;
+        }
+
+        .highlight {
+            background: var(--prime-green);
+            color: white;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-weight: 600;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            font-size: 15px;
+        }
+
+        table th {
+            background: var(--light-gray);
+            padding: 14px;
+            text-align: left;
+            font-weight: 600;
+            border-bottom: 2px solid var(--border-color);
+        }
+
+        table td {
+            padding: 14px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .check {
+            color: var(--prime-green);
+            font-weight: bold;
+        }
+
+        .cross {
+            color: #FF3B30;
+            font-weight: bold;
+        }
+
+        .ask-section {
+            background: var(--light-gray);
+            padding: 30px;
+            border-radius: 12px;
+            margin: 30px 0;
+        }
+
+        .ask-section h4 {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 12px;
+            color: var(--deep-charcoal);
+        }
+
+        .ask-section ul {
+            list-style: none;
+            padding-left: 0;
+        }
+
+        .ask-section li {
+            padding: 8px 0;
+            padding-left: 20px;
+            position: relative;
+        }
+
+        .ask-section li:before {
+            content: "•";
+            position: absolute;
+            left: 0;
+            color: var(--accent-blue);
+        }
+
+        .vision {
+            background: linear-gradient(135deg, var(--prime-green) 0%, var(--accent-blue) 100%);
+            color: white;
+            padding: 40px;
+            border-radius: 12px;
+            margin: 40px 0;
+            text-align: center;
+            font-size: 18px;
+            line-height: 1.8;
+            font-style: italic;
+        }
+
+        .contact {
+            text-align: center;
+            padding: 40px 0;
+            border-top: 2px solid var(--border-color);
+            margin-top: 50px;
+        }
+
+        .contact p {
+            margin: 8px 0;
+            font-size: 16px;
+            color: var(--text-muted);
+        }
+
+        .contact a {
+            color: var(--accent-blue);
+            text-decoration: none;
+        }
+
+        .contact a:hover {
+            text-decoration: underline;
+        }
+
+        .cta {
+            display: inline-block;
+            background: var(--prime-green);
+            color: white;
+            padding: 14px 32px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 600;
+            margin-top: 20px;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .cta:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(46, 229, 157, 0.3);
+        }
+
+        .footer {
+            text-align: center;
+            padding-top: 40px;
+            margin-top: 40px;
+            border-top: 1px solid var(--border-color);
+            color: var(--text-muted);
+            font-size: 14px;
+        }
+
+        @media print {
+            body {
+                background: white;
+            }
+            .container {
+                padding: 40px 20px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 40px 20px;
+            }
+            h1 {
+                font-size: 36px;
+            }
+            h2 {
+                font-size: 20px;
+            }
+            h3 {
+                font-size: 24px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>PRIMEHAUL OS</h1>
+            <h2>AI-Powered Instant Quotes for UK Removal Companies</h2>
+        </header>
+
+        <section>
+            <h3>THE PROBLEM</h3>
+            <p style="font-size: 18px; font-weight: 600; margin-bottom: 20px;">
+                UK removal companies lose 30% of jobs because they're too slow.
+            </p>
+            <ul class="problem-list">
+                <li><strong>4-24 hour response times</strong> → Customers book with faster competitors</li>
+                <li><strong>£200-500 per site visit</strong> → Wasted on quotes that don't convert</li>
+                <li><strong>Manual inventory counting</strong> → Error-prone, time-consuming</li>
+                <li><strong>No mobile tools</strong> → Bosses can't approve quotes on the go</li>
+            </ul>
+            <p style="margin-top: 20px; font-weight: 600;">
+                Result: Slow response = lost revenue. Traditional quoting is broken.
+            </p>
+        </section>
+
+        <section>
+            <h3>THE SOLUTION</h3>
+            <p style="font-size: 18px; font-weight: 600; margin-bottom: 20px;">
+                PrimeHaul OS: AI-powered instant quotes that removal companies approve in 30 seconds from their phone.
+            </p>
+            
+            <div class="how-it-works">
+                <h4 style="margin-bottom: 16px; font-size: 18px;">How It Works:</h4>
+                <ol>
+                    <li><strong>Customer</strong> takes photos of each room (5 minutes)</li>
+                    <li><strong>AI analyzes photos</strong> → Identifies every item, calculates dimensions & CBM</li>
+                    <li><strong>Instant quote generated</strong> → Customer sees price immediately</li>
+                    <li><strong>Boss approves from phone</strong> → Anywhere, anytime, 30 seconds</li>
+                    <li><strong>Job won</strong> → 10x faster than competitors</li>
+                </ol>
+            </div>
+
+            <h4 style="margin-top: 30px; margin-bottom: 16px; font-size: 18px;">Key Features:</h4>
+            <ul class="feature-list">
+                <li><strong>AI Photo Analysis</strong> - GPT-4 Vision identifies items, calculates CBM automatically</li>
+                <li><strong>Mobile Boss Mode</strong> - Approve quotes from phone (job sites, truck, home)</li>
+                <li><strong>Custom Branding</strong> - White-label experience for each company</li>
+                <li><strong>Custom Pricing</strong> - Set £/CBM rates, fees, surcharges per company</li>
+                <li><strong>30-Day Free Trial</strong> - No credit card required</li>
+            </ul>
+        </section>
+
+        <section>
+            <h3>THE MARKET</h3>
+            <p style="font-size: 18px; margin-bottom: 20px;">
+                <strong>£2.5B+ UK removal market</strong> | <strong>2,000+ removal companies</strong> | <strong>Most still use pen & paper</strong>
+            </p>
+            
+            <h4 style="margin-top: 24px; margin-bottom: 12px; font-size: 18px;">Target Customers:</h4>
+            <ul class="milestone-list">
+                <li>Small-medium removal companies (1-10 trucks)</li>
+                <li>Struggling with slow quote response times</li>
+                <li>Losing jobs to faster competitors</li>
+                <li>Want to eliminate wasted site visits</li>
+            </ul>
+
+            <h4 style="margin-top: 24px; margin-bottom: 12px; font-size: 18px;">Market Size:</h4>
+            <ul class="milestone-list">
+                <li><strong>Year 1 Target:</strong> 500 paying customers = <strong>£756K ARR</strong></li>
+                <li><strong>Year 2 Target:</strong> 1,000 customers + marketplace = <strong>£1.64M ARR</strong></li>
+            </ul>
+        </section>
+
+        <section>
+            <h3>BUSINESS MODEL</h3>
+            
+            <h4 style="margin-top: 20px; margin-bottom: 12px; font-size: 18px;">Revenue Streams:</h4>
+            
+            <p style="margin-bottom: 12px;"><strong>1. B2B SaaS Subscription</strong> (Current)</p>
+            <ul class="milestone-list">
+                <li><strong>£49-£999/month</strong> per removal company (tiered pricing)</li>
+                <li>10-200 quotes included per tier (or unlimited)</li>
+                <li>30-day free trial, no credit card required</li>
+                <li><strong>Target:</strong> 500 customers = £63,000 MRR</li>
+            </ul>
+
+            <p style="margin-top: 24px; margin-bottom: 12px;"><strong>2. Marketplace Commission</strong> (In Progress)</p>
+            <ul class="milestone-list">
+                <li><strong>15% commission</strong> per completed job</li>
+                <li>Connects customers directly to removal companies</li>
+                <li><strong>Target:</strong> 100 jobs/month = £10,500 commission MRR</li>
+            </ul>
+
+            <h4 style="margin-top: 24px; margin-bottom: 12px; font-size: 18px;">Unit Economics:</h4>
+            <ul class="milestone-list">
+                <li><strong>CAC:</strong> £50-100 (target)</li>
+                <li><strong>LTV:</strong> £600+ (6+ months retention)</li>
+                <li><strong>LTV:CAC:</strong> 6:1 (target)</li>
+                <li><strong>Churn:</strong> &lt;10%/month (target)</li>
+            </ul>
+        </section>
+
+        <section>
+            <h3>TRACTION & MILESTONES</h3>
+            
+            <p style="margin-bottom: 12px;"><strong>✓ Production-Ready Platform</strong></p>
+            <ul class="milestone-list">
+                <li>Multi-tenant B2B SaaS architecture</li>
+                <li>AI photo analysis (OpenAI GPT-4 Vision)</li>
+                <li>Stripe billing integration</li>
+                <li>Mobile-optimized admin dashboard</li>
+                <li>Complete data isolation & security</li>
+            </ul>
+
+            <p style="margin-top: 20px; margin-bottom: 12px;"><strong>✓ Technical Foundation</strong></p>
+            <ul class="milestone-list">
+                <li>PostgreSQL database with migrations</li>
+                <li>JWT authentication & role-based access</li>
+                <li>ML data collection infrastructure</li>
+                <li>Analytics dashboard</li>
+                <li>Comprehensive documentation</li>
+            </ul>
+
+            <p style="margin-top: 20px; margin-bottom: 12px;"><strong>→ In Progress</strong></p>
+            <ul class="milestone-list">
+                <li>Marketplace core logic (database models complete)</li>
+                <li>Job broadcasting system</li>
+                <li>Bid management interface</li>
+            </ul>
+        </section>
+
+        <section>
+            <h3>COMPETITIVE ADVANTAGE</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Feature</th>
+                        <th>PrimeHaul OS</th>
+                        <th>Traditional Competitors</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Response Time</strong></td>
+                        <td>30 seconds</td>
+                        <td>4-24 hours</td>
+                    </tr>
+                    <tr>
+                        <td><strong>AI-Powered</strong></td>
+                        <td><span class="check">✓</span> Automatic inventory</td>
+                        <td><span class="cross">✗</span> Manual entry</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Mobile-First</strong></td>
+                        <td><span class="check">✓</span> Approve from phone</td>
+                        <td><span class="cross">✗</span> Desktop-only</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Site Visits</strong></td>
+                        <td><span class="cross">✗</span> Not needed</td>
+                        <td><span class="check">✓</span> Required</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Pricing</strong></td>
+                        <td>£49-£999/month tiers</td>
+                        <td>Per-quote fees</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Accuracy</strong></td>
+                        <td>AI calculates CBM</td>
+                        <td>Human estimation</td>
+                    </tr>
+                </tbody>
+            </table>
+            <p style="margin-top: 20px; font-weight: 600;">
+                Result: 10x faster response = 30% more jobs won
+            </p>
+        </section>
+
+        <section>
+            <h3>THE ASK</h3>
+            
+            <div class="ask-section">
+                <h4>For Investors:</h4>
+                <p style="margin-bottom: 12px;"><strong>Seeking £250K seed round</strong> to:</p>
+                <ul>
+                    <li>Launch marketplace (complete Phase 2)</li>
+                    <li>Acquire first 100 paying customers</li>
+                    <li>Scale marketing (Google Ads, partnerships)</li>
+                    <li>Build mobile app (React Native)</li>
+                </ul>
+                <p style="margin-top: 16px;"><strong>Projected Returns:</strong></p>
+                <ul>
+                    <li>Year 1: £756K ARR (500 customers, tiered pricing)</li>
+                    <li>Year 2: £1.64M ARR (marketplace scaling)</li>
+                    <li>Exit potential: £50M+ (SaaS + marketplace)</li>
+                </ul>
+            </div>
+
+            <div class="ask-section">
+                <h4>For Partners:</h4>
+                <p style="margin-bottom: 12px;"><strong>Seeking strategic partnerships with:</strong></p>
+                <ul>
+                    <li>Estate agents (referral channel)</li>
+                    <li>Property portals (Rightmove, Zoopla)</li>
+                    <li>Removal industry associations</li>
+                    <li>Insurance companies</li>
+                </ul>
+            </div>
+
+            <div class="ask-section">
+                <h4>For Customers:</h4>
+                <p style="margin-bottom: 12px;"><strong>30-day free trial</strong> - No credit card required</p>
+                <ul>
+                    <li>Test with real customers</li>
+                    <li>See instant quote generation</li>
+                    <li>Approve from your phone</li>
+                    <li>Win more jobs, faster</li>
+                </ul>
+            </div>
+        </section>
+
+        <div class="vision">
+            "Digitize the UK removal industry with AI that eliminates friction, speeds up response times, and helps removal companies win more jobs. We're building the infrastructure that connects customers to removal companies—faster, smarter, better."
+        </div>
+
+        <div class="contact">
+            <p><strong>Website:</strong> primehaul.co.uk</p>
+            <p><strong>Email:</strong> hello@primehaul.co.uk</p>
+            <p><strong>Phone:</strong> [Your Number]</p>
+            <p><strong>Location:</strong> UK</p>
+            <p style="margin-top: 24px; font-weight: 600; font-size: 18px;">
+                Ready to transform your removal business?
+            </p>
+            <a href="#" class="cta">Start your 30-day free trial today</a>
+        </div>
+
+        <div class="footer">
+            <p>PrimeHaul OS - AI-Powered Instant Quotes for UK Removal Companies</p>
+            <p>© 2025 PrimeHaul. All rights reserved.</p>
+        </div>
+    </div>
+</body>
+</html>

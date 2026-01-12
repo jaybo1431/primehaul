@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PrimeHaul OS - Logo Concepts Preview</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: #F5F5F7;
+            padding: 40px 20px;
+            color: #1A1A1C;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            font-size: 36px;
+            font-weight: 700;
+            margin-bottom: 8px;
+            color: #1A1A1C;
+        }
+
+        .subtitle {
+            font-size: 18px;
+            color: #6B6B6B;
+            margin-bottom: 40px;
+        }
+
+        .concept-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            margin-bottom: 60px;
+        }
+
+        .concept-card {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .concept-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+        }
+
+        .concept-card h3 {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 12px;
+            color: #1A1A1C;
+        }
+
+        .concept-card p {
+            font-size: 14px;
+            color: #6B6B6B;
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+
+        .logo-preview {
+            background: #F5F5F7;
+            border-radius: 8px;
+            padding: 30px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 20px;
+            min-height: 200px;
+        }
+
+        .logo-preview.dark {
+            background: #1A1A1C;
+        }
+
+        .logo-preview svg {
+            max-width: 100%;
+            height: auto;
+        }
+
+        .variations {
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid #E5E5E5;
+        }
+
+        .variations h4 {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 12px;
+            color: #1A1A1C;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .variation-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+        }
+
+        .variation-item {
+            background: #F5F5F7;
+            border-radius: 6px;
+            padding: 15px;
+            text-align: center;
+            font-size: 12px;
+            color: #6B6B6B;
+        }
+
+        .variation-item.dark {
+            background: #1A1A1C;
+        }
+
+        .variation-item svg {
+            width: 60px;
+            height: 60px;
+            margin-bottom: 8px;
+        }
+
+        .recommended {
+            border: 2px solid #2EE59D;
+            position: relative;
+        }
+
+        .recommended::before {
+            content: "RECOMMENDED";
+            position: absolute;
+            top: -12px;
+            left: 20px;
+            background: #2EE59D;
+            color: white;
+            padding: 4px 12px;
+            border-radius: 4px;
+            font-size: 10px;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+        }
+
+        .full-logo-section {
+            background: white;
+            border-radius: 12px;
+            padding: 40px;
+            margin-top: 40px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .full-logo-section h2 {
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 30px;
+            color: #1A1A1C;
+        }
+
+        .full-logo-preview {
+            background: #F5F5F7;
+            border-radius: 8px;
+            padding: 40px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .full-logo-preview.dark {
+            background: #1A1A1C;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>PrimeHaul OS Logo Concepts</h1>
+        <p class="subtitle">Professional logo designs aligned with brand identity</p>
+
+        <div class="concept-grid">
+            <!-- Concept 1 -->
+            <div class="concept-card recommended">
+                <h3>Concept 1: Speed Arrow + Box</h3>
+                <p>Forward-moving arrow through a box, representing fast, efficient moving services. Modern, dynamic, and immediately communicates speed.</p>
+                <div class="logo-preview">
+                    <img src="app/static/logo-concept-1.svg" alt="Concept 1" style="width: 150px; height: 150px;">
+                </div>
+                <div class="logo-preview dark">
+                    <img src="app/static/logo-concept-1.svg" alt="Concept 1 Dark" style="width: 150px; height: 150px; filter: brightness(0) invert(1);">
+                </div>
+                <div class="variations">
+                    <h4>Variations</h4>
+                    <div class="variation-grid">
+                        <div class="variation-item">
+                            <img src="app/static/logo-concept-1.svg" alt="Icon" style="width: 60px; height: 60px;">
+                            <div>Icon Only</div>
+                        </div>
+                        <div class="variation-item dark">
+                            <img src="app/static/logo-concept-1.svg" alt="Dark" style="width: 60px; height: 60px; filter: brightness(0) invert(1);">
+                            <div>Dark BG</div>
+                        </div>
+                        <div class="variation-item">
+                            <div style="width: 60px; height: 60px; background: #1A1A1C; border-radius: 4px; display: flex; align-items: center; justify-content: center; margin: 0 auto;">
+                                <img src="app/static/logo-concept-1.svg" alt="Mono" style="width: 40px; height: 40px; filter: brightness(0) invert(1);">
+                            </div>
+                            <div>Monochrome</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Concept 2 -->
+            <div class="concept-card">
+                <h3>Concept 2: Stylized "P" with Motion</h3>
+                <p>Bold letter "P" with motion lines suggesting speed and movement. Friendly, energetic, and perfect for wordmark applications.</p>
+                <div class="logo-preview">
+                    <img src="app/static/logo-concept-2.svg" alt="Concept 2" style="width: 150px; height: 150px;">
+                </div>
+                <div class="logo-preview dark">
+                    <img src="app/static/logo-concept-2.svg" alt="Concept 2 Dark" style="width: 150px; height: 150px; filter: brightness(0) invert(1);">
+                </div>
+            </div>
+
+            <!-- Concept 3 -->
+            <div class="concept-card">
+                <h3>Concept 3: Geometric House + Arrow</h3>
+                <p>Minimalist house icon with forward arrow indicating movement. Clean, trustworthy, and clearly relates to removals/home services.</p>
+                <div class="logo-preview">
+                    <img src="app/static/logo-concept-3.svg" alt="Concept 3" style="width: 150px; height: 150px;">
+                </div>
+                <div class="logo-preview dark">
+                    <img src="app/static/logo-concept-3.svg" alt="Concept 3 Dark" style="width: 150px; height: 150px; filter: brightness(0) invert(1);">
+                </div>
+            </div>
+
+            <!-- Concept 4 -->
+            <div class="concept-card">
+                <h3>Concept 4: Interlocking "PH" Monogram</h3>
+                <p>Elegant monogram combining "P" and "H" in an interconnected design. Sophisticated, premium feel for luxury positioning.</p>
+                <div class="logo-preview">
+                    <img src="app/static/logo-concept-4.svg" alt="Concept 4" style="width: 150px; height: 150px;">
+                </div>
+                <div class="logo-preview dark">
+                    <img src="app/static/logo-concept-4.svg" alt="Concept 4 Dark" style="width: 150px; height: 150px; filter: brightness(0) invert(1);">
+                </div>
+            </div>
+
+            <!-- Concept 5 -->
+            <div class="concept-card">
+                <h3>Concept 5: Speed Lines + Circle Badge</h3>
+                <p>Circular badge with radial speed lines, representing fast service and completion. Trustworthy, reliable, professional seal.</p>
+                <div class="logo-preview">
+                    <img src="app/static/logo-concept-5.svg" alt="Concept 5" style="width: 150px; height: 150px;">
+                </div>
+                <div class="logo-preview dark">
+                    <img src="app/static/logo-concept-5.svg" alt="Concept 5 Dark" style="width: 150px; height: 150px; filter: brightness(0) invert(1);">
+                </div>
+            </div>
+        </div>
+
+        <div class="full-logo-section">
+            <h2>Full Logo with Wordmark</h2>
+            <p style="color: #6B6B6B; margin-bottom: 20px;">Recommended full logo combining icon and wordmark</p>
+            <div class="full-logo-preview">
+                <img src="app/static/logo-full-wordmark.svg" alt="Full Logo" style="max-width: 100%; height: auto;">
+            </div>
+            <div class="full-logo-preview dark">
+                <img src="app/static/logo-full-wordmark.svg" alt="Full Logo Dark" style="max-width: 100%; height: auto; filter: brightness(0) invert(1);">
+            </div>
+        </div>
+    </div>
+</body>
+</html>
