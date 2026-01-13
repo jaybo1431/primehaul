@@ -2970,6 +2970,15 @@ def update_pricing(
     fragile_item_fee: float = Form(...),
     weight_threshold_kg: int = Form(...),
     price_per_kg_over_threshold: float = Form(...),
+    pack1_price: float = Form(...),
+    pack2_price: float = Form(...),
+    pack3_price: float = Form(...),
+    pack6_price: float = Form(...),
+    robe_carton_price: float = Form(...),
+    tape_price: float = Form(...),
+    paper_price: float = Form(...),
+    mattress_cover_price: float = Form(...),
+    packing_labor_per_hour: float = Form(...),
     estimate_low_multiplier: float = Form(...),
     estimate_high_multiplier: float = Form(...),
     current_user: User = Depends(get_current_user),
@@ -2979,7 +2988,13 @@ def update_pricing(
     company = verify_company_access(company_slug, current_user)
 
     # Validate inputs
-    if any(v < 0 for v in [price_per_cbm, callout_fee, bulky_item_fee, fragile_item_fee, price_per_kg_over_threshold]):
+    all_prices = [
+        price_per_cbm, callout_fee, bulky_item_fee, fragile_item_fee, price_per_kg_over_threshold,
+        pack1_price, pack2_price, pack3_price, pack6_price, robe_carton_price,
+        tape_price, paper_price, mattress_cover_price, packing_labor_per_hour
+    ]
+
+    if any(v < 0 for v in all_prices):
         return RedirectResponse(
             url=f"/{company_slug}/admin/pricing?error=All prices must be positive numbers",
             status_code=303
@@ -3013,6 +3028,15 @@ def update_pricing(
     pricing.fragile_item_fee = fragile_item_fee
     pricing.weight_threshold_kg = weight_threshold_kg
     pricing.price_per_kg_over_threshold = price_per_kg_over_threshold
+    pricing.pack1_price = pack1_price
+    pricing.pack2_price = pack2_price
+    pricing.pack3_price = pack3_price
+    pricing.pack6_price = pack6_price
+    pricing.robe_carton_price = robe_carton_price
+    pricing.tape_price = tape_price
+    pricing.paper_price = paper_price
+    pricing.mattress_cover_price = mattress_cover_price
+    pricing.packing_labor_per_hour = packing_labor_per_hour
     pricing.estimate_low_multiplier = estimate_low_multiplier
     pricing.estimate_high_multiplier = estimate_high_multiplier
 

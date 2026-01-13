@@ -163,6 +163,190 @@
                     </div>
                 </div>
 
+                <!-- Packing Materials Pricing -->
+                <div style="margin-bottom: 32px; padding-bottom: 32px; border-bottom: 1px solid #333;">
+                    <h3 style="margin-bottom: 16px;">Packing Materials Pricing</h3>
+                    <p style="color: #888; font-size: 14px; margin-bottom: 16px;">
+                        Set prices for boxes, tape, paper, and other packing materials.
+                    </p>
+
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                        <div class="form-group">
+                            <label for="pack1_price">Small Box (18×18×10") - £</label>
+                            <input
+                                type="number"
+                                id="pack1_price"
+                                name="pack1_price"
+                                step="0.01"
+                                min="0"
+                                required
+                                value="{{ pricing.pack1_price }}"
+                                placeholder="1.05"
+                            >
+                            <small style="color: #666; font-size: 12px;">
+                                For books, heavy items
+                            </small>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="pack2_price">Medium Box (18×18×20") - £</label>
+                            <input
+                                type="number"
+                                id="pack2_price"
+                                name="pack2_price"
+                                step="0.01"
+                                min="0"
+                                required
+                                value="{{ pricing.pack2_price }}"
+                                placeholder="1.55"
+                            >
+                            <small style="color: #666; font-size: 12px;">
+                                For kitchen items, clothes
+                            </small>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="pack3_price">Large Box (18×18×30") - £</label>
+                            <input
+                                type="number"
+                                id="pack3_price"
+                                name="pack3_price"
+                                step="0.01"
+                                min="0"
+                                required
+                                value="{{ pricing.pack3_price }}"
+                                placeholder="2.00"
+                            >
+                            <small style="color: #666; font-size: 12px;">
+                                For linens, bedding, cushions
+                            </small>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="pack6_price">Extra Small Box (18×13×13") - £</label>
+                            <input
+                                type="number"
+                                id="pack6_price"
+                                name="pack6_price"
+                                step="0.01"
+                                min="0"
+                                required
+                                value="{{ pricing.pack6_price }}"
+                                placeholder="1.05"
+                            >
+                            <small style="color: #666; font-size: 12px;">
+                                For small, fragile items
+                            </small>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="robe_carton_price">Wardrobe Carton (20×18×48") - £</label>
+                            <input
+                                type="number"
+                                id="robe_carton_price"
+                                name="robe_carton_price"
+                                step="0.01"
+                                min="0"
+                                required
+                                value="{{ pricing.robe_carton_price }}"
+                                placeholder="10.00"
+                            >
+                            <small style="color: #666; font-size: 12px;">
+                                For hanging clothes (1 per wardrobe door)
+                            </small>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="mattress_cover_price">Mattress Cover (King) - £</label>
+                            <input
+                                type="number"
+                                id="mattress_cover_price"
+                                name="mattress_cover_price"
+                                step="0.01"
+                                min="0"
+                                required
+                                value="{{ pricing.mattress_cover_price }}"
+                                placeholder="1.74"
+                            >
+                            <small style="color: #666; font-size: 12px;">
+                                Protective cover per mattress
+                            </small>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="tape_price">Packing Tape (per roll) - £</label>
+                            <input
+                                type="number"
+                                id="tape_price"
+                                name="tape_price"
+                                step="0.01"
+                                min="0"
+                                required
+                                value="{{ pricing.tape_price }}"
+                                placeholder="1.14"
+                            >
+                            <small style="color: #666; font-size: 12px;">
+                                1 roll per 10 boxes
+                            </small>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="paper_price">Packing Paper (per pack) - £</label>
+                            <input
+                                type="number"
+                                id="paper_price"
+                                name="paper_price"
+                                step="0.01"
+                                min="0"
+                                required
+                                value="{{ pricing.paper_price }}"
+                                placeholder="7.50"
+                            >
+                            <small style="color: #666; font-size: 12px;">
+                                1.5 packs per 10 CBM
+                            </small>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Packing Service Labor -->
+                <div style="margin-bottom: 32px; padding-bottom: 32px; border-bottom: 1px solid #333;">
+                    <h3 style="margin-bottom: 16px;">Packing Service Labor</h3>
+                    <p style="color: #888; font-size: 14px; margin-bottom: 16px;">
+                        Set hourly rate for professional packing service.
+                    </p>
+
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                        <div class="form-group">
+                            <label for="packing_labor_per_hour">Packing Labor (per hour) - £</label>
+                            <input
+                                type="number"
+                                id="packing_labor_per_hour"
+                                name="packing_labor_per_hour"
+                                step="0.01"
+                                min="0"
+                                required
+                                value="{{ pricing.packing_labor_per_hour }}"
+                                placeholder="40.00"
+                            >
+                            <small style="color: #666; font-size: 12px;">
+                                Hourly rate for professional packing (materials included)
+                            </small>
+                        </div>
+
+                        <div style="padding: 16px; background: rgba(46, 229, 157, 0.05); border: 1px solid rgba(46, 229, 157, 0.2); border-radius: 8px;">
+                            <div style="font-size: 13px; color: #2ee59d; font-weight: 600; margin-bottom: 6px;">
+                                Packing Rates
+                            </div>
+                            <div style="font-size: 12px; color: #aaa; line-height: 1.6;">
+                                • Kitchen: ~15 items/hour (fragile)<br>
+                                • Other rooms: ~20 items/hour<br>
+                                • Minimum: 30 min per room
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- Estimate Range -->
                 <div style="margin-bottom: 32px;">
                     <h3 style="margin-bottom: 16px;">Estimate Range Multipliers</h3>
