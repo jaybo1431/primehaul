@@ -149,6 +149,9 @@ class PricingConfig(Base):
     paper_price = Column(DECIMAL(10, 2), nullable=False, default=7.50)  # £7.50 per 1.5 packs per 10 CBM
     mattress_cover_price = Column(DECIMAL(10, 2), nullable=False, default=1.74)  # King size mattress cover
 
+    # Packing Service Labor Pricing
+    packing_labor_per_hour = Column(DECIMAL(10, 2), nullable=False, default=40.00)  # £40/hour for packing service
+
     # Relationships
     company = relationship("Company", back_populates="pricing_config")
 
@@ -187,6 +190,7 @@ class Job(Base):
 
     # Packing Preferences
     customer_provides_packing = Column(Boolean, default=False)  # True if customer brings own materials
+    packing_service_rooms = Column(JSONB)  # List of room IDs customer wants packed: ["room-id-1", "room-id-2"]
 
     # Status & Timestamps
     status = Column(String(50), nullable=False, default='in_progress', index=True)  # in_progress, awaiting_approval, approved, rejected

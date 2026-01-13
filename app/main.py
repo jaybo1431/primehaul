@@ -1762,6 +1762,72 @@ def calculate_packing_materials(job: Job, pricing: PricingConfig, db: Session) -
     }
 
 
+def calculate_packing_service(job: Job, pricing: PricingConfig, db: Session) -> dict:
+    """
+    Calculate packing service estimates per room
+    Returns: {
+        "rooms": [{"room_id": "...", "room_name": "Kitchen", "hours": 2.5, "cost": 100.00, "items_count": 45}],
+        "total_hours": 5.0,
+        "total_cost": 200.00
+    }
+    """
+    rooms = db.query(Room).filter(Room.job_id == job.id).all()
+    room_estimates = []
+    total_hours = 0
+
+    for room in rooms:
+        items = db.query(Item).filter(Item.room_id == room.id).all()
+
+        # Count items that need packing (loose items)
+        items_needing_packing = 0
+        for item in items:
+            packing_req = item.packing_requirement or "none"
+            if packing_req in ['small_box', 'medium_box', 'large_box']:
+                items_needing_packing += (item.qty or 1)
+
+        # Skip rooms with no loose items
+        if items_needing_packing == 0:
+            continue
+
+        # Estimate packing time based on item count and room type
+        # Base: 5 items per 15 minutes = 20 items/hour
+        # Kitchens are slower (fragile, wrapping): 15 items/hour
+        # Bedrooms/living rooms: 20 items/hour
+
+        if 'kitchen' in room.room_name.lower():
+            packing_rate = 15  # items per hour
+        else:
+            packing_rate = 20  # items per hour
+
+        estimated_hours = max(0.5, items_needing_packing / packing_rate)  # Minimum 30min per room
+        estimated_cost = estimated_hours * float(pricing.packing_labor_per_hour)
+
+        # Check if customer wants this room packed
+        is_selected = False
+        if job.packing_service_rooms:
+            is_selected = str(room.id) in job.packing_service_rooms
+
+        room_estimates.append({
+            "room_id": str(room.id),
+            "room_name": room.room_name,
+            "hours": round(estimated_hours, 1),
+            "cost": round(estimated_cost, 2),
+            "items_count": items_needing_packing,
+            "is_selected": is_selected
+        })
+
+        if is_selected:
+            total_hours += estimated_hours
+
+    total_cost = total_hours * float(pricing.packing_labor_per_hour)
+
+    return {
+        "rooms": room_estimates,
+        "total_hours": round(total_hours, 1),
+        "total_cost": round(total_cost, 2)
+    }
+
+
 def calculate_quote(job: Job, db: Session) -> dict:
     """Calculate professional quote using company's custom pricing"""
     # Get company pricing config
@@ -1912,7 +1978,12 @@ def calculate_quote(job: Job, db: Session) -> dict:
     packing_price = packing_data['total_cost']
     packing_breakdown = packing_data['breakdown']
 
-    total = base_price + cbm_price + bulky_surcharge + fragile_surcharge + weight_price + distance_price + access_price + packing_price
+    # === PACKING SERVICE LABOR PRICING ===
+    packing_service_data = calculate_packing_service(job, pricing, db)
+    packing_service_price = packing_service_data['total_cost']
+    packing_service_breakdown = packing_service_data
+
+    total = base_price + cbm_price + bulky_surcharge + fragile_surcharge + weight_price + distance_price + access_price + packing_price + packing_service_price
 
     # Apply company's estimate multipliers
     estimate_low = int(total * float(pricing.estimate_low_multiplier))
@@ -1991,10 +2062,12 @@ def calculate_quote(job: Job, db: Session) -> dict:
             "weight": round(weight_price, 2),
             "distance": distance_price,
             "access": round(access_price, 2),
-            "packing": round(packing_price, 2)
+            "packing": round(packing_price, 2),
+            "packing_service": round(packing_service_price, 2)
         },
         "access_breakdown": access_breakdown,
-        "packing_breakdown": packing_breakdown
+        "packing_breakdown": packing_breakdown,
+        "packing_service_breakdown": packing_service_breakdown
     }
 
 
@@ -2027,6 +2100,7 @@ def quote_preview(request: Request, company_slug: str, token: str, db: Session =
         "breakdown": quote["breakdown"],
         "packing_breakdown": quote.get("packing_breakdown"),
         "access_breakdown": quote.get("access_breakdown"),
+        "packing_service_breakdown": quote.get("packing_service_breakdown"),
     })
 
 
@@ -2044,6 +2118,26 @@ def update_packing_preference(
 
     # Update preference
     job.customer_provides_packing = (use_company_packing == "no")
+    db.commit()
+
+    # Redirect back to quote preview to show updated pricing
+    return RedirectResponse(url=f"/s/{company_slug}/{token}/quote-preview", status_code=303)
+
+
+@app.post("/s/{company_slug}/{token}/packing-service")
+def update_packing_service(
+    request: Request,
+    company_slug: str,
+    token: str,
+    room_ids: list[str] = Form([]),
+    db: Session = Depends(get_db)
+):
+    """Update which rooms customer wants packing service for"""
+    company = request.state.company
+    job = get_or_create_job(company.id, token, db)
+
+    # Update selected rooms
+    job.packing_service_rooms = room_ids if room_ids else []
     db.commit()
 
     # Redirect back to quote preview to show updated pricing
