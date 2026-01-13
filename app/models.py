@@ -185,6 +185,9 @@ class Job(Base):
     customer_email = Column(String(255))
     customer_phone = Column(String(50))
 
+    # Packing Preferences
+    customer_provides_packing = Column(Boolean, default=False)  # True if customer brings own materials
+
     # Status & Timestamps
     status = Column(String(50), nullable=False, default='in_progress', index=True)  # in_progress, awaiting_approval, approved, rejected
     submitted_at = Column(DateTime(timezone=True), index=True)

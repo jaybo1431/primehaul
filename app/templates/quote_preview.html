@@ -94,6 +94,75 @@
         {% endif %}
       </div>
     </div>
+
+    {% if packing_breakdown and (packing_breakdown.small_boxes.qty > 0 or packing_breakdown.medium_boxes.qty > 0 or packing_breakdown.large_boxes.qty > 0 or packing_breakdown.robe_cartons.qty > 0) %}
+    <div style="margin-top:16px; padding-top:16px; border-top:1px solid var(--hair);">
+      <div style="font-weight:700; margin-bottom:12px;">Packing materials needed</div>
+
+      <div style="padding:14px; border-radius:12px; background:rgba(255,255,255,.05); border:1px solid rgba(255,255,255,.1); margin-bottom:12px;">
+        <div style="display:flex; flex-direction:column; gap:8px; font-size:14px;">
+          {% if packing_breakdown.small_boxes.qty > 0 %}
+          <div class="statrow">
+            <div style="flex:1; color:var(--muted);">Small boxes (18×18×10")</div>
+            <div style="font-weight:600;">{{ packing_breakdown.small_boxes.qty }} boxes</div>
+          </div>
+          {% endif %}
+          {% if packing_breakdown.medium_boxes.qty > 0 %}
+          <div class="statrow">
+            <div style="flex:1; color:var(--muted);">Medium boxes (18×18×20")</div>
+            <div style="font-weight:600;">{{ packing_breakdown.medium_boxes.qty }} boxes</div>
+          </div>
+          {% endif %}
+          {% if packing_breakdown.large_boxes.qty > 0 %}
+          <div class="statrow">
+            <div style="flex:1; color:var(--muted);">Large boxes (18×18×30")</div>
+            <div style="font-weight:600;">{{ packing_breakdown.large_boxes.qty }} boxes</div>
+          </div>
+          {% endif %}
+          {% if packing_breakdown.robe_cartons.qty > 0 %}
+          <div class="statrow">
+            <div style="flex:1; color:var(--muted);">Wardrobe cartons</div>
+            <div style="font-weight:600;">{{ packing_breakdown.robe_cartons.qty }} cartons</div>
+          </div>
+          {% endif %}
+          {% if packing_breakdown.mattress_covers.qty > 0 %}
+          <div class="statrow">
+            <div style="flex:1; color:var(--muted);">Mattress covers</div>
+            <div style="font-weight:600;">{{ packing_breakdown.mattress_covers.qty }} covers</div>
+          </div>
+          {% endif %}
+          <div class="statrow">
+            <div style="flex:1; color:var(--muted);">Tape & packing paper</div>
+            <div style="font-weight:600;">{{ packing_breakdown.tape_rolls.qty }} rolls, {{ "%.1f"|format(packing_breakdown.paper_packs.qty) }} packs</div>
+          </div>
+        </div>
+      </div>
+
+      <form method="post" action="/s/{{ company_slug }}/{{ token }}/packing-preference" style="margin-bottom:12px;">
+        <label style="display:flex; align-items:center; padding:14px; border-radius:12px; background:rgba(255,255,255,.05); border:1px solid rgba(255,255,255,.1); cursor:pointer;">
+          <input type="radio" name="use_company_packing" value="yes" {% if not job.customer_provides_packing %}checked{% endif %} style="margin-right:12px;" onchange="this.form.submit()">
+          <div style="flex:1;">
+            <div style="font-weight:600; margin-bottom:3px;">Use our packing materials</div>
+            <div style="font-size:13px; color:var(--muted);">We'll provide all boxes, tape, and paper (+£{{ "%.2f"|format(breakdown.packing) }})</div>
+          </div>
+        </label>
+
+        <label style="display:flex; align-items:center; padding:14px; border-radius:12px; background:rgba(255,255,255,.05); border:1px solid rgba(255,255,255,.1); cursor:pointer; margin-top:8px;">
+          <input type="radio" name="use_company_packing" value="no" {% if job.customer_provides_packing %}checked{% endif %} style="margin-right:12px;" onchange="this.form.submit()">
+          <div style="flex:1;">
+            <div style="font-weight:600; margin-bottom:3px;">I'll provide my own</div>
+            <div style="font-size:13px; color:var(--muted);">No charge - bring the materials listed above</div>
+          </div>
+        </label>
+      </form>
+
+      {% if job.customer_provides_packing %}
+      <div style="padding:12px; border-radius:8px; background:rgba(46,229,157,.1); border:1px solid rgba(46,229,157,.3); font-size:13px;">
+        You'll provide your own packing materials. Make sure you have everything listed above ready for moving day.
+      </div>
+      {% endif %}
+    </div>
+    {% endif %}
   </div>
 {% endblock %}
 

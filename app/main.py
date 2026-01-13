@@ -1737,8 +1737,14 @@ def calculate_packing_materials(job: Job, pricing: PricingConfig, db: Session) -
     paper_packs = (total_cbm / 10) * 1.5 if total_cbm > 0 else 0
     paper_cost = paper_packs * float(pricing.paper_price)
 
-    total_packing_cost = (pack1_cost + pack2_cost + pack3_cost + pack6_cost +
-                          robe_cost + mattress_cost + tape_cost + paper_cost)
+    # If customer is providing their own packing, cost is £0 but still show quantities
+    if job.customer_provides_packing:
+        total_packing_cost = 0
+        pack1_cost = pack2_cost = pack3_cost = pack6_cost = 0
+        robe_cost = mattress_cost = tape_cost = paper_cost = 0
+    else:
+        total_packing_cost = (pack1_cost + pack2_cost + pack3_cost + pack6_cost +
+                              robe_cost + mattress_cost + tape_cost + paper_cost)
 
     return {
         "total_cost": round(total_packing_cost, 2),
@@ -2022,6 +2028,26 @@ def quote_preview(request: Request, company_slug: str, token: str, db: Session =
         "packing_breakdown": quote.get("packing_breakdown"),
         "access_breakdown": quote.get("access_breakdown"),
     })
+
+
+@app.post("/s/{company_slug}/{token}/packing-preference")
+def update_packing_preference(
+    request: Request,
+    company_slug: str,
+    token: str,
+    use_company_packing: str = Form(...),
+    db: Session = Depends(get_db)
+):
+    """Update customer's packing materials preference"""
+    company = request.state.company
+    job = get_or_create_job(company.id, token, db)
+
+    # Update preference
+    job.customer_provides_packing = (use_company_packing == "no")
+    db.commit()
+
+    # Redirect back to quote preview to show updated pricing
+    return RedirectResponse(url=f"/s/{company_slug}/{token}/quote-preview", status_code=303)
 
 
 @app.post("/s/{company_slug}/{token}/submit-quote")
