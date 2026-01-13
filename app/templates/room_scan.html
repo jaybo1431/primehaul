@@ -78,7 +78,59 @@
     </div>
   </div>
 
+  <style>
+    .item-delete-btn {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 6px;
+      padding: 8px;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .item-delete-btn:hover {
+      background: rgba(255, 80, 80, 0.15);
+      border-color: rgba(255, 80, 80, 0.3);
+    }
+    .item-delete-btn:active {
+      transform: scale(0.95);
+    }
+    .item-delete-btn svg {
+      color: rgba(255, 255, 255, 0.6);
+    }
+    .item-delete-btn:hover svg {
+      color: #ff5050;
+    }
+  </style>
+
   <script>
+    let currentItems = {{ items_json.items | tojson | safe }};
+
+    async function deleteItem(index, itemName) {
+      if (!confirm(`Remove "${itemName}" from this room?`)) return;
+
+      try {
+        const response = await fetch("/s/{{ company_slug }}/{{ token }}/room/{{ room_id }}/delete-item/" + index, {
+          method: "DELETE"
+        });
+
+        if (response.ok) {
+          // Remove from local array
+          currentItems.splice(index, 1);
+          // Re-render
+          renderItems(currentItems);
+          showToast("Item removed");
+        } else {
+          showToast("Failed to remove item");
+        }
+      } catch (err) {
+        console.error(err);
+        showToast("Error removing item");
+      }
+    }
+
     (function () {
       const uploadUrl = "/s/{{ company_slug }}/{{ token }}/room/{{ room_id }}/upload-json";
 
@@ -151,19 +203,27 @@
 
         itemsStatus.textContent = items.length + " items";
 
-        itemsList.innerHTML = items.map(it => {
+        itemsList.innerHTML = items.map((it, idx) => {
           const name = escapeHtml(it.name || "");
           const qty = Number(it.qty || 1);
           const notes = escapeHtml(it.notes || "");
           const bulky = it.bulky;
 
           return `
-            <div class="itemrow">
+            <div class="itemrow" id="item-${idx}">
               <div class="iteminfo">
                 <div class="itemname">${qty}x ${name}</div>
                 ${notes ? `<div class="itemnotes">${notes}</div>` : ''}
               </div>
-              ${bulky ? '<span class="badge">Bulky</span>' : ''}
+              <div style="display:flex; align-items:center; gap:8px;">
+                ${bulky ? '<span class="badge">Bulky</span>' : ''}
+                <button class="item-delete-btn" onclick="deleteItem(${idx}, '${escapeHtml(name)}')" title="Remove this item">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                  </svg>
+                </button>
+              </div>
             </div>
           `;
         }).join("");

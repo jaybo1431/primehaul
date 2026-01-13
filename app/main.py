@@ -1504,6 +1504,41 @@ async def room_scan_upload_json(
     })
 
 
+@app.delete("/s/{company_slug}/{token}/room/{room_id}/delete-item/{item_index}")
+def delete_room_item(
+    request: Request,
+    company_slug: str,
+    token: str,
+    room_id: str,
+    item_index: int,
+    db: Session = Depends(get_db)
+):
+    """Delete a specific item from a room by index"""
+    company = request.state.company
+    job = get_or_create_job(company.id, token, db)
+
+    # Get room
+    room = db.query(Room).filter(Room.id == room_id, Room.job_id == job.id).first()
+    if not room:
+        return JSONResponse({"error": "Room not found"}, status_code=404)
+
+    # Get all items for this room
+    items = db.query(Item).filter(Item.room_id == room.id).order_by(Item.id).all()
+
+    # Validate index
+    if item_index < 0 or item_index >= len(items):
+        return JSONResponse({"error": "Invalid item index"}, status_code=400)
+
+    # Delete the item at this index
+    item_to_delete = items[item_index]
+    db.delete(item_to_delete)
+    db.commit()
+
+    logger.info(f"Deleted item '{item_to_delete.name}' from room {room.name} (job {token})")
+
+    return JSONResponse({"success": True, "message": "Item deleted"})
+
+
 @app.post("/s/{company_slug}/{token}/room/{room_id}/confirm_items")
 def room_confirm_items(company_slug: str, token: str, room_id: str):
     """Process confirmed items - redirect to rooms list"""
