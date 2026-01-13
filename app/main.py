@@ -2522,6 +2522,10 @@ def admin_job_review(
         "token": token,
         "job": job,
         "quote": quote,
+        "breakdown": quote.get("breakdown"),
+        "packing_breakdown": quote.get("packing_breakdown"),
+        "packing_service_breakdown": quote.get("packing_service_breakdown"),
+        "access_breakdown": quote.get("access_breakdown"),
         "company_slug": company_slug
     })
 

@@ -500,6 +500,61 @@
               </div>
             </div>
           </div>
+
+          {% if job.customer_provides_packing %}
+          <div style="margin-top:12px; padding:12px; border-radius:8px; background:rgba(255,165,0,.1); border:1px solid rgba(255,165,0,.3);">
+            <div style="font-size:13px; color:#ffa500; font-weight:600;">
+              ⚠️ Customer Bringing Own Materials
+            </div>
+            <div style="font-size:12px; color:var(--muted); margin-top:4px;">
+              Customer will provide their own packing materials. Ensure they have everything listed above.
+            </div>
+          </div>
+          {% else %}
+          <div style="margin-top:12px; padding:12px; border-radius:8px; background:rgba(46,229,157,.1); border:1px solid rgba(46,229,157,.3);">
+            <div style="font-size:13px; color:#2ee59d; font-weight:600;">
+              ✓ Company Providing Materials
+            </div>
+            <div style="font-size:12px; color:var(--muted); margin-top:4px;">
+              We will provide all packing materials listed above.
+            </div>
+          </div>
+          {% endif %}
+        </div>
+        {% endif %}
+
+        {% if packing_service_breakdown and packing_service_breakdown.total_cost > 0 %}
+        <div style="margin-top:16px; padding-top:16px; border-top:1px solid var(--hair);">
+          <div style="font-weight:700; margin-bottom:12px;">👷 Packing Service Requested</div>
+          <div style="padding:14px; border-radius:12px; background:rgba(46,229,157,.08); border:1px solid rgba(46,229,157,.2);">
+            <div style="margin-bottom:12px;">
+              <div style="font-size:13px; color:var(--muted); margin-bottom:8px;">Customer wants professional packing for:</div>
+              <div style="display:flex; flex-direction:column; gap:8px;">
+                {% for room in packing_service_breakdown.rooms %}
+                  {% if room.is_selected %}
+                  <div style="padding:10px; background:rgba(255,255,255,.05); border-radius:8px; border:1px solid rgba(255,255,255,.1);">
+                    <div style="display:flex; justify-content:space-between; align-items:center;">
+                      <div>
+                        <div style="font-weight:600;">{{ room.room_name }}</div>
+                        <div style="font-size:12px; color:var(--muted);">{{ room.items_count }} items • ~{{ room.hours }}h packing</div>
+                      </div>
+                      <div style="font-weight:700; color:#2ee59d;">£{{ "%.0f"|format(room.cost) }}</div>
+                    </div>
+                  </div>
+                  {% endif %}
+                {% endfor %}
+              </div>
+            </div>
+            <div style="padding-top:12px; border-top:1px solid rgba(46,229,157,.2); margin-top:12px;">
+              <div style="display:flex; justify-content:space-between; align-items:center;">
+                <div>
+                  <div style="color:var(--muted); font-size:12px; margin-bottom:3px;">Total Packing Service</div>
+                  <div style="font-size:12px; color:var(--muted);">{{ packing_service_breakdown.total_hours }}h labor (materials included)</div>
+                </div>
+                <div style="font-weight:700; font-size:18px; color:#2ee59d;">£{{ "%.0f"|format(packing_service_breakdown.total_cost) }}</div>
+              </div>
+            </div>
+          </div>
         </div>
         {% endif %}
       </div>
