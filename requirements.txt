@@ -18,3 +18,10 @@ passlib[bcrypt]==1.7.4
 
 # Billing
 stripe==7.8.0
+
+# Machine Learning (for custom furniture detection model)
+torch==2.1.2
+transformers==4.36.2
+datasets==2.16.1
+numpy==1.26.3
+scikit-learn==1.4.0

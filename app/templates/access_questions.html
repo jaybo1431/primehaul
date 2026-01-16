@@ -35,7 +35,7 @@
           <button type="button" class="floor-btn {% if pickup_access.get('floors', 0) >= 4 %}selected{% endif %}" data-target="pickup_floors" data-value="4">4th+</button>
         </div>
         <input type="hidden" id="pickup_floors" name="pickup_floors" value="{{ pickup_access.get('floors', 0) }}" required />
-        <div id="pickup_floors_custom" class="custom-floor-input" style="{% if pickup_access.get('floors', 0) < 4 %}display:none;{% endif %} margin-top:12px;">
+        <div id="pickup_floors_custom" class="custom-floor-input {% if pickup_access.get('floors', 0) < 4 %}is-hidden{% endif %}" style="margin-top:12px;">
           <input type="number" id="pickup_floors_number" min="4" max="50" value="{{ pickup_access.get('floors', 4) if pickup_access.get('floors', 0) >= 4 else 4 }}" placeholder="Enter floor number" style="width:100%; padding:14px; border-radius:12px; border:1px solid var(--hair); background:rgba(255,255,255,.04); color:var(--text); font-size:16px;" />
         </div>
       </div>
@@ -85,7 +85,7 @@
       </div>
 
       <!-- PARKING DISTANCE -->
-      <div class="form-field" id="pickup_parking_distance_field" style="{% if pickup_access.get('parking_type') in ['driveway', '', None] %}display:none;{% endif %}">
+      <div class="form-field {% if pickup_access.get('parking_type') in ['driveway', '', None] %}is-hidden{% endif %}" id="pickup_parking_distance_field">
         <label for="pickup_parking_distance" class="form-label">
           <span>Distance from parking to property</span>
           <span class="form-label-hint">Approximate meters</span>
@@ -144,7 +144,7 @@
       </div>
 
       <!-- OUTDOOR STEPS -->
-      <div class="form-field" id="pickup_outdoor_steps_field" style="{% if pickup_access.get('outdoor_access') != 'steps' %}display:none;{% endif %}">
+      <div class="form-field {% if pickup_access.get('outdoor_access') != 'steps' %}is-hidden{% endif %}" id="pickup_outdoor_steps_field">
         <label for="pickup_outdoor_steps" class="form-label">How many outdoor steps?</label>
         <input type="number" id="pickup_outdoor_steps" name="pickup_outdoor_steps" min="0" max="50" value="{{ pickup_access.get('outdoor_steps', 0) }}" placeholder="e.g. 5" style="width:100%; padding:14px; border-radius:12px; border:1px solid var(--hair); background:rgba(255,255,255,.04); color:var(--text); font-size:16px;" />
       </div>
@@ -199,7 +199,7 @@
           <button type="button" class="floor-btn {% if dropoff_access.get('floors', 0) >= 4 %}selected{% endif %}" data-target="dropoff_floors" data-value="4">4th+</button>
         </div>
         <input type="hidden" id="dropoff_floors" name="dropoff_floors" value="{{ dropoff_access.get('floors', 0) }}" required />
-        <div id="dropoff_floors_custom" class="custom-floor-input" style="{% if dropoff_access.get('floors', 0) < 4 %}display:none;{% endif %} margin-top:12px;">
+        <div id="dropoff_floors_custom" class="custom-floor-input {% if dropoff_access.get('floors', 0) < 4 %}is-hidden{% endif %}" style="margin-top:12px;">
           <input type="number" id="dropoff_floors_number" min="4" max="50" value="{{ dropoff_access.get('floors', 4) if dropoff_access.get('floors', 0) >= 4 else 4 }}" placeholder="Enter floor number" style="width:100%; padding:14px; border-radius:12px; border:1px solid var(--hair); background:rgba(255,255,255,.04); color:var(--text); font-size:16px;" />
         </div>
       </div>
@@ -249,7 +249,7 @@
       </div>
 
       <!-- PARKING DISTANCE (DROPOFF) -->
-      <div class="form-field" id="dropoff_parking_distance_field" style="{% if dropoff_access.get('parking_type') in ['driveway', '', None] %}display:none;{% endif %}">
+      <div class="form-field {% if dropoff_access.get('parking_type') in ['driveway', '', None] %}is-hidden{% endif %}" id="dropoff_parking_distance_field">
         <label for="dropoff_parking_distance" class="form-label">
           <span>Distance from parking to property</span>
           <span class="form-label-hint">Approximate meters</span>
@@ -308,7 +308,7 @@
       </div>
 
       <!-- OUTDOOR STEPS (DROPOFF) -->
-      <div class="form-field" id="dropoff_outdoor_steps_field" style="{% if dropoff_access.get('outdoor_access') != 'steps' %}display:none;{% endif %}">
+      <div class="form-field {% if dropoff_access.get('outdoor_access') != 'steps' %}is-hidden{% endif %}" id="dropoff_outdoor_steps_field">
         <label for="dropoff_outdoor_steps" class="form-label">How many outdoor steps?</label>
         <input type="number" id="dropoff_outdoor_steps" name="dropoff_outdoor_steps" min="0" max="50" value="{{ dropoff_access.get('outdoor_steps', 0) }}" placeholder="e.g. 5" style="width:100%; padding:14px; border-radius:12px; border:1px solid var(--hair); background:rgba(255,255,255,.04); color:var(--text); font-size:16px;" />
       </div>

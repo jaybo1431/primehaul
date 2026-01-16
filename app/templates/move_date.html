@@ -46,8 +46,17 @@
   <div class="footer footer-clean">
     <div class="footer-inner">
       <button id="continueBtn" class="btn ready" type="submit" form="dateForm">
-        Continue to Rooms
+        {% if job.status == 'approved' %}
+          Continue to Booking
+        {% else %}
+          Continue to Rooms
+        {% endif %}
       </button>
+      {% if job.status == 'approved' %}
+        <div class="microhint" style="text-align:center; margin-top:8px;">
+          You can change this date later if needed
+        </div>
+      {% endif %}
     </div>
   </div>
 {% endblock %}

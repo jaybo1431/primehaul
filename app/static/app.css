@@ -984,6 +984,11 @@ body{
   transform:translateX(-50%) translateY(-10px) scale(0.9);
 }
 
+/* Utility: truly hide element */
+.d-none, .is-hidden {
+  display: none;
+}
+
 /* ============================================
    EMPTY STATE
 ============================================ */

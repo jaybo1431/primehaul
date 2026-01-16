@@ -1,0 +1,116 @@
+{
+  "categories": [
+    "armchair",
+    "bed",
+    "bookcase",
+    "chest_of_drawers",
+    "coffee_table",
+    "desk",
+    "dining_table",
+    "furniture",
+    "other",
+    "shelving",
+    "sideboard",
+    "sofa",
+    "table",
+    "tv_stand",
+    "wardrobe"
+  ],
+  "category_to_id": {
+    "armchair": 0,
+    "bed": 1,
+    "bookcase": 2,
+    "chest_of_drawers": 3,
+    "coffee_table": 4,
+    "desk": 5,
+    "dining_table": 6,
+    "furniture": 7,
+    "other": 8,
+    "shelving": 9,
+    "sideboard": 10,
+    "sofa": 11,
+    "table": 12,
+    "tv_stand": 13,
+    "wardrobe": 14
+  },
+  "category_profiles": {
+    "shelving": {
+      "avg_cbm": 0.59485,
+      "avg_weight": 41.0,
+      "count": 4
+    },
+    "wardrobe": {
+      "avg_cbm": 1.7372500000000002,
+      "avg_weight": 80.0,
+      "count": 6
+    },
+    "sofa": {
+      "avg_cbm": 2.37145,
+      "avg_weight": 76.3,
+      "count": 10
+    },
+    "table": {
+      "avg_cbm": 0.42805,
+      "avg_weight": 19.75,
+      "count": 2
+    },
+    "bed": {
+      "avg_cbm": 3.1270090909090906,
+      "avg_weight": 61.54545454545455,
+      "count": 11
+    },
+    "armchair": {
+      "avg_cbm": 0.6954857142857142,
+      "avg_weight": 23.571428571428573,
+      "count": 7
+    },
+    "bookcase": {
+      "avg_cbm": 0.5468000000000001,
+      "avg_weight": 41.833333333333336,
+      "count": 6
+    },
+    "chest_of_drawers": {
+      "avg_cbm": 0.4506142857142857,
+      "avg_weight": 50.57142857142857,
+      "count": 7
+    },
+    "dining_table": {
+      "avg_cbm": 1.1140714285714286,
+      "avg_weight": 47.142857142857146,
+      "count": 7
+    },
+    "coffee_table": {
+      "avg_cbm": 0.3316800000000001,
+      "avg_weight": 24.9,
+      "count": 5
+    },
+    "desk": {
+      "avg_cbm": 0.7637799999999999,
+      "avg_weight": 40.2,
+      "count": 5
+    },
+    "tv_stand": {
+      "avg_cbm": 0.315975,
+      "avg_weight": 35.0,
+      "count": 4
+    },
+    "sideboard": {
+      "avg_cbm": 0.6494,
+      "avg_weight": 58.0,
+      "count": 1
+    },
+    "furniture": {
+      "avg_cbm": 0.2268557692307692,
+      "avg_weight": 15.596153846153847,
+      "count": 52
+    },
+    "other": {
+      "avg_cbm": 0.6479999999999999,
+      "avg_weight": 50.0,
+      "count": 2
+    }
+  },
+  "total_samples": 129,
+  "trained_at": "2026-01-13T22:34:37.149573",
+  "version": "1.0-baseline"
+}

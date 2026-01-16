@@ -179,6 +179,38 @@
         </div>
       {% endif %}
 
+      <!-- T&Cs Acceptance Status -->
+      {% if job.terms_acceptance %}
+      <div class="group" style="background:rgba(46,229,157,.08); border:1px solid rgba(46,229,157,.2);">
+        <div style="display:flex; align-items:center; gap:12px; margin-bottom:8px;">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#2ee59d" stroke-width="2">
+            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+            <polyline points="22 4 12 14.01 9 11.01"></polyline>
+          </svg>
+          <span style="font-weight:700; color:#2ee59d;">Terms & Conditions Accepted</span>
+        </div>
+        <div style="font-size:13px; color:#aaa; margin-left:32px;">
+          <div style="margin-bottom:4px;">Version: <strong>{{ job.terms_acceptance.tcs_version }}</strong></div>
+          <div style="margin-bottom:4px;">Accepted: <strong>{{ job.terms_acceptance.created_at.strftime('%d %B %Y at %H:%M') }}</strong></div>
+          <div>IP Address: <strong>{{ job.terms_acceptance.ip_address }}</strong></div>
+        </div>
+      </div>
+      {% elif company.tcs_enabled %}
+      <div class="group" style="background:rgba(255,165,0,.08); border:1px solid rgba(255,165,0,.2);">
+        <div style="display:flex; align-items:center; gap:12px;">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#ffa500" stroke-width="2">
+            <circle cx="12" cy="12" r="10"></circle>
+            <line x1="12" y1="8" x2="12" y2="12"></line>
+            <line x1="12" y1="16" x2="12.01" y2="16"></line>
+          </svg>
+          <span style="font-weight:700; color:#ffa500;">T&Cs Acceptance Pending</span>
+        </div>
+        <div style="font-size:13px; color:#aaa; margin-left:32px; margin-top:4px;">
+          Customer must accept Terms & Conditions before booking
+        </div>
+      </div>
+      {% endif %}
+
       <!-- Quote Summary with Price Editing -->
       <div class="group">
         <div style="display:flex; justify-content:space-between; align-items:start;">
@@ -618,7 +650,7 @@
                   <div style="font-size:13px; color:var(--muted); margin-bottom:6px;">{{ room.items|length }} items detected:</div>
                   <div class="itemslist">
                     {% for item in room.items %}
-                      <div class="itemrow">
+                      <div class="itemrow" style="position:relative;">
                         <div class="iteminfo">
                           <div class="itemname">{{ item.qty }}x {{ item.name }}</div>
                           {% if item.notes %}
@@ -630,12 +662,22 @@
                             • {{ item.cbm }} m³
                           </div>
                         </div>
-                        {% if item.bulky %}
-                          <span class="badge">Bulky</span>
-                        {% endif %}
-                        {% if item.fragile %}
-                          <span class="badge" style="background:rgba(255,165,0,.15); color:#ffa500;">Fragile</span>
-                        {% endif %}
+                        <div style="display:flex; align-items:center; gap:8px;">
+                          {% if item.bulky %}
+                            <span class="badge">Bulky</span>
+                          {% endif %}
+                          {% if item.fragile %}
+                            <span class="badge" style="background:rgba(255,165,0,.15); color:#ffa500;">Fragile</span>
+                          {% endif %}
+                          <button
+                            onclick="openCorrection('{{ item.id }}', '{{ item.name }}', '{{ item.category }}', {{ item.length_cm }}, {{ item.width_cm }}, {{ item.height_cm }}, {{ item.weight_kg }})"
+                            class="btn secondary"
+                            style="padding:6px 12px; font-size:12px; margin:0; white-space:nowrap;"
+                            title="Train AI - Correct this detection"
+                          >
+                            🤖 Correct
+                          </button>
+                        </div>
                       </div>
                     {% endfor %}
                   </div>
@@ -800,6 +842,155 @@
     updateTimeAgo();
     setInterval(updateTimeAgo, 60000); // Update every minute
     {% endif %}
+
+    // AI Correction Modal
+    let currentItemId = null;
+
+    function openCorrection(itemId, name, category, length, width, height, weight) {
+      currentItemId = itemId;
+      document.getElementById('correctionModal').style.display = 'flex';
+      document.getElementById('correction_item_name').value = name || '';
+      document.getElementById('correction_category').value = category || '';
+      document.getElementById('correction_length').value = length || '';
+      document.getElementById('correction_width').value = width || '';
+      document.getElementById('correction_height').value = height || '';
+      document.getElementById('correction_weight').value = weight || '';
+    }
+
+    function closeCorrection() {
+      document.getElementById('correctionModal').style.display = 'none';
+      currentItemId = null;
+    }
+
+    async function submitCorrection(feedbackType) {
+      if (!currentItemId) return;
+
+      const formData = {
+        item_id: currentItemId,
+        feedback_type: feedbackType,
+        corrected_name: document.getElementById('correction_item_name').value,
+        corrected_category: document.getElementById('correction_category').value,
+        corrected_dimensions: {
+          length: parseFloat(document.getElementById('correction_length').value) || 0,
+          width: parseFloat(document.getElementById('correction_width').value) || 0,
+          height: parseFloat(document.getElementById('correction_height').value) || 0
+        },
+        corrected_weight: parseFloat(document.getElementById('correction_weight').value) || 0,
+        notes: document.getElementById('correction_notes').value
+      };
+
+      try {
+        const response = await fetch('/admin/item-feedback', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(formData)
+        });
+
+        if (response.ok) {
+          alert('✅ AI training feedback submitted! This will help improve future detections.');
+          closeCorrection();
+        } else {
+          alert('Failed to submit feedback. Please try again.');
+        }
+      } catch (error) {
+        console.error('Error submitting feedback:', error);
+        alert('Error submitting feedback. Please try again.');
+      }
+    }
   </script>
+
+  <!-- AI Correction Modal -->
+  <div id="correctionModal" class="overlay" style="display:none;">
+    <div class="modal" style="max-width:600px;">
+      <div class="modal-title">🤖 Train AI - Correct Detection</div>
+      <div style="margin:16px 0; padding:12px; background:rgba(46,229,157,.1); border:1px solid rgba(46,229,157,.3); border-radius:8px; font-size:13px;">
+        Your corrections help train our AI to get smarter with every move. This is the core of our system!
+      </div>
+
+      <div style="display:flex; flex-direction:column; gap:12px; margin-bottom:16px;">
+        <div>
+          <label style="display:block; font-weight:600; margin-bottom:6px; font-size:13px;">Item Name</label>
+          <input
+            id="correction_item_name"
+            type="text"
+            placeholder="e.g., IKEA KALLAX Shelving Unit"
+            style="width:100%; padding:10px; border-radius:8px; border:1px solid var(--hair); background:rgba(255,255,255,.04); color:var(--text); font-size:14px;"
+          />
+        </div>
+
+        <div>
+          <label style="display:block; font-weight:600; margin-bottom:6px; font-size:13px;">Category</label>
+          <input
+            id="correction_category"
+            type="text"
+            placeholder="e.g., shelving, sofa, table"
+            style="width:100%; padding:10px; border-radius:8px; border:1px solid var(--hair); background:rgba(255,255,255,.04); color:var(--text); font-size:14px;"
+          />
+        </div>
+
+        <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:10px;">
+          <div>
+            <label style="display:block; font-weight:600; margin-bottom:6px; font-size:13px;">Length (cm)</label>
+            <input
+              id="correction_length"
+              type="number"
+              step="0.01"
+              style="width:100%; padding:10px; border-radius:8px; border:1px solid var(--hair); background:rgba(255,255,255,.04); color:var(--text); font-size:14px;"
+            />
+          </div>
+          <div>
+            <label style="display:block; font-weight:600; margin-bottom:6px; font-size:13px;">Width (cm)</label>
+            <input
+              id="correction_width"
+              type="number"
+              step="0.01"
+              style="width:100%; padding:10px; border-radius:8px; border:1px solid var(--hair); background:rgba(255,255,255,.04); color:var(--text); font-size:14px;"
+            />
+          </div>
+          <div>
+            <label style="display:block; font-weight:600; margin-bottom:6px; font-size:13px;">Height (cm)</label>
+            <input
+              id="correction_height"
+              type="number"
+              step="0.01"
+              style="width:100%; padding:10px; border-radius:8px; border:1px solid var(--hair); background:rgba(255,255,255,.04); color:var(--text); font-size:14px;"
+            />
+          </div>
+        </div>
+
+        <div>
+          <label style="display:block; font-weight:600; margin-bottom:6px; font-size:13px;">Weight (kg)</label>
+          <input
+            id="correction_weight"
+            type="number"
+            step="0.01"
+            style="width:100%; padding:10px; border-radius:8px; border:1px solid var(--hair); background:rgba(255,255,255,.04); color:var(--text); font-size:14px;"
+          />
+        </div>
+
+        <div>
+          <label style="display:block; font-weight:600; margin-bottom:6px; font-size:13px;">Notes (optional)</label>
+          <textarea
+            id="correction_notes"
+            rows="2"
+            placeholder="Any additional notes..."
+            style="width:100%; padding:10px; border-radius:8px; border:1px solid var(--hair); background:rgba(255,255,255,.04); color:var(--text); font-size:14px; font-family:inherit; resize:vertical;"
+          ></textarea>
+        </div>
+      </div>
+
+      <div style="display:flex; gap:8px; flex-wrap:wrap;">
+        <button onclick="submitCorrection('correction')" class="btn" style="margin:0; flex:1; background:#2ee59d; color:#000;">
+          ✅ Submit Correction
+        </button>
+        <button onclick="submitCorrection('confirmation')" class="btn secondary" style="margin:0; flex:1;">
+          👍 Confirm AI is Correct
+        </button>
+        <button onclick="closeCorrection()" class="btn secondary" style="margin:0;">
+          Cancel
+        </button>
+      </div>
+    </div>
+  </div>
 </body>
 </html>

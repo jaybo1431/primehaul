@@ -13,3 +13,4 @@ app/static/uploads/
 
 # Logs
 *.log
+primehaul_local.db

@@ -1,0 +1,571 @@
+{
+  "generated_at": "2026-01-13T22:34:21.396149",
+  "total_samples": 28,
+  "estimated_cost_usd": 0.0084,
+  "model_used": "gpt-4o-mini",
+  "samples": [
+    {
+      "source": "synthetic_openai",
+      "item_name": "IKEA PO\u00c4NG Rocking chair",
+      "item_category": "armchair",
+      "length_cm": 70,
+      "width_cm": 82,
+      "height_cm": 100,
+      "cbm": 0.574,
+      "weight_kg": 8,
+      "is_bulky": false,
+      "is_fragile": false,
+      "materials": [
+        "birch plywood",
+        "polyester fabric"
+      ],
+      "description": "A comfortable rocking chair with a sleek design, perfect for relaxation.",
+      "verified": true,
+      "confidence": 0.95,
+      "teacher_model": "gpt-4o-mini"
+    },
+    {
+      "source": "synthetic_openai",
+      "item_name": "IKEA EKTORP Corner sofa",
+      "item_category": "sofa",
+      "length_cm": 230,
+      "width_cm": 230,
+      "height_cm": 85,
+      "cbm": 4.4965,
+      "weight_kg": 100,
+      "is_bulky": true,
+      "is_fragile": false,
+      "materials": [
+        "cotton",
+        "polyester"
+      ],
+      "description": "A comfortable and stylish corner sofa with removable and washable covers.",
+      "verified": true,
+      "confidence": 0.95,
+      "teacher_model": "gpt-4o-mini"
+    },
+    {
+      "source": "synthetic_openai",
+      "item_name": "IKEA LISABO Dining table",
+      "item_category": "dining_table",
+      "length_cm": 180,
+      "width_cm": 85,
+      "height_cm": 74,
+      "cbm": 1.1322,
+      "weight_kg": 30,
+      "is_bulky": true,
+      "is_fragile": false,
+      "materials": [
+        "birch veneer",
+        "particleboard"
+      ],
+      "description": "A stylish and functional dining table with a modern design, perfect for dining and entertaining.",
+      "verified": true,
+      "confidence": 0.95,
+      "teacher_model": "gpt-4o-mini"
+    },
+    {
+      "source": "synthetic_openai",
+      "item_name": "IKEA HEMNES TV bench",
+      "item_category": "tv_stand",
+      "length_cm": 180,
+      "width_cm": 40,
+      "height_cm": 70,
+      "cbm": 0.504,
+      "weight_kg": 50,
+      "is_bulky": true,
+      "is_fragile": false,
+      "materials": [
+        "solid wood",
+        "MDF"
+      ],
+      "description": "A stylish and functional TV bench with ample storage space for media devices and accessories.",
+      "verified": true,
+      "confidence": 0.95,
+      "teacher_model": "gpt-4o-mini"
+    },
+    {
+      "source": "synthetic_openai",
+      "item_name": "IKEA STUVA Storage combination",
+      "item_category": "wardrobe",
+      "length_cm": 120,
+      "width_cm": 50,
+      "height_cm": 190,
+      "cbm": 1.14,
+      "weight_kg": 60,
+      "is_bulky": true,
+      "is_fragile": false,
+      "materials": [
+        "particleboard",
+        "melamine",
+        "glass"
+      ],
+      "description": "A versatile storage combination with drawers and compartments, suitable for children's rooms or entryways.",
+      "verified": true,
+      "confidence": 0.95,
+      "teacher_model": "gpt-4o-mini"
+    },
+    {
+      "source": "synthetic_openai",
+      "item_name": "IKEA NORDLI Chest of 6 drawers",
+      "item_category": "chest_of_drawers",
+      "length_cm": 120,
+      "width_cm": 40,
+      "height_cm": 90,
+      "cbm": 0.432,
+      "weight_kg": 60,
+      "is_bulky": true,
+      "is_fragile": false,
+      "materials": [
+        "particleboard",
+        "fiberboard"
+      ],
+      "description": "A modern chest of drawers with six spacious drawers, perfect for storing clothes and other items.",
+      "verified": true,
+      "confidence": 0.95,
+      "teacher_model": "gpt-4o-mini"
+    },
+    {
+      "source": "synthetic_openai",
+      "item_name": "IKEA BRIMNES Day-bed",
+      "item_category": "bed",
+      "length_cm": 200,
+      "width_cm": 90,
+      "height_cm": 85,
+      "cbm": 1.53,
+      "weight_kg": 50,
+      "is_bulky": true,
+      "is_fragile": false,
+      "materials": [
+        "particleboard",
+        "fiberboard"
+      ],
+      "description": "A versatile day-bed that can be used for seating or as a bed, featuring a sleek design and storage options.",
+      "verified": true,
+      "confidence": 0.95,
+      "teacher_model": "gpt-4o-mini"
+    },
+    {
+      "source": "synthetic_openai",
+      "item_name": "IKEA TARVA Bed frame double",
+      "item_category": "bed",
+      "length_cm": 202,
+      "width_cm": 143,
+      "height_cm": 90,
+      "cbm": 2.5997,
+      "weight_kg": 35,
+      "is_bulky": true,
+      "is_fragile": false,
+      "materials": [
+        "pine",
+        "MDF"
+      ],
+      "description": "A sturdy double bed frame made from solid pine, featuring a natural finish and slatted base for mattress support.",
+      "verified": true,
+      "confidence": 0.95,
+      "teacher_model": "gpt-4o-mini"
+    },
+    {
+      "source": "synthetic_openai",
+      "item_name": "Wayfair Zipcode Design Corner Sofa",
+      "item_category": "sofa",
+      "length_cm": 250,
+      "width_cm": 180,
+      "height_cm": 85,
+      "cbm": 3.825,
+      "weight_kg": 75,
+      "is_bulky": true,
+      "is_fragile": false,
+      "materials": [
+        "fabric",
+        "wood"
+      ],
+      "description": "A modern corner sofa with a stylish design, perfect for maximizing seating space in your living room.",
+      "verified": true,
+      "confidence": 0.95,
+      "teacher_model": "gpt-4o-mini"
+    },
+    {
+      "source": "synthetic_openai",
+      "item_name": "Wayfair Mercury Row Platform Bed King",
+      "item_category": "bed",
+      "length_cm": 210,
+      "width_cm": 180,
+      "height_cm": 100,
+      "cbm": 3.78,
+      "weight_kg": 60,
+      "is_bulky": true,
+      "is_fragile": false,
+      "materials": [
+        "wood",
+        "fabric"
+      ],
+      "description": "A stylish and modern king-sized platform bed with a sturdy wooden frame and upholstered headboard.",
+      "verified": true,
+      "confidence": 0.95,
+      "teacher_model": "gpt-4o-mini"
+    },
+    {
+      "source": "synthetic_openai",
+      "item_name": "Wayfair Ophelia Co Velvet Armchair",
+      "item_category": "armchair",
+      "length_cm": 80,
+      "width_cm": 90,
+      "height_cm": 85,
+      "cbm": 0.612,
+      "weight_kg": 25,
+      "is_bulky": true,
+      "is_fragile": false,
+      "materials": [
+        "velvet",
+        "wood"
+      ],
+      "description": "A stylish velvet armchair that adds a touch of elegance to any living space.",
+      "verified": true,
+      "confidence": 0.95,
+      "teacher_model": "gpt-4o-mini"
+    },
+    {
+      "source": "synthetic_openai",
+      "item_name": "Wayfair Brayden Studio Extending Dining Table",
+      "item_category": "dining_table",
+      "length_cm": 180,
+      "width_cm": 90,
+      "height_cm": 75,
+      "cbm": 1.215,
+      "weight_kg": 50,
+      "is_bulky": true,
+      "is_fragile": false,
+      "materials": [
+        "wood",
+        "metal"
+      ],
+      "description": "A stylish extending dining table that comfortably accommodates family and friends for meals.",
+      "verified": true,
+      "confidence": 0.95,
+      "teacher_model": "gpt-4o-mini"
+    },
+    {
+      "source": "synthetic_openai",
+      "item_name": "Wayfair Williston Forge Industrial Bookcase",
+      "item_category": "bookcase",
+      "length_cm": 80,
+      "width_cm": 30,
+      "height_cm": 180,
+      "cbm": 0.432,
+      "weight_kg": 40,
+      "is_bulky": true,
+      "is_fragile": false,
+      "materials": [
+        "metal",
+        "wood"
+      ],
+      "description": "An industrial-style bookcase featuring a blend of metal and wood, perfect for displaying books and decorative items.",
+      "verified": true,
+      "confidence": 0.95,
+      "teacher_model": "gpt-4o-mini"
+    },
+    {
+      "source": "synthetic_openai",
+      "item_name": "John Lewis Partners Croft Large Sofa",
+      "item_category": "sofa",
+      "length_cm": 230,
+      "width_cm": 95,
+      "height_cm": 85,
+      "cbm": 1.8573,
+      "weight_kg": 90,
+      "is_bulky": true,
+      "is_fragile": false,
+      "materials": [
+        "fabric",
+        "wood"
+      ],
+      "description": "A spacious and comfortable large sofa, perfect for family living rooms with a modern design.",
+      "verified": true,
+      "confidence": 0.95,
+      "teacher_model": "gpt-4o-mini"
+    },
+    {
+      "source": "synthetic_openai",
+      "item_name": "John Lewis Partners Wilton Bed Super King",
+      "item_category": "bed",
+      "length_cm": 210,
+      "width_cm": 180,
+      "height_cm": 120,
+      "cbm": 4.536,
+      "weight_kg": 80,
+      "is_bulky": true,
+      "is_fragile": false,
+      "materials": [
+        "wood",
+        "fabric"
+      ],
+      "description": "A luxurious super king bed featuring a plush fabric finish and a sturdy wooden frame, designed for ultimate comfort and style.",
+      "verified": true,
+      "confidence": 0.95,
+      "teacher_model": "gpt-4o-mini"
+    },
+    {
+      "source": "synthetic_openai",
+      "item_name": "John Lewis Partners Coniston Office Desk",
+      "item_category": "desk",
+      "length_cm": 150,
+      "width_cm": 75,
+      "height_cm": 75,
+      "cbm": 0.8438,
+      "weight_kg": 40,
+      "is_bulky": true,
+      "is_fragile": false,
+      "materials": [
+        "wood",
+        "metal"
+      ],
+      "description": "A stylish and functional office desk designed for modern workspaces, featuring a sturdy wooden top and metal legs.",
+      "verified": true,
+      "confidence": 0.95,
+      "teacher_model": "gpt-4o-mini"
+    },
+    {
+      "source": "synthetic_openai",
+      "item_name": "John Lewis Partners Alpha Display Cabinet",
+      "item_category": "other",
+      "length_cm": 100,
+      "width_cm": 40,
+      "height_cm": 180,
+      "cbm": 0.72,
+      "weight_kg": 50,
+      "is_bulky": true,
+      "is_fragile": true,
+      "materials": [
+        "wood",
+        "glass"
+      ],
+      "description": "A stylish display cabinet featuring glass doors and ample shelving for showcasing your favorite items.",
+      "verified": true,
+      "confidence": 0.95,
+      "teacher_model": "gpt-4o-mini"
+    },
+    {
+      "source": "synthetic_openai",
+      "item_name": "John Lewis Partners Montreal Bookcase",
+      "item_category": "bookcase",
+      "length_cm": 80,
+      "width_cm": 30,
+      "height_cm": 180,
+      "cbm": 0.432,
+      "weight_kg": 40,
+      "is_bulky": true,
+      "is_fragile": false,
+      "materials": [
+        "wood",
+        "metal"
+      ],
+      "description": "A stylish and functional bookcase featuring multiple shelves for storing books and decorative items.",
+      "verified": true,
+      "confidence": 0.95,
+      "teacher_model": "gpt-4o-mini"
+    },
+    {
+      "source": "synthetic_openai",
+      "item_name": "Traditional Oak Dining Table 6 seater",
+      "item_category": "dining_table",
+      "length_cm": 180,
+      "width_cm": 90,
+      "height_cm": 75,
+      "cbm": 1.215,
+      "weight_kg": 50,
+      "is_bulky": true,
+      "is_fragile": false,
+      "materials": [
+        "oak",
+        "veneer"
+      ],
+      "description": "A classic oak dining table designed to comfortably seat six people, featuring a sturdy construction and timeless design.",
+      "verified": true,
+      "confidence": 0.95,
+      "teacher_model": "gpt-4o-mini"
+    },
+    {
+      "source": "synthetic_openai",
+      "item_name": "Modern Fabric Corner Sofa L-shaped",
+      "item_category": "sofa",
+      "length_cm": 250,
+      "width_cm": 200,
+      "height_cm": 85,
+      "cbm": 4.25,
+      "weight_kg": 80,
+      "is_bulky": true,
+      "is_fragile": false,
+      "materials": [
+        "fabric",
+        "wood",
+        "foam"
+      ],
+      "description": "A stylish and comfortable L-shaped corner sofa, perfect for modern living spaces.",
+      "verified": true,
+      "confidence": 0.95,
+      "teacher_model": "gpt-4o-mini"
+    },
+    {
+      "source": "synthetic_openai",
+      "item_name": "Wooden King Size Bed Frame with storage",
+      "item_category": "bed",
+      "length_cm": 210,
+      "width_cm": 160,
+      "height_cm": 120,
+      "cbm": 4.032,
+      "weight_kg": 75,
+      "is_bulky": true,
+      "is_fragile": false,
+      "materials": [
+        "wood",
+        "metal"
+      ],
+      "description": "A sturdy wooden king size bed frame featuring built-in storage drawers for added convenience.",
+      "verified": true,
+      "confidence": 0.95,
+      "teacher_model": "gpt-4o-mini"
+    },
+    {
+      "source": "synthetic_openai",
+      "item_name": "Glass Display Cabinet tall",
+      "item_category": "other",
+      "length_cm": 80,
+      "width_cm": 40,
+      "height_cm": 180,
+      "cbm": 0.576,
+      "weight_kg": 50,
+      "is_bulky": true,
+      "is_fragile": true,
+      "materials": [
+        "glass",
+        "wood"
+      ],
+      "description": "A tall glass display cabinet ideal for showcasing collectibles and decorative items.",
+      "verified": true,
+      "confidence": 0.95,
+      "teacher_model": "gpt-4o-mini"
+    },
+    {
+      "source": "synthetic_openai",
+      "item_name": "Leather Recliner Armchair",
+      "item_category": "armchair",
+      "length_cm": 85,
+      "width_cm": 90,
+      "height_cm": 100,
+      "cbm": 0.765,
+      "weight_kg": 40,
+      "is_bulky": true,
+      "is_fragile": false,
+      "materials": [
+        "leather",
+        "steel",
+        "foam"
+      ],
+      "description": "A comfortable leather recliner armchair designed for relaxation with adjustable reclining features.",
+      "verified": true,
+      "confidence": 0.95,
+      "teacher_model": "gpt-4o-mini"
+    },
+    {
+      "source": "synthetic_openai",
+      "item_name": "Pine Chest of Drawers 5 drawer",
+      "item_category": "chest_of_drawers",
+      "length_cm": 80,
+      "width_cm": 40,
+      "height_cm": 100,
+      "cbm": 0.32,
+      "weight_kg": 50,
+      "is_bulky": true,
+      "is_fragile": false,
+      "materials": [
+        "pine",
+        "metal"
+      ],
+      "description": "A sturdy and stylish 5 drawer chest made from solid pine, offering ample storage space for clothing and other items.",
+      "verified": true,
+      "confidence": 0.95,
+      "teacher_model": "gpt-4o-mini"
+    },
+    {
+      "source": "synthetic_openai",
+      "item_name": "White Gloss TV Stand",
+      "item_category": "tv_stand",
+      "length_cm": 120,
+      "width_cm": 40,
+      "height_cm": 50,
+      "cbm": 0.24,
+      "weight_kg": 30,
+      "is_bulky": false,
+      "is_fragile": true,
+      "materials": [
+        "MDF",
+        "Gloss Finish"
+      ],
+      "description": "A sleek and modern white gloss TV stand designed to complement any living room decor, featuring ample storage for media equipment.",
+      "verified": true,
+      "confidence": 0.95,
+      "teacher_model": "gpt-4o-mini"
+    },
+    {
+      "source": "synthetic_openai",
+      "item_name": "Metal and Wood Industrial Shelving Unit",
+      "item_category": "shelving",
+      "length_cm": 120,
+      "width_cm": 40,
+      "height_cm": 180,
+      "cbm": 0.864,
+      "weight_kg": 50,
+      "is_bulky": true,
+      "is_fragile": false,
+      "materials": [
+        "metal",
+        "wood"
+      ],
+      "description": "A sturdy industrial shelving unit combining metal frames and wooden shelves, perfect for both storage and display.",
+      "verified": true,
+      "confidence": 0.95,
+      "teacher_model": "gpt-4o-mini"
+    },
+    {
+      "source": "synthetic_openai",
+      "item_name": "Velvet 2 Seater Sofa",
+      "item_category": "sofa",
+      "length_cm": 160,
+      "width_cm": 90,
+      "height_cm": 85,
+      "cbm": 1.224,
+      "weight_kg": 50,
+      "is_bulky": true,
+      "is_fragile": false,
+      "materials": [
+        "velvet",
+        "wood"
+      ],
+      "description": "A stylish and comfortable 2 seater sofa upholstered in soft velvet, perfect for modern living spaces.",
+      "verified": true,
+      "confidence": 0.95,
+      "teacher_model": "gpt-4o-mini"
+    },
+    {
+      "source": "synthetic_openai",
+      "item_name": "Marble Coffee Table round",
+      "item_category": "coffee_table",
+      "length_cm": 90,
+      "width_cm": 90,
+      "height_cm": 45,
+      "cbm": 0.3645,
+      "weight_kg": 30,
+      "is_bulky": true,
+      "is_fragile": true,
+      "materials": [
+        "marble",
+        "steel"
+      ],
+      "description": "A stylish round coffee table featuring a sleek marble top and a sturdy steel base, perfect for modern living spaces.",
+      "verified": true,
+      "confidence": 0.95,
+      "teacher_model": "gpt-4o-mini"
+    }
+  ]
+}

@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Terms & Conditions - {{ company.company_name }}</title>
+    <link rel="stylesheet" href="/static/app.css">
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>{{ company.company_name }}</h1>
+            <p class="subtitle">Terms & Conditions Management</p>
+        </div>
+
+        <div class="card fade-in">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+                <h2>Customer Terms & Conditions</h2>
+                <a href="/{{ company_slug }}/admin/dashboard" class="btn" style="background: #444;">
+                    Back to Dashboard
+                </a>
+            </div>
+
+            {% if success %}
+            <div class="alert" style="background: rgba(46, 229, 157, 0.1); border-left: 4px solid #2ee59d; margin-bottom: 24px; padding: 16px;">
+                <p style="margin: 0; color: #2ee59d;">
+                    ✓ Terms & Conditions updated successfully. Version {{ company.tcs_version }}.
+                </p>
+            </div>
+            {% endif %}
+
+            {% if error %}
+            <div class="alert alert-error" style="background: rgba(220, 38, 38, 0.1); border-left: 4px solid #dc2626; margin-bottom: 24px; padding: 16px;">
+                <p style="margin: 0; color: #dc2626;">{{ error }}</p>
+            </div>
+            {% endif %}
+
+            <!-- Current T&Cs Status -->
+            <div style="margin-bottom: 32px; padding: 24px; background: #222; border-radius: 8px;">
+                <h3 style="margin-bottom: 16px;">Current Status</h3>
+
+                {% if company.tcs_document_url %}
+                <div style="display: flex; align-items: start; gap: 24px; margin-bottom: 20px; flex-wrap: wrap;">
+                    <div style="flex: 1; min-width: 300px;">
+                        <div style="margin-bottom: 12px;">
+                            <span style="color: #888;">Version:</span>
+                            <strong style="color: #2ee59d; font-size: 18px; margin-left: 8px;">{{ company.tcs_version }}</strong>
+                        </div>
+                        <div style="margin-bottom: 12px;">
+                            <span style="color: #888;">Last Updated:</span>
+                            <strong style="margin-left: 8px;">
+                                {{ company.tcs_updated_at.strftime('%d %B %Y at %H:%M') if company.tcs_updated_at else 'N/A' }}
+                            </strong>
+                        </div>
+                        <div style="margin-bottom: 12px;">
+                            <span style="color: #888;">Status:</span>
+                            {% if company.tcs_enabled %}
+                            <span style="margin-left: 8px; padding: 4px 12px; background: rgba(46, 229, 157, 0.2); color: #2ee59d; border-radius: 4px; font-size: 13px; font-weight: 600;">
+                                ✓ Active - Required for bookings
+                            </span>
+                            {% else %}
+                            <span style="margin-left: 8px; padding: 4px 12px; background: rgba(255, 165, 0, 0.2); color: #ffa500; border-radius: 4px; font-size: 13px; font-weight: 600;">
+                                ⚠ Inactive - Not required
+                            </span>
+                            {% endif %}
+                        </div>
+                        <div style="margin-bottom: 12px;">
+                            <span style="color: #888;">Total Acceptances:</span>
+                            <strong style="margin-left: 8px;">{{ acceptance_count }} customer{% if acceptance_count != 1 %}s{% endif %}</strong>
+                        </div>
+                    </div>
+
+                    <div style="display: flex; flex-direction: column; gap: 8px; min-width: 200px;">
+                        <a href="{{ company.tcs_document_url }}" target="_blank" class="btn" style="background: #444; text-decoration: none; text-align: center;">
+                            📄 View Current Document
+                        </a>
+                        <form method="POST" action="/{{ company_slug }}/admin/terms/toggle" style="margin: 0;">
+                            {% if company.tcs_enabled %}
+                            <button type="submit" class="btn" style="background: #dc2626; width: 100%;">
+                                Disable T&Cs
+                            </button>
+                            {% else %}
+                            <button type="submit" class="btn btn-primary" style="width: 100%;">
+                                Enable T&Cs
+                            </button>
+                            {% endif %}
+                        </form>
+                    </div>
+                </div>
+                {% else %}
+                <div style="text-align: center; padding: 24px; color: #888;">
+                    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-bottom: 16px; opacity: 0.5;">
+                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                        <polyline points="14 2 14 8 20 8"></polyline>
+                        <line x1="16" y1="13" x2="8" y2="13"></line>
+                        <line x1="16" y1="17" x2="8" y2="17"></line>
+                        <polyline points="10 9 9 9 8 9"></polyline>
+                    </svg>
+                    <p style="font-size: 16px; font-weight: 600; margin-bottom: 8px;">No Terms & Conditions uploaded yet</p>
+                    <p style="font-size: 14px;">Upload a PDF document below to get started</p>
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- Upload New T&Cs -->
+            <div style="margin-bottom: 32px; padding-bottom: 32px; border-bottom: 1px solid #333;">
+                <h3 style="margin-bottom: 16px;">
+                    {% if company.tcs_document_url %}Upload New Version{% else %}Upload Terms & Conditions{% endif %}
+                </h3>
+
+                <div style="background: rgba(46, 229, 157, 0.05); padding: 16px; border-radius: 8px; border: 1px solid rgba(46, 229, 157, 0.2); margin-bottom: 20px;">
+                    <p style="margin: 0; font-size: 14px; color: #aaa;">
+                        <strong style="color: #2ee59d;">Important:</strong>
+                        {% if company.tcs_document_url %}
+                        Uploading a new document will increment the version to <strong>{{ next_version }}</strong>.
+                        Existing customer acceptances remain valid and linked to their accepted version.
+                        {% else %}
+                        Upload your company's Terms & Conditions as a PDF. Customers will be required to accept these before booking.
+                        {% endif %}
+                    </p>
+                </div>
+
+                <form method="POST" action="/{{ company_slug }}/admin/terms/upload" enctype="multipart/form-data">
+                    <div class="form-group" style="margin-bottom: 20px;">
+                        <label for="tcs_document" style="display: block; margin-bottom: 8px; font-weight: 600;">
+                            Select PDF Document
+                        </label>
+                        <input
+                            type="file"
+                            id="tcs_document"
+                            name="tcs_document"
+                            accept="application/pdf"
+                            required
+                            style="display: block; width: 100%; padding: 12px; background: #222; border: 2px dashed #444; border-radius: 8px; color: #fff; cursor: pointer;"
+                        >
+                        <small style="color: #666; font-size: 12px; margin-top: 8px; display: block;">
+                            Maximum file size: 10MB. Only PDF format accepted.
+                        </small>
+                    </div>
+
+                    <div class="form-group" style="margin-bottom: 20px;">
+                        <label style="display: flex; align-items: center; cursor: pointer;">
+                            <input
+                                type="checkbox"
+                                name="enable_immediately"
+                                {% if not company.tcs_document_url %}checked{% endif %}
+                                style="margin-right: 12px; width: 18px; height: 18px;"
+                            >
+                            <span style="font-size: 14px;">
+                                Enable immediately after upload
+                                <small style="display: block; color: #666; margin-top: 4px;">
+                                    If checked, customers will be required to accept T&Cs before booking
+                                </small>
+                            </span>
+                        </label>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary btn-block">
+                        {% if company.tcs_document_url %}
+                        📤 Upload New Version ({{ next_version }})
+                        {% else %}
+                        📤 Upload Terms & Conditions
+                        {% endif %}
+                    </button>
+                </form>
+            </div>
+
+            <!-- Acceptance History -->
+            {% if acceptance_count > 0 %}
+            <div style="margin-bottom: 32px;">
+                <h3 style="margin-bottom: 16px;">Recent Acceptances</h3>
+                <div style="background: #222; border-radius: 8px; overflow: hidden;">
+                    <table style="width: 100%; border-collapse: collapse;">
+                        <thead>
+                            <tr style="background: #1a1a1a; border-bottom: 1px solid #333;">
+                                <th style="padding: 12px; text-align: left; font-size: 12px; color: #888; text-transform: uppercase;">Customer</th>
+                                <th style="padding: 12px; text-align: left; font-size: 12px; color: #888; text-transform: uppercase;">Version</th>
+                                <th style="padding: 12px; text-align: left; font-size: 12px; color: #888; text-transform: uppercase;">Date</th>
+                                <th style="padding: 12px; text-align: left; font-size: 12px; color: #888; text-transform: uppercase;">Job</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for acceptance in recent_acceptances %}
+                            <tr style="border-bottom: 1px solid #333;">
+                                <td style="padding: 12px;">
+                                    <div style="font-weight: 600;">{{ acceptance.customer_name }}</div>
+                                    <div style="font-size: 12px; color: #666;">{{ acceptance.customer_email }}</div>
+                                </td>
+                                <td style="padding: 12px;">
+                                    <span style="padding: 4px 8px; background: rgba(46, 229, 157, 0.2); color: #2ee59d; border-radius: 4px; font-size: 13px; font-weight: 600;">
+                                        v{{ acceptance.tcs_version }}
+                                    </span>
+                                </td>
+                                <td style="padding: 12px; color: #aaa; font-size: 14px;">
+                                    {{ acceptance.created_at.strftime('%d %b %Y, %H:%M') }}
+                                </td>
+                                <td style="padding: 12px;">
+                                    <a href="/{{ company_slug }}/admin/job/{{ acceptance.job.token }}" style="color: #2ee59d; text-decoration: none; font-size: 13px;">
+                                        View Job →
+                                    </a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Help & Information -->
+            <div style="background: rgba(255, 255, 255, 0.03); padding: 20px; border-radius: 8px; border: 1px solid #333;">
+                <h4 style="margin-top: 0; margin-bottom: 12px; font-size: 16px;">ℹ️ How it works</h4>
+                <ul style="margin: 0; padding-left: 20px; color: #aaa; font-size: 14px; line-height: 1.8;">
+                    <li><strong>Version Control:</strong> Each upload creates a new version. Old acceptances remain linked to their version.</li>
+                    <li><strong>Customer Flow:</strong> After admin approval, customers must accept T&Cs before deposit payment.</li>
+                    <li><strong>Legal Compliance:</strong> We track IP addresses, timestamps, and document hashes for proof of acceptance.</li>
+                    <li><strong>Preview Access:</strong> Customers can view T&Cs on the quote preview page (even before admin approval).</li>
+                    <li><strong>Opt-in System:</strong> T&Cs are optional. Toggle "Enable" when you're ready to require acceptance.</li>
+                </ul>
+            </div>
+        </div>
+
+        <div style="text-align: center; margin-top: 32px; color: #666; font-size: 13px;">
+            <p>&copy; 2025 PrimeHaul OS. All rights reserved.</p>
+        </div>
+    </div>
+</body>
+</html>

@@ -42,6 +42,13 @@ class Company(Base):
     primary_color = Column(String(7), default='#2ee59d')  # Hex color
     secondary_color = Column(String(7), default='#000000')
 
+    # Terms & Conditions
+    tcs_document_url = Column(Text)  # Path to current T&Cs PDF
+    tcs_version = Column(String(20), default='1.0')  # Current version number
+    tcs_updated_at = Column(DateTime(timezone=True))  # When last updated
+    tcs_document_hash = Column(String(64))  # SHA-256 hash of current document
+    tcs_enabled = Column(Boolean, default=False)  # Whether T&Cs required for this company
+
     # Status
     is_active = Column(Boolean, default=True)
     onboarding_completed = Column(Boolean, default=False)
@@ -156,6 +163,119 @@ class PricingConfig(Base):
     company = relationship("Company", back_populates="pricing_config")
 
 
+class FurnitureCatalog(Base):
+    """
+    Furniture catalog from IKEA, Wayfair, etc. for AI training
+    """
+    __tablename__ = "furniture_catalog"
+
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    source = Column(String(50), nullable=False)  # 'ikea', 'wayfair', 'johnlewis'
+    product_id = Column(String(100))  # External product ID
+    name = Column(String(255), nullable=False)
+    category = Column(String(100))  # 'sofa', 'table', 'wardrobe', etc.
+
+    # Dimensions
+    length_cm = Column(DECIMAL(10, 2))
+    width_cm = Column(DECIMAL(10, 2))
+    height_cm = Column(DECIMAL(10, 2))
+    cbm = Column(DECIMAL(10, 4))
+    weight_kg = Column(DECIMAL(10, 2))
+
+    # Classification
+    is_bulky = Column(Boolean, default=False)
+    is_fragile = Column(Boolean, default=False)
+    packing_requirement = Column(String(50))  # 'none', 'small_box', 'large_box', etc.
+
+    # Images
+    image_urls = Column(JSONB)  # List of image URLs
+
+    # Metadata
+    description = Column(Text)
+    material = Column(String(100))
+    created_at = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
+    updated_at = Column(DateTime(timezone=True), nullable=False, server_default=func.now(), onupdate=func.now())
+
+
+class ItemFeedback(Base):
+    """
+    Admin corrections for AI training - the feedback loop
+    """
+    __tablename__ = "item_feedback"
+
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    item_id = Column(UUID(as_uuid=True), ForeignKey('items.id', ondelete='CASCADE'), nullable=False)
+    company_id = Column(UUID(as_uuid=True), ForeignKey('companies.id', ondelete='CASCADE'), nullable=False)
+    user_id = Column(UUID(as_uuid=True), ForeignKey('users.id', ondelete='SET NULL'))
+
+    # Original AI detection
+    ai_detected_name = Column(String(255))
+    ai_detected_category = Column(String(100))
+    ai_confidence = Column(DECIMAL(3, 2))  # 0.00 to 1.00
+
+    # Admin correction
+    corrected_name = Column(String(255))
+    corrected_category = Column(String(100))
+    corrected_dimensions = Column(JSONB)  # {length, width, height}
+    corrected_cbm = Column(DECIMAL(10, 4))
+    corrected_weight = Column(DECIMAL(10, 2))
+
+    # Feedback type
+    feedback_type = Column(String(50))  # 'correction', 'confirmation', 'deletion', 'false_positive'
+    notes = Column(Text)
+
+    # Link to catalog if matched
+    catalog_item_id = Column(UUID(as_uuid=True), ForeignKey('furniture_catalog.id', ondelete='SET NULL'))
+
+    # Metadata
+    created_at = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
+
+    # Relationships
+    item = relationship("Item")
+    company = relationship("Company")
+    user = relationship("User")
+    catalog_item = relationship("FurnitureCatalog")
+
+
+class TrainingDataset(Base):
+    """
+    Processed training data ready for ML model
+    """
+    __tablename__ = "training_dataset"
+
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+
+    # Image data
+    image_url = Column(String(500))
+    image_hash = Column(String(64))  # For deduplication
+
+    # Ground truth labels
+    item_name = Column(String(255), nullable=False)
+    item_category = Column(String(100), nullable=False)
+    length_cm = Column(DECIMAL(10, 2))
+    width_cm = Column(DECIMAL(10, 2))
+    height_cm = Column(DECIMAL(10, 2))
+    cbm = Column(DECIMAL(10, 4))
+    weight_kg = Column(DECIMAL(10, 2))
+    is_bulky = Column(Boolean)
+    is_fragile = Column(Boolean)
+    packing_requirement = Column(String(50))
+
+    # Source
+    source_type = Column(String(50))  # 'catalog', 'customer_feedback', 'admin_confirmed'
+    source_id = Column(UUID(as_uuid=True))  # Reference to catalog or feedback record
+
+    # Quality
+    confidence_score = Column(DECIMAL(3, 2))  # How confident we are in this label
+    verified = Column(Boolean, default=False)
+
+    # ML metadata
+    used_in_training = Column(Boolean, default=False)
+    training_batch = Column(String(50))
+
+    created_at = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
+
+
 class Job(Base):
     """
     Jobs table - Customer removal quotes
@@ -211,6 +331,7 @@ class Job(Base):
     company = relationship("Company", back_populates="jobs")
     rooms = relationship("Room", back_populates="job", cascade="all, delete-orphan")
     admin_notes = relationship("AdminNote", back_populates="job", cascade="all, delete-orphan")
+    terms_acceptance = relationship("TermsAcceptance", back_populates="job", uselist=False, cascade="all, delete-orphan")
 
 
 class Room(Base):
@@ -703,4 +824,49 @@ class Commission(Base):
 
     # Relationships
     job = relationship("MarketplaceJob")
+    company = relationship("Company")
+
+
+class TermsAcceptance(Base):
+    """
+    Terms & Conditions acceptance tracking - Legal audit trail
+
+    Stores immutable record of customer T&Cs acceptance with:
+    - Exact version accepted
+    - Document hash at time of acceptance (proof of what was shown)
+    - Customer metadata (IP, user agent for legal compliance)
+    - Timestamp of acceptance
+    """
+    __tablename__ = "terms_acceptances"
+    __table_args__ = (
+        Index('idx_terms_acceptance_job', 'job_id'),
+        Index('idx_terms_acceptance_company', 'company_id'),
+    )
+
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    job_id = Column(UUID(as_uuid=True), ForeignKey('jobs.id', ondelete='CASCADE'), nullable=False, index=True)
+    company_id = Column(UUID(as_uuid=True), ForeignKey('companies.id', ondelete='CASCADE'), nullable=False, index=True)
+    created_at = Column(DateTime(timezone=True), nullable=False, server_default=func.now(), index=True)
+
+    # Version Information (immutable snapshot)
+    tcs_version = Column(String(20), nullable=False)  # Version at time of acceptance (e.g., "1.0", "2.1")
+    tcs_document_url = Column(Text, nullable=False)  # Document path at time of acceptance
+    tcs_document_hash = Column(String(64), nullable=False)  # SHA-256 hash - proof of exact content
+
+    # Customer Information (for legal compliance)
+    customer_name = Column(String(255), nullable=False)  # Redundant but important for audit
+    customer_email = Column(String(255), nullable=False)
+    customer_phone = Column(String(50))
+
+    # Technical Metadata (proves genuine acceptance)
+    ip_address = Column(String(45))  # IPv6 compatible - proves geographic acceptance
+    user_agent = Column(String(500))  # Browser/device info
+    acceptance_method = Column(String(50), default='web_form')  # 'web_form', 'email_link', 'admin_override'
+
+    # Status
+    accepted = Column(Boolean, nullable=False, default=True)  # True = accepted, False = declined (rare)
+    declined_at = Column(DateTime(timezone=True))  # If customer declined T&Cs
+
+    # Relationships
+    job = relationship("Job", back_populates="terms_acceptance")
     company = relationship("Company")

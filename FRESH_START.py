@@ -48,7 +48,23 @@ def fresh_start():
     engine = create_engine(database_url)
 
     print("🗑️  Dropping all tables...")
-    Base.metadata.drop_all(bind=engine)
+    # Use raw SQL to handle circular foreign key dependencies
+    from sqlalchemy import text
+    with engine.connect() as conn:
+        # For PostgreSQL, drop schema and recreate
+        if 'postgresql' in database_url:
+            conn.execute(text("DROP SCHEMA public CASCADE"))
+            conn.execute(text("CREATE SCHEMA public"))
+            conn.execute(text("GRANT ALL ON SCHEMA public TO public"))
+            conn.commit()
+        else:
+            # For SQLite, just drop all tables
+            conn.execute(text("PRAGMA foreign_keys = OFF"))
+            tables = conn.execute(text("SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%'")).fetchall()
+            for table in tables:
+                conn.execute(text(f"DROP TABLE IF EXISTS [{table[0]}]"))
+            conn.execute(text("PRAGMA foreign_keys = ON"))
+            conn.commit()
 
     print("📦 Creating fresh tables...")
     Base.metadata.create_all(bind=engine)
@@ -96,18 +112,18 @@ def fresh_start():
             fragile_item_fee=15.00,
 
             # Distance pricing
-            price_per_mile=2.50,
-            free_miles=10,
+            price_per_km=2.50,
+            base_distance_km=10,
 
-            # Access difficulty multipliers
-            per_floor_cost=15.00,
-            no_lift_multiplier=1.25,
+            # Access difficulty pricing
+            price_per_floor=15.00,
+            no_lift_surcharge=50.00,
             narrow_access_fee=30.00,
-            parking_distance_per_10m=5.00,
+            parking_distance_per_50m=10.00,
 
             # Weight limits
-            weight_limit_kg=1000.0,
-            price_per_extra_kg=0.50,
+            weight_threshold_kg=1000,
+            price_per_kg_over_threshold=0.50,
 
             # Packing materials
             pack1_price=1.05,
