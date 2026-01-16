@@ -3,153 +3,291 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sign Up - PrimeHaul OS</title>
-    <link rel="stylesheet" href="/static/app.css">
+    <title>Sign Up - primehaul</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #0b0b0c;
+            color: #fff;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+        }
+
+        .signup-container {
+            width: 100%;
+            max-width: 440px;
+        }
+
+        .logo {
+            text-align: center;
+            margin-bottom: 32px;
+        }
+
+        .logo h1 {
+            font-size: 32px;
+            font-weight: 800;
+            color: #2ee59d;
+            letter-spacing: -0.5px;
+        }
+
+        .logo p {
+            color: #888;
+            margin-top: 8px;
+            font-size: 15px;
+        }
+
+        .card {
+            background: #16171a;
+            border-radius: 16px;
+            padding: 32px;
+            border: 1px solid #2a2b2e;
+        }
+
+        .error-msg {
+            background: rgba(255, 82, 82, 0.1);
+            border: 1px solid rgba(255, 82, 82, 0.3);
+            color: #ff5252;
+            padding: 12px 16px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            font-size: 14px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 14px;
+            font-weight: 600;
+            color: #fff;
+            margin-bottom: 8px;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 16px;
+            font-size: 16px;
+            background: rgba(255,255,255,0.06);
+            border: 1px solid #2a2b2e;
+            border-radius: 12px;
+            color: #fff;
+            transition: all 0.2s;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #2ee59d;
+            background: rgba(46, 229, 157, 0.05);
+        }
+
+        .form-group input::placeholder {
+            color: #666;
+        }
+
+        .form-hint {
+            font-size: 12px;
+            color: #666;
+            margin-top: 6px;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+
+        @media (max-width: 500px) {
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .submit-btn {
+            width: 100%;
+            padding: 18px;
+            font-size: 16px;
+            font-weight: 700;
+            background: #2ee59d;
+            color: #000;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+            margin-top: 8px;
+        }
+
+        .submit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(46, 229, 157, 0.3);
+        }
+
+        .submit-btn:active {
+            transform: translateY(0);
+        }
+
+        .benefits {
+            background: rgba(46, 229, 157, 0.08);
+            border: 1px solid rgba(46, 229, 157, 0.2);
+            border-radius: 12px;
+            padding: 16px;
+            margin: 24px 0;
+        }
+
+        .benefits h4 {
+            color: #2ee59d;
+            font-size: 13px;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+
+        .benefits ul {
+            list-style: none;
+            font-size: 13px;
+            color: #aaa;
+        }
+
+        .benefits li {
+            padding: 4px 0;
+        }
+
+        .benefits li::before {
+            content: "✓ ";
+            color: #2ee59d;
+        }
+
+        .footer-link {
+            text-align: center;
+            margin-top: 24px;
+            font-size: 14px;
+            color: #888;
+        }
+
+        .footer-link a {
+            color: #2ee59d;
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .footer-link a:hover {
+            text-decoration: underline;
+        }
+    </style>
 </head>
 <body>
-    <div class="container">
-        <div class="header">
-            <h1>PrimeHaul OS</h1>
-            <p class="subtitle">Start Your 30-Day Free Trial</p>
+    <div class="signup-container">
+        <div class="logo">
+            <h1>primehaul</h1>
+            <p>Start your 30-day free trial</p>
         </div>
 
-        <div class="card fade-in">
-            <h2>Create Your Account</h2>
-            <p style="color: #888; margin-bottom: 24px;">
-                No credit card required. Start generating AI-powered quotes instantly.
-            </p>
-
+        <div class="card">
             {% if error %}
-            <div class="alert alert-error">
-                {{ error }}
-            </div>
+            <div class="error-msg">{{ error }}</div>
             {% endif %}
 
-            <form method="POST" action="/auth/signup" class="form" id="signupForm">
+            <form method="POST" action="/auth/signup" id="signupForm">
+                <!-- Hidden slug field - auto-generated -->
+                <input type="hidden" id="slug" name="slug" value="{{ slug or '' }}">
+
                 <div class="form-group">
-                    <label for="company_name">Company Name *</label>
+                    <label>Company Name</label>
                     <input
                         type="text"
                         id="company_name"
                         name="company_name"
                         required
                         autofocus
-                        placeholder="Acme Removals Ltd"
+                        placeholder="e.g. Swift Removals"
                         value="{{ company_name or '' }}"
                     >
                 </div>
 
-                <div class="form-group">
-                    <label for="slug">Company URL Slug *</label>
-                    <div style="display: flex; align-items: center; gap: 8px;">
-                        <span style="color: #666; font-size: 14px;">primehaul.com/</span>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Your Name</label>
                         <input
                             type="text"
-                            id="slug"
-                            name="slug"
+                            id="full_name"
+                            name="full_name"
                             required
-                            placeholder="acme-removals"
-                            pattern="[a-z0-9-]+"
-                            title="Lowercase letters, numbers, and hyphens only"
-                            value="{{ slug or '' }}"
-                            style="flex: 1;"
+                            placeholder="John Smith"
+                            value="{{ full_name or '' }}"
                         >
                     </div>
-                    <small style="color: #666; font-size: 12px;">
-                        Used in your custom URLs. Lowercase letters, numbers, and hyphens only.
-                    </small>
+
+                    <div class="form-group">
+                        <label>Phone (Optional)</label>
+                        <input
+                            type="tel"
+                            id="phone"
+                            name="phone"
+                            placeholder="07700 123456"
+                            value="{{ phone or '' }}"
+                        >
+                    </div>
                 </div>
 
                 <div class="form-group">
-                    <label for="email">Email Address *</label>
+                    <label>Email Address</label>
                     <input
                         type="email"
                         id="email"
                         name="email"
                         required
-                        placeholder="admin@yourcompany.com"
+                        placeholder="you@company.com"
                         value="{{ email or '' }}"
                     >
                 </div>
 
-                <div class="form-group">
-                    <label for="full_name">Your Full Name *</label>
-                    <input
-                        type="text"
-                        id="full_name"
-                        name="full_name"
-                        required
-                        placeholder="John Smith"
-                        value="{{ full_name or '' }}"
-                    >
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Password</label>
+                        <input
+                            type="password"
+                            id="password"
+                            name="password"
+                            required
+                            placeholder="Min 8 characters"
+                        >
+                    </div>
+
+                    <div class="form-group">
+                        <label>Confirm Password</label>
+                        <input
+                            type="password"
+                            id="password_confirm"
+                            name="password_confirm"
+                            required
+                            placeholder="Re-enter password"
+                        >
+                    </div>
                 </div>
 
-                <div class="form-group">
-                    <label for="phone">Phone Number (Optional)</label>
-                    <input
-                        type="tel"
-                        id="phone"
-                        name="phone"
-                        placeholder="+44 20 1234 5678"
-                        value="{{ phone or '' }}"
-                    >
-                </div>
-
-                <div class="form-group">
-                    <label for="password">Password *</label>
-                    <input
-                        type="password"
-                        id="password"
-                        name="password"
-                        required
-                        placeholder="Choose a strong password"
-                    >
-                    <small style="color: #666; font-size: 12px;">
-                        At least 8 characters with uppercase, lowercase, and numbers
-                    </small>
-                </div>
-
-                <div class="form-group">
-                    <label for="password_confirm">Confirm Password *</label>
-                    <input
-                        type="password"
-                        id="password_confirm"
-                        name="password_confirm"
-                        required
-                        placeholder="Re-enter your password"
-                    >
-                </div>
-
-                <div style="margin: 24px 0; padding: 16px; background: rgba(46, 229, 157, 0.1); border-radius: 8px;">
-                    <h4 style="margin: 0 0 8px 0; color: #2ee59d; font-size: 14px;">
-                        ✓ What's Included in Your Free Trial
-                    </h4>
-                    <ul style="margin: 0; padding-left: 20px; color: #aaa; font-size: 13px; line-height: 1.8;">
-                        <li>30 days free access (no credit card)</li>
-                        <li>Unlimited quotes and photo analysis</li>
-                        <li>Custom branding & pricing rules</li>
-                        <li>Multi-user team accounts</li>
-                        <li>Full analytics dashboard</li>
+                <div class="benefits">
+                    <h4>What's included free:</h4>
+                    <ul>
+                        <li>30 days full access, no card needed</li>
+                        <li>Unlimited AI-powered photo quotes</li>
+                        <li>Custom branding & pricing</li>
+                        <li>Team accounts & analytics</li>
                     </ul>
                 </div>
 
-                <button type="submit" class="btn btn-primary btn-block" id="submitBtn">
-                    Start Free Trial
+                <button type="submit" class="submit-btn">
+                    Create Free Account
                 </button>
             </form>
 
-            <div style="margin-top: 24px; text-align: center;">
-                <p style="color: #888; font-size: 14px;">
-                    Already have an account?
-                    <a href="/auth/login" style="color: #2ee59d; text-decoration: none;">
-                        Sign in
-                    </a>
-                </p>
+            <div class="footer-link">
+                Already have an account? <a href="/auth/login">Sign in</a>
             </div>
-        </div>
-
-        <div style="text-align: center; margin-top: 32px; color: #666; font-size: 13px;">
-            <p>&copy; 2025 PrimeHaul OS. All rights reserved.</p>
         </div>
     </div>
 
@@ -159,26 +297,40 @@
         const slugInput = document.getElementById('slug');
 
         companyNameInput.addEventListener('input', function() {
-            if (!slugInput.value || slugInput.value === slugInput.defaultValue) {
-                const slug = this.value
-                    .toLowerCase()
-                    .replace(/[^a-z0-9\s-]/g, '')
-                    .replace(/\s+/g, '-')
-                    .replace(/-+/g, '-')
-                    .replace(/^-|-$/g, '');
-                slugInput.value = slug;
-            }
+            const slug = this.value
+                .toLowerCase()
+                .replace(/[^a-z0-9\s-]/g, '')
+                .replace(/\s+/g, '-')
+                .replace(/-+/g, '-')
+                .replace(/^-|-$/g, '');
+            slugInput.value = slug;
         });
 
-        // Password confirmation validation
-        const form = document.getElementById('signupForm');
-        form.addEventListener('submit', function(e) {
-            const password = document.getElementById('password').value;
-            const passwordConfirm = document.getElementById('password_confirm').value;
+        // Generate slug on page load if company name exists
+        if (companyNameInput.value && !slugInput.value) {
+            const slug = companyNameInput.value
+                .toLowerCase()
+                .replace(/[^a-z0-9\s-]/g, '')
+                .replace(/\s+/g, '-')
+                .replace(/-+/g, '-')
+                .replace(/^-|-$/g, '');
+            slugInput.value = slug;
+        }
 
-            if (password !== passwordConfirm) {
+        // Password validation
+        document.getElementById('signupForm').addEventListener('submit', function(e) {
+            const password = document.getElementById('password').value;
+            const confirm = document.getElementById('password_confirm').value;
+
+            if (password !== confirm) {
                 e.preventDefault();
-                alert('Passwords do not match!');
+                alert('Passwords do not match');
+                return false;
+            }
+
+            if (password.length < 8) {
+                e.preventDefault();
+                alert('Password must be at least 8 characters');
                 return false;
             }
         });
