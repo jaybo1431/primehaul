@@ -13,10 +13,35 @@
             <p class="subtitle">Terms & Conditions Management</p>
         </div>
 
+        <!-- Onboarding Tips -->
+        <div class="card fade-in" id="termsOnboarding" style="background: linear-gradient(135deg, rgba(46,229,157,.12), rgba(46,229,157,.04)); border: 1px solid rgba(46,229,157,.3); margin-bottom: 24px; position: relative;">
+            <button onclick="dismissTermsTips()" style="position:absolute; top:12px; right:12px; background:none; border:none; color:#888; cursor:pointer; font-size:20px; line-height:1;">&times;</button>
+            <div style="font-size: 18px; font-weight: 700; color: #2ee59d; margin-bottom: 12px;">📋 Terms & Conditions</div>
+            <div style="color: #ccc; font-size: 14px; line-height: 1.7;">
+                <p style="margin-bottom: 12px;">Protect your business by requiring customers to accept your T&Cs before booking:</p>
+                <ul style="margin: 0; padding-left: 20px; color: #aaa;">
+                    <li><strong style="color:#fff;">Upload a PDF</strong> - Your standard terms & conditions document</li>
+                    <li><strong style="color:#fff;">Enable/Disable</strong> - Toggle whether T&Cs are required for bookings</li>
+                    <li><strong style="color:#fff;">Version Control</strong> - Each new upload creates a new version automatically</li>
+                    <li><strong style="color:#fff;">Legal Proof</strong> - We record timestamp, IP address, and document hash when customers accept</li>
+                </ul>
+                <p style="margin-top: 12px; color: #2ee59d;"><strong>Tip:</strong> This is optional but highly recommended for legal protection. Customers accept T&Cs after you approve their quote.</p>
+            </div>
+        </div>
+        <script>
+            function dismissTermsTips() {
+                document.getElementById('termsOnboarding').style.display = 'none';
+                localStorage.setItem('primehaul_terms_tips_dismissed', 'true');
+            }
+            if (localStorage.getItem('primehaul_terms_tips_dismissed') === 'true') {
+                document.getElementById('termsOnboarding').style.display = 'none';
+            }
+        </script>
+
         <div class="card fade-in">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
                 <h2>Customer Terms & Conditions</h2>
-                <a href="/{{ company_slug }}/admin/dashboard" class="btn" style="background: #444;">
+                <a href="/{{ company_slug }}/admin/dashboard" class="btn" style="background: #555; color: #fff;">
                     Back to Dashboard
                 </a>
             </div>

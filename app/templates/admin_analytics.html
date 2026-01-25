@@ -13,10 +13,36 @@
             <p class="subtitle">Analytics & Insights</p>
         </div>
 
+        <!-- Onboarding Tips -->
+        <div class="card fade-in" id="analyticsOnboarding" style="background: linear-gradient(135deg, rgba(46,229,157,.12), rgba(46,229,157,.04)); border: 1px solid rgba(46,229,157,.3); margin-bottom: 24px; position: relative;">
+            <button onclick="dismissAnalyticsTips()" style="position:absolute; top:12px; right:12px; background:none; border:none; color:#888; cursor:pointer; font-size:20px; line-height:1;">&times;</button>
+            <div style="font-size: 18px; font-weight: 700; color: #2ee59d; margin-bottom: 12px;">📊 Understanding Your Analytics</div>
+            <div style="color: #ccc; font-size: 14px; line-height: 1.7;">
+                <p style="margin-bottom: 12px;">Track how your business is performing with real-time data:</p>
+                <ul style="margin: 0; padding-left: 20px; color: #aaa;">
+                    <li><strong style="color:#fff;">Total Quotes</strong> - How many customers started a survey (more = more interest)</li>
+                    <li><strong style="color:#fff;">Submitted</strong> - Customers who completed the survey and provided contact details</li>
+                    <li><strong style="color:#fff;">Approved</strong> - Quotes you've approved and sent to customers</li>
+                    <li><strong style="color:#fff;">Conversion Funnel</strong> - See where customers drop off in the process</li>
+                    <li><strong style="color:#fff;">Response Time</strong> - How fast you're approving quotes (faster = more wins!)</li>
+                </ul>
+                <p style="margin-top: 12px; color: #2ee59d;"><strong>Tip:</strong> Aim for under 1 hour response time - customers often book with whoever responds fastest!</p>
+            </div>
+        </div>
+        <script>
+            function dismissAnalyticsTips() {
+                document.getElementById('analyticsOnboarding').style.display = 'none';
+                localStorage.setItem('primehaul_analytics_tips_dismissed', 'true');
+            }
+            if (localStorage.getItem('primehaul_analytics_tips_dismissed') === 'true') {
+                document.getElementById('analyticsOnboarding').style.display = 'none';
+            }
+        </script>
+
         <div class="card fade-in">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
                 <h2>Performance Overview</h2>
-                <a href="/{{ company_slug }}/admin/dashboard" class="btn" style="background: #444;">
+                <a href="/{{ company_slug }}/admin/dashboard" class="btn" style="background: #555; color: #fff;">
                     Back to Dashboard
                 </a>
             </div>

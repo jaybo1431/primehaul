@@ -191,7 +191,7 @@ async def landing_page(request: Request):
     """
     Main marketing landing page for primehaul.co.uk
     """
-    return templates.TemplateResponse("landing_page.html", {"request": request})
+    return templates.TemplateResponse("landing_primehaul_uk.html", {"request": request})
 
 
 @app.get("/terms", response_class=HTMLResponse)
@@ -727,7 +727,7 @@ async def signup(
     if existing_company:
         return templates.TemplateResponse("auth_signup.html", {
             "request": request,
-            "error": f"Company slug '{slug}' is already taken. Please choose another.",
+            "error": "Company name already taken. Please try a different name.",
             "company_name": company_name,
             "email": email,
             "full_name": full_name,
@@ -746,8 +746,8 @@ async def signup(
             "phone": phone
         })
 
-    # Create company with 30-day trial
-    trial_ends_at = datetime.utcnow() + timedelta(days=30)
+    # Create company with 14-day trial
+    trial_ends_at = datetime.utcnow() + timedelta(days=14)
     company = Company(
         company_name=company_name,
         slug=slug,
@@ -2756,6 +2756,10 @@ def admin_dashboard(
     # Welcome message for new signups
     welcome = request.query_params.get("welcome") == "true"
 
+    # Show onboarding for new users who haven't dismissed it and have no completed jobs
+    total_jobs = db.query(Job).filter(Job.company_id == company.id).count()
+    show_onboarding = welcome or (total_jobs == 0 and not company.onboarding_completed)
+
     return templates.TemplateResponse("admin_dashboard_v2.html", {
         "request": request,
         "company": company,
@@ -2765,8 +2769,22 @@ def admin_dashboard(
         "awaiting_jobs": awaiting_jobs,
         "approved_jobs": approved_jobs,
         "rejected_jobs": rejected_jobs,
-        "welcome": welcome
+        "welcome": welcome,
+        "show_onboarding": show_onboarding
     })
+
+
+@app.post("/{company_slug}/admin/dismiss-onboarding")
+def dismiss_onboarding(
+    company_slug: str,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """Dismiss the onboarding banner"""
+    company = verify_company_access(company_slug, current_user)
+    company.onboarding_completed = True
+    db.commit()
+    return {"status": "ok"}
 
 
 @app.get("/{company_slug}/admin/job/{token}", response_class=HTMLResponse)

@@ -16,7 +16,7 @@
         <div class="card fade-in">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
                 <h2>Subscription Status</h2>
-                <a href="/{{ company_slug }}/admin/dashboard" class="btn" style="background: #444;">
+                <a href="/{{ company_slug }}/admin/dashboard" class="btn" style="background: #555; color: #fff;">
                     Back to Dashboard
                 </a>
             </div>
@@ -25,7 +25,7 @@
             <div class="alert" style="background: rgba(46, 229, 157, 0.1); border-left: 4px solid #2ee59d;">
                 <h3 style="margin: 0 0 8px 0; color: #2ee59d;">Free Trial Active</h3>
                 <p style="margin: 0; color: #aaa;">
-                    {{ subscription_info.days_remaining }} days remaining in your 30-day trial.
+                    {{ subscription_info.days_remaining }} days remaining in your 14-day trial.
                     Subscribe now to continue after trial ends.
                 </p>
             </div>

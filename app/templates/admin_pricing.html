@@ -13,10 +13,36 @@
             <p class="subtitle">Pricing Configuration</p>
         </div>
 
+        <!-- Onboarding Tips -->
+        <div class="card fade-in" id="pricingOnboarding" style="background: linear-gradient(135deg, rgba(46,229,157,.12), rgba(46,229,157,.04)); border: 1px solid rgba(46,229,157,.3); margin-bottom: 24px; position: relative;">
+            <button onclick="dismissPricingTips()" style="position:absolute; top:12px; right:12px; background:none; border:none; color:#888; cursor:pointer; font-size:20px; line-height:1;">&times;</button>
+            <div style="font-size: 18px; font-weight: 700; color: #2ee59d; margin-bottom: 12px;">💰 How Pricing Works</div>
+            <div style="color: #ccc; font-size: 14px; line-height: 1.7;">
+                <p style="margin-bottom: 12px;">Your pricing rules are used to automatically calculate quotes when customers complete surveys. Here's what to set up:</p>
+                <ul style="margin: 0; padding-left: 20px; color: #aaa;">
+                    <li><strong style="color:#fff;">Price per CBM</strong> - Your rate per cubic meter (industry average: £30-50)</li>
+                    <li><strong style="color:#fff;">Callout Fee</strong> - Fixed base charge for every job (covers travel, admin)</li>
+                    <li><strong style="color:#fff;">Item Surcharges</strong> - Extra fees for bulky or fragile items</li>
+                    <li><strong style="color:#fff;">Packing Materials</strong> - Prices for boxes, tape, paper if customer needs packing</li>
+                    <li><strong style="color:#fff;">Estimate Range</strong> - Show customers a price range (e.g., £400-£500) to allow flexibility</li>
+                </ul>
+                <p style="margin-top: 12px; color: #2ee59d;"><strong>Tip:</strong> Start with industry averages, then adjust based on your costs and local competition.</p>
+            </div>
+        </div>
+        <script>
+            function dismissPricingTips() {
+                document.getElementById('pricingOnboarding').style.display = 'none';
+                localStorage.setItem('primehaul_pricing_tips_dismissed', 'true');
+            }
+            if (localStorage.getItem('primehaul_pricing_tips_dismissed') === 'true') {
+                document.getElementById('pricingOnboarding').style.display = 'none';
+            }
+        </script>
+
         <div class="card fade-in">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
                 <h2>Custom Pricing Rules</h2>
-                <a href="/{{ company_slug }}/admin/dashboard" class="btn" style="background: #444;">
+                <a href="/{{ company_slug }}/admin/dashboard" class="btn" style="background: #555; color: #fff;">
                     Back to Dashboard
                 </a>
             </div>
