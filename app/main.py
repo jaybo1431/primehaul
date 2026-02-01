@@ -1844,14 +1844,10 @@ def calculate_packing_materials(job: Job, pricing: PricingConfig, db: Session) -
             elif packing_req == 'large_box':
                 # Linens, bedding: ~10 items per box
                 large_boxes += max(1, qty // 10)
-            elif packing_req == 'robe_carton':
-                # 1 per wardrobe door (check notes for door count)
-                if item.notes and 'door' in item.notes.lower():
-                    # Extract number from notes like "2 doors"
-                    match = re.search(r'(\d+)\s*door', item.notes.lower())
-                    robe_cartons += int(match.group(1)) if match else 2
-                else:
-                    robe_cartons += 2  # Default 2 doors per wardrobe
+            elif packing_req in ('robe_carton', 'wardrobe_box'):
+                # Wardrobe boxes for hanging clothes
+                # qty represents number of wardrobe boxes needed
+                robe_cartons += qty
             elif packing_req == 'mattress_cover':
                 mattress_covers += qty
 
@@ -1931,7 +1927,7 @@ def calculate_packing_service(job: Job, pricing: PricingConfig, db: Session) -> 
         # Kitchens are slower (fragile, wrapping): 15 items/hour
         # Bedrooms/living rooms: 20 items/hour
 
-        if 'kitchen' in room.room_name.lower():
+        if 'kitchen' in room.name.lower():
             packing_rate = 15  # items per hour
         else:
             packing_rate = 20  # items per hour
@@ -1946,7 +1942,7 @@ def calculate_packing_service(job: Job, pricing: PricingConfig, db: Session) -> 
 
         room_estimates.append({
             "room_id": str(room.id),
-            "room_name": room.room_name,
+            "room_name": room.name,
             "hours": round(estimated_hours, 1),
             "cost": round(estimated_cost, 2),
             "items_count": items_needing_packing,
