@@ -75,7 +75,7 @@
   <div class="group">
     <div style="font-weight:700; margin-bottom:12px;">📋 Booking Summary</div>
     <div style="display:flex; flex-direction:column; gap:8px;">
-      {% if job.pickup %}
+      {% if job.pickup and job.pickup.label %}
       <div class="statrow">
         <div class="staticon" style="background:rgba(46,229,157,.15);">📍</div>
         <div style="flex:1;">
@@ -85,7 +85,7 @@
       </div>
       {% endif %}
 
-      {% if job.dropoff %}
+      {% if job.dropoff and job.dropoff.label %}
       <div class="statrow">
         <div class="staticon" style="background:rgba(255,77,79,.15);">📍</div>
         <div style="flex:1;">

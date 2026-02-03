@@ -11,8 +11,8 @@
         £{{ estimate_low }} - £{{ estimate_high }}
       </div>
       <div style="font-size:14px; color:var(--muted);">
-        📍 {{ job.pickup.label[:50] if job.pickup else 'Not set' }}... →
-        {{ job.dropoff.label[:50] if job.dropoff else 'Not set' }}...
+        📍 {{ job.pickup.label[:50] if (job.pickup and job.pickup.label) else 'Not set' }}... →
+        {{ job.dropoff.label[:50] if (job.dropoff and job.dropoff.label) else 'Not set' }}...
       </div>
     </div>
   </div>
