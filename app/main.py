@@ -47,6 +47,10 @@ else:
 
 app = FastAPI(title="PrimeHaul OS", version="1.0.0")
 
+# Trust Railway's proxy headers (X-Forwarded-Proto, X-Forwarded-For)
+from uvicorn.middleware.proxy_headers import ProxyHeadersMiddleware
+app.add_middleware(ProxyHeadersMiddleware, trusted_hosts=["*"])
+
 # Security: Add CORS middleware
 app.add_middleware(
     CORSMiddleware,
@@ -668,7 +672,7 @@ async def login(
         key="access_token",
         value=token,
         httponly=True,
-        secure=False,  # Set to True in production with HTTPS
+        secure=True,
         samesite="lax",
         max_age=86400  # 24 hours
     )
@@ -802,7 +806,7 @@ async def signup(
         key="access_token",
         value=token,
         httponly=True,
-        secure=False,  # Set to True in production with HTTPS
+        secure=True,
         samesite="lax",
         max_age=86400  # 24 hours
     )
@@ -2262,7 +2266,7 @@ def calculate_quote(job: Job, db: Session) -> dict:
         # Send SMS notification if customer has phone
         if job.customer_phone and job.customer_name:
             company = db.query(Company).filter(Company.id == job.company_id).first()
-            booking_url = f"http://192.168.0.139:8000/s/{company.slug}/{job.token}/booking"
+            booking_url = f"https://{os.getenv('RAILWAY_PUBLIC_DOMAIN', 'localhost:8000')}/s/{company.slug}/{job.token}/booking"
             try:
                 notify_quote_approved(
                     customer_name=job.customer_name,
@@ -3126,7 +3130,7 @@ def admin_quick_approve(
             try:
                 # Calculate quote for price range
                 quote = calculate_quote(job, db)
-                booking_url = f"http://192.168.0.139:8000/s/{company_slug}/{token}/booking"
+                booking_url = f"https://{os.getenv('RAILWAY_PUBLIC_DOMAIN', 'localhost:8000')}/s/{company_slug}/{token}/booking"
 
                 notify_quote_approved(
                     customer_name=job.customer_name,
@@ -3356,7 +3360,7 @@ def create_checkout(
     company = verify_company_access(company_slug, current_user)
 
     # Build success and cancel URLs
-    app_url = os.getenv("APP_URL", "http://localhost:8000")
+    app_url = os.getenv("APP_URL", "https://primehaul.co.uk")
     success_url = f"{app_url}/{company_slug}/billing?billing_success=true"
     cancel_url = f"{app_url}/{company_slug}/billing?billing_canceled=true"
 
@@ -3389,7 +3393,7 @@ def manage_subscription(
     company = verify_company_access(company_slug, current_user)
 
     # Build return URL
-    app_url = os.getenv("APP_URL", "http://localhost:8000")
+    app_url = os.getenv("APP_URL", "https://primehaul.co.uk")
     return_url = f"{app_url}/{company_slug}/billing"
 
     try:
