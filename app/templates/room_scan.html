@@ -110,10 +110,132 @@
       border-color: rgba(255, 80, 80, 0.3);
       color: #ff5050;
     }
+    .variant-select {
+      background: rgba(255,255,255,.08);
+      border: 1px solid rgba(255,255,255,.15);
+      border-radius: 6px;
+      color: #fff;
+      font-size: 12px;
+      padding: 4px 8px;
+      margin-top: 4px;
+      cursor: pointer;
+      max-width: 180px;
+    }
+    .variant-select:focus {
+      border-color: rgba(46,229,157,.4);
+      outline: none;
+    }
   </style>
 
   <script>
     let currentItems = {{ items_json.get('items', []) | tojson | safe }};
+    const variantMap = {{ variant_map_js | tojson | safe }};
+
+    // DOM references
+    const _toast = document.getElementById("liveToast");
+    const _itemsStatus = document.getElementById("itemsStatus");
+    const _itemsList = document.getElementById("itemsList");
+
+    function escapeHtml(s){
+      return (s || "").replace(/[&<>"']/g, (c) => ({
+        "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
+      }[c]));
+    }
+
+    function showToast(msg){
+      _toast.textContent = msg;
+      _toast.classList.remove("hidden");
+      setTimeout(() => _toast.classList.add("hidden"), 1500);
+    }
+
+    // Client-side variant lookup for items added via AJAX
+    function getVariantsForName(name) {
+      const lower = (name || "").toLowerCase();
+      let best = null;
+      let bestLen = 0;
+      for (const [cat, data] of Object.entries(variantMap)) {
+        for (const kw of data.keywords) {
+          if (lower.includes(kw) && kw.length > bestLen) {
+            best = data.variants;
+            bestLen = kw.length;
+          }
+        }
+      }
+      return best;
+    }
+
+    function renderItems(items){
+      if(!items || items.length === 0){
+        _itemsList.innerHTML = '<div class="empty"><div class="empty-title">No items yet</div><div class="empty-sub">Take photos and our AI will detect everything automatically!</div></div>';
+        _itemsStatus.textContent = "0 items";
+        return;
+      }
+
+      _itemsStatus.textContent = items.length + " items";
+
+      _itemsList.innerHTML = items.map((it, idx) => {
+        const name = escapeHtml(it.name || "");
+        const qty = Number(it.qty || 1);
+        const notes = escapeHtml(it.notes || "");
+        const bulky = it.bulky;
+
+        // Variant dropdown: use server-provided variants or client-side lookup
+        const variants = it.variants || getVariantsForName(it.name) || [];
+        let variantHtml = '';
+        if (variants.length > 1) {
+          const opts = variants.map(v => {
+            const vn = escapeHtml(v);
+            const sel = (v.toLowerCase() === (it.name || "").toLowerCase()) ? 'selected' : '';
+            return `<option value="${vn}" ${sel}>${vn}</option>`;
+          }).join('');
+          variantHtml = `<select class="variant-select" onchange="changeVariant(${idx}, this)">${opts}</select>`;
+        }
+
+        return `
+          <div class="itemrow" id="item-${idx}">
+            <div class="iteminfo">
+              <div class="itemname">${qty}x ${name}</div>
+              ${variantHtml}
+              ${notes ? `<div class="itemnotes">${notes}</div>` : ''}
+            </div>
+            <div style="display:flex; align-items:center; gap:6px;">
+              ${bulky ? '<span class="badge">Bulky</span>' : ''}
+              <button class="item-btn item-increment-btn" onclick="incrementItem(${idx}, '${escapeHtml(name)}')" title="Add another">+1</button>
+              <button class="item-btn item-delete-btn" onclick="deleteItem(${idx}, '${escapeHtml(name)}')" title="Remove this item">✕</button>
+            </div>
+          </div>
+        `;
+      }).join("");
+    }
+
+    async function changeVariant(index, selectEl) {
+      const variantName = selectEl.value;
+      try {
+        const fd = new FormData();
+        fd.append('variant_name', variantName);
+        const resp = await fetch("/s/{{ company_slug }}/{{ token }}/room/{{ room_id }}/update-variant/" + index, {
+          method: "POST", body: fd
+        });
+        if (resp.ok) {
+          const data = await resp.json();
+          currentItems[index].name = data.new_name;
+          currentItems[index].weight_kg = data.weight_kg;
+          currentItems[index].cbm = data.cbm;
+          currentItems[index].bulky = data.bulky;
+          currentItems[index].length_cm = data.length_cm;
+          currentItems[index].width_cm = data.width_cm;
+          currentItems[index].height_cm = data.height_cm;
+          currentItems[index].variants = data.variants;
+          renderItems(currentItems);
+          showToast("Updated to " + data.new_name);
+        } else {
+          showToast("Failed to update");
+        }
+      } catch (err) {
+        console.error(err);
+        showToast("Error updating");
+      }
+    }
 
     async function incrementItem(index, itemName) {
       try {
@@ -123,9 +245,7 @@
 
         if (response.ok) {
           const data = await response.json();
-          // Update local array
           currentItems[index].qty = data.new_qty;
-          // Re-render
           renderItems(currentItems);
           showToast(`${itemName} x${data.new_qty}`);
         } else {
@@ -146,9 +266,7 @@
         });
 
         if (response.ok) {
-          // Remove from local array
           currentItems.splice(index, 1);
-          // Re-render
           renderItems(currentItems);
           showToast("Item removed");
         } else {
@@ -160,6 +278,7 @@
       }
     }
 
+    // Photo upload handler
     (function () {
       const uploadUrl = "/s/{{ company_slug }}/{{ token }}/room/{{ room_id }}/upload-json";
 
@@ -170,20 +289,9 @@
       const fill = document.getElementById("uploadFill");
       const label = document.getElementById("uploadLabel");
 
-      const toast = document.getElementById("liveToast");
-
       const photosCard = document.getElementById("photosCard");
       const photoGrid = document.getElementById("photoGrid");
       const photoCount = document.getElementById("photoCount");
-
-      const itemsStatus = document.getElementById("itemsStatus");
-      const itemsList = document.getElementById("itemsList");
-
-      function showToast(msg){
-        toast.textContent = msg;
-        toast.classList.remove("hidden");
-        setTimeout(() => toast.classList.add("hidden"), 1500);
-      }
 
       function setUploading(on){
         if(on){
@@ -206,12 +314,6 @@
         label.textContent = clamped >= 100 ? "✨ Analyzing with AI..." : ("Uploading… " + clamped + "%");
       }
 
-      function escapeHtml(s){
-        return (s || "").replace(/[&<>"']/g, (c) => ({
-          "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
-        }[c]));
-      }
-
       function renderPhotos(photos){
         if(!photos || photos.length === 0) return;
 
@@ -223,51 +325,18 @@
         ).join("");
       }
 
-      function renderItems(items){
-        if(!items || items.length === 0){
-          itemsList.innerHTML = '<div class="empty"><div class="empty-title">No items yet</div><div class="empty-sub">Take photos and our AI will detect everything automatically!</div></div>';
-          itemsStatus.textContent = "0 items";
-          return;
-        }
-
-        itemsStatus.textContent = items.length + " items";
-
-        itemsList.innerHTML = items.map((it, idx) => {
-          const name = escapeHtml(it.name || "");
-          const qty = Number(it.qty || 1);
-          const notes = escapeHtml(it.notes || "");
-          const bulky = it.bulky;
-
-          return `
-            <div class="itemrow" id="item-${idx}">
-              <div class="iteminfo">
-                <div class="itemname">${qty}x ${name}</div>
-                ${notes ? `<div class="itemnotes">${notes}</div>` : ''}
-              </div>
-              <div style="display:flex; align-items:center; gap:6px;">
-                ${bulky ? '<span class="badge">Bulky</span>' : ''}
-                <button class="item-btn item-increment-btn" onclick="incrementItem(${idx}, '${escapeHtml(name)}')" title="Add another">+1</button>
-                <button class="item-btn item-delete-btn" onclick="deleteItem(${idx}, '${escapeHtml(name)}')" title="Remove this item">✕</button>
-              </div>
-            </div>
-          `;
-        }).join("");
-      }
-
       takeBtn.addEventListener("click", () => input.click());
 
       input.addEventListener("change", async () => {
         if (!input.files || input.files.length === 0) return;
 
-        // Show upload UI
         setUploading(true);
-        itemsStatus.textContent = "Processing…";
+        _itemsStatus.textContent = "Processing…";
 
         const data = new FormData();
         for (const f of input.files) data.append("photos", f);
 
         try {
-          // Use XHR just for progress; fetch doesn't give upload progress easily.
           const xhr = new XMLHttpRequest();
           xhr.open("POST", uploadUrl, true);
 
@@ -291,7 +360,13 @@
             }
 
             renderPhotos(payload.photos || []);
-            renderItems((payload.items_json && payload.items_json.items) ? payload.items_json.items : []);
+            const newItems = (payload.items_json && payload.items_json.items) ? payload.items_json.items : [];
+            // Add client-side variants for newly detected items
+            newItems.forEach(it => {
+              if (!it.variants) it.variants = getVariantsForName(it.name);
+            });
+            currentItems = newItems;
+            renderItems(currentItems);
             showToast("✅ Items detected!");
           };
 
@@ -305,11 +380,13 @@
           setUploading(false);
           showToast("Upload failed");
         } finally {
-          // allow uploading same file again
           input.value = "";
         }
       });
     })();
+
+    // Render items on page load (enables +1/delete/variant buttons for server-rendered items)
+    renderItems(currentItems);
   </script>
 {% endblock %}
 

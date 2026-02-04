@@ -166,49 +166,44 @@
 
     {% if packing_service_breakdown and packing_service_breakdown.rooms %}
     <div style="margin-top:16px; padding-top:16px; border-top:1px solid var(--hair);">
-      <details style="cursor:pointer;">
-        <summary style="font-weight:700; margin-bottom:12px; list-style:none; display:flex; align-items:center; justify-content:space-between;">
-          <span>Need help packing? (Optional)</span>
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="transition: transform 0.2s;">
-            <polyline points="6 9 12 15 18 9"></polyline>
-          </svg>
-        </summary>
-
-        <div style="margin-top:12px;">
-          <div style="padding:12px; border-radius:8px; background:rgba(255,255,255,.05); border:1px solid rgba(255,255,255,.1); font-size:13px; color:var(--muted); margin-bottom:12px;">
-            Select which rooms you'd like our team to pack for you. Materials and labor included in the price.
-          </div>
-
-          <form id="packingServiceForm" method="post" action="/s/{{ company_slug }}/{{ token }}/packing-service" style="display:flex; flex-direction:column; gap:8px;">
-            {% for room in packing_service_breakdown.rooms %}
-            <label style="display:flex; align-items:center; padding:14px; border-radius:12px; background:{% if room.is_selected %}rgba(255,255,255,.1){% else %}rgba(255,255,255,.05){% endif %}; border:1px solid {% if room.is_selected %}rgba(255,255,255,.3){% else %}rgba(255,255,255,.1){% endif %}; cursor:pointer; transition:all 0.2s;">
-              <input type="checkbox" name="room_ids" value="{{ room.room_id }}" {% if room.is_selected %}checked{% endif %} style="margin-right:12px;" onchange="document.getElementById('packingServiceForm').submit()">
-              <div style="flex:1;">
-                <div style="font-weight:600; margin-bottom:3px;">{{ room.room_name }}</div>
-                <div style="font-size:12px; color:var(--muted);">{{ room.items_count }} items • ~{{ room.hours }}h packing</div>
-              </div>
-              <div style="font-weight:700; font-size:16px;">+£{{ "%.0f"|format(room.cost) }}</div>
-            </label>
-            {% endfor %}
-
-            {% if packing_service_breakdown.total_cost > 0 %}
-            <div style="margin-top:8px; padding:14px; border-radius:12px; background:rgba(46,229,157,.1); border:1px solid rgba(46,229,157,.3);">
-              <div style="display:flex; justify-content:space-between; align-items:center;">
-                <div>
-                  <div style="font-weight:700; margin-bottom:3px;">Packing service total</div>
-                  <div style="font-size:13px; color:var(--muted);">{{ packing_service_breakdown.total_hours }}h labor + materials included</div>
-                </div>
-                <div style="font-weight:700; font-size:20px; color:#2ee59d;">+£{{ "%.0f"|format(packing_service_breakdown.total_cost) }}</div>
-              </div>
-            </div>
-            {% endif %}
-          </form>
-
-          <div style="margin-top:12px; padding:12px; border-radius:8px; background:rgba(255,255,255,.05); border:1px solid rgba(255,255,255,.1); font-size:12px; color:var(--muted);">
-            <strong>Or pack everything yourself</strong> - Just uncheck all rooms above. You can choose to bring your own materials or use ours.
+      <div style="padding:18px; border-radius:14px; background:rgba(46,229,157,.06); border:2px solid rgba(46,229,157,.3); animation:glowPulse 2.5s ease-in-out infinite;">
+        <div style="display:flex; align-items:center; gap:10px; margin-bottom:14px;">
+          <div style="width:40px; height:40px; border-radius:10px; background:rgba(46,229,157,.15); display:flex; align-items:center; justify-content:center; font-size:20px; flex-shrink:0;">📦</div>
+          <div>
+            <div style="font-weight:700; font-size:17px; color:#2ee59d;">Need help packing?</div>
+            <div style="font-size:13px; color:var(--muted);">We'll pack for you — materials and labor included</div>
           </div>
         </div>
-      </details>
+
+        <form id="packingServiceForm" method="post" action="/s/{{ company_slug }}/{{ token }}/packing-service" style="display:flex; flex-direction:column; gap:8px;">
+          {% for room in packing_service_breakdown.rooms %}
+          <label style="display:flex; align-items:center; padding:14px; border-radius:12px; background:{% if room.is_selected %}rgba(46,229,157,.1){% else %}rgba(255,255,255,.05){% endif %}; border:1px solid {% if room.is_selected %}rgba(46,229,157,.35){% else %}rgba(255,255,255,.1){% endif %}; cursor:pointer; transition:all 0.2s;">
+            <input type="checkbox" name="room_ids" value="{{ room.room_id }}" {% if room.is_selected %}checked{% endif %} style="margin-right:12px; accent-color:#2ee59d;" onchange="document.getElementById('packingServiceForm').submit()">
+            <div style="flex:1;">
+              <div style="font-weight:600; margin-bottom:3px;">{{ room.room_name }}</div>
+              <div style="font-size:12px; color:var(--muted);">{{ room.items_count }} items · ~{{ room.hours }}h packing</div>
+            </div>
+            <div style="font-weight:700; font-size:16px; color:#2ee59d;">+£{{ "%.0f"|format(room.cost) }}</div>
+          </label>
+          {% endfor %}
+
+          {% if packing_service_breakdown.total_cost > 0 %}
+          <div style="margin-top:8px; padding:14px; border-radius:12px; background:rgba(46,229,157,.12); border:1px solid rgba(46,229,157,.35);">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+              <div>
+                <div style="font-weight:700; margin-bottom:3px;">Packing service total</div>
+                <div style="font-size:13px; color:var(--muted);">{{ packing_service_breakdown.total_hours }}h labor + materials included</div>
+              </div>
+              <div style="font-weight:700; font-size:20px; color:#2ee59d;">+£{{ "%.0f"|format(packing_service_breakdown.total_cost) }}</div>
+            </div>
+          </div>
+          {% endif %}
+        </form>
+
+        <div style="margin-top:12px; font-size:12px; color:var(--muted); text-align:center;">
+          This is optional — uncheck all rooms to skip
+        </div>
+      </div>
     </div>
     {% endif %}
 

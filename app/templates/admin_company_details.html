@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Company Details - PrimeHaul OS</title>
+    <link rel="stylesheet" href="/static/app.css">
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>{{ company.company_name }}</h1>
+            <p class="subtitle">Company Details</p>
+        </div>
+
+        <div class="card fade-in">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+                <h2>Company Information</h2>
+                <a href="/{{ company_slug }}/admin/dashboard" class="btn" style="background: #555; color: #fff;">
+                    Back to Dashboard
+                </a>
+            </div>
+
+            {% if success %}
+            <div class="alert" style="background: rgba(46, 229, 157, 0.1); border-left: 4px solid #2ee59d; margin-bottom: 24px;">
+                <p style="margin: 0; color: #2ee59d;">
+                    ✓ Company details updated successfully
+                </p>
+            </div>
+            {% endif %}
+
+            {% if error %}
+            <div class="alert" style="background: rgba(255, 80, 80, 0.1); border-left: 4px solid #ff5050; margin-bottom: 24px;">
+                <p style="margin: 0; color: #ff5050;">{{ error }}</p>
+            </div>
+            {% endif %}
+
+            <form method="POST" action="/{{ company_slug }}/admin/company-details/update" class="form">
+                <div class="form-group" style="margin-bottom: 24px;">
+                    <label for="company_name" style="display: block; margin-bottom: 8px; font-weight: 600; color: #ccc;">Company Name</label>
+                    <input
+                        type="text"
+                        id="company_name"
+                        name="company_name"
+                        value="{{ company.company_name }}"
+                        required
+                        maxlength="255"
+                        style="width: 100%; padding: 12px; background: #222; border: 1px solid #444; border-radius: 8px; color: #fff; font-size: 15px;"
+                    >
+                    <small style="color: #666; font-size: 12px; margin-top: 4px; display: block;">
+                        This appears on customer surveys and quotes
+                    </small>
+                </div>
+
+                <div class="form-group" style="margin-bottom: 24px;">
+                    <label for="email" style="display: block; margin-bottom: 8px; font-weight: 600; color: #ccc;">Contact Email</label>
+                    <input
+                        type="email"
+                        id="email"
+                        name="email"
+                        value="{{ company.email }}"
+                        required
+                        maxlength="255"
+                        style="width: 100%; padding: 12px; background: #222; border: 1px solid #444; border-radius: 8px; color: #fff; font-size: 15px;"
+                    >
+                    <small style="color: #666; font-size: 12px; margin-top: 4px; display: block;">
+                        Used for account notifications and customer enquiries
+                    </small>
+                </div>
+
+                <div class="form-group" style="margin-bottom: 24px;">
+                    <label for="phone" style="display: block; margin-bottom: 8px; font-weight: 600; color: #ccc;">Contact Phone</label>
+                    <input
+                        type="tel"
+                        id="phone"
+                        name="phone"
+                        value="{{ company.phone or '' }}"
+                        maxlength="50"
+                        placeholder="+44 7700 900000"
+                        style="width: 100%; padding: 12px; background: #222; border: 1px solid #444; border-radius: 8px; color: #fff; font-size: 15px;"
+                    >
+                    <small style="color: #666; font-size: 12px; margin-top: 4px; display: block;">
+                        Shown to customers on their quotes
+                    </small>
+                </div>
+
+                <div class="form-group" style="margin-bottom: 32px; opacity: 0.5;">
+                    <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #888;">Company URL Slug</label>
+                    <input
+                        type="text"
+                        value="{{ company.slug }}"
+                        disabled
+                        style="width: 100%; padding: 12px; background: #1a1a1a; border: 1px solid #333; border-radius: 8px; color: #666; font-size: 15px; cursor: not-allowed;"
+                    >
+                    <small style="color: #555; font-size: 12px; margin-top: 4px; display: block;">
+                        Cannot be changed — used in all customer-facing URLs
+                    </small>
+                </div>
+
+                <button type="submit" class="btn btn-primary" style="width: 100%; padding: 14px; font-size: 16px; font-weight: 700;">
+                    Save Company Details
+                </button>
+            </form>
+        </div>
+
+        <div style="text-align: center; margin-top: 32px; color: #666; font-size: 13px;">
+            <p>&copy; 2025 PrimeHaul OS. All rights reserved.</p>
+        </div>
+    </div>
+</body>
+</html>

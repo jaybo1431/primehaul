@@ -27,6 +27,7 @@ from app.sms import notify_quote_approved, notify_quote_submitted, notify_bookin
 from app import billing
 from app import marketplace
 from app import notifications
+from app.variants import get_variants_for_item, get_variant_map_for_js
 
 load_dotenv()
 
@@ -1221,7 +1222,7 @@ def room_scan_get(request: Request, company_slug: str, token: str, room_id: str,
     items = db.query(Item).filter(Item.room_id == room.id).all()
     photos = db.query(Photo).filter(Photo.room_id == room.id).all()
 
-    # Build items_json for template
+    # Build items_json for template (include variant options per item)
     items_json = {
         "items": [{
             "name": item.name,
@@ -1234,12 +1235,16 @@ def room_scan_get(request: Request, company_slug: str, token: str, room_id: str,
             "height_cm": float(item.height_cm) if item.height_cm else None,
             "weight_kg": float(item.weight_kg) if item.weight_kg else None,
             "cbm": float(item.cbm) if item.cbm else None,
+            "variants": [v["name"] for v in (get_variants_for_item(item.name) or [])],
         } for item in items],
         "summary": room.summary or ""
     }
 
     # Build photos list for template
     photos_list = [{"filename": p.filename, "url": f"/static/{p.storage_path}"} for p in photos]
+
+    # Variant map for client-side matching after AJAX photo uploads
+    variant_map_js = get_variant_map_for_js()
 
     return templates.TemplateResponse("room_scan.html", {
         "request": request,
@@ -1254,6 +1259,7 @@ def room_scan_get(request: Request, company_slug: str, token: str, room_id: str,
         "room_name": room.name,
         "photos": photos_list,
         "items_json": items_json,
+        "variant_map_js": variant_map_js,
     })
 
 
@@ -1641,6 +1647,98 @@ def increment_room_item(
     logger.info(f"Incremented item '{item.name}' to qty {item.qty} in room {room.name} (job {token})")
 
     return JSONResponse({"success": True, "new_qty": item.qty})
+
+
+@app.post("/s/{company_slug}/{token}/room/{room_id}/update-variant/{item_index}")
+def update_item_variant(
+    request: Request,
+    company_slug: str,
+    token: str,
+    room_id: str,
+    item_index: int,
+    variant_name: str = Form(...),
+    db: Session = Depends(get_db)
+):
+    """Update an item's variant (size/type) with pre-set dimensions from variant map"""
+    company = request.state.company
+    job = get_or_create_job(company.id, token, db)
+
+    room = db.query(Room).filter(Room.id == room_id, Room.job_id == job.id).first()
+    if not room:
+        return JSONResponse({"error": "Room not found"}, status_code=404)
+
+    items = db.query(Item).filter(Item.room_id == room.id).order_by(Item.id).all()
+    if item_index < 0 or item_index >= len(items):
+        return JSONResponse({"error": "Invalid item index"}, status_code=400)
+
+    item = items[item_index]
+    original_name = item.name
+
+    # Find the matching variant data
+    from app.variants import VARIANT_MAP, get_variant_category
+    category = get_variant_category(original_name) or get_variant_category(variant_name)
+    if not category:
+        return JSONResponse({"error": "No variants available"}, status_code=400)
+
+    variant_data = None
+    for v in VARIANT_MAP[category]["variants"]:
+        if v["name"] == variant_name:
+            variant_data = v
+            break
+
+    if not variant_data:
+        return JSONResponse({"error": "Invalid variant"}, status_code=400)
+
+    # Store original AI detection in notes for ML training
+    if "Original AI detection:" not in (item.notes or ""):
+        original_note = f"Original AI detection: {original_name}"
+        item.notes = f"{original_note}. {item.notes}" if item.notes else original_note
+
+    # Update item with variant dimensions
+    item.name = variant_data["name"]
+    item.length_cm = variant_data["length_cm"]
+    item.width_cm = variant_data["width_cm"]
+    item.height_cm = variant_data["height_cm"]
+    item.weight_kg = variant_data["weight_kg"]
+    item.cbm = variant_data["cbm"]
+    item.bulky = variant_data["weight_kg"] > 50
+    db.commit()
+
+    # Save correction as ItemFeedback for ML training
+    try:
+        feedback = ItemFeedback(
+            item_id=item.id,
+            company_id=company.id,
+            ai_detected_name=original_name,
+            corrected_name=variant_data["name"],
+            corrected_dimensions={
+                "length_cm": variant_data["length_cm"],
+                "width_cm": variant_data["width_cm"],
+                "height_cm": variant_data["height_cm"]
+            },
+            corrected_cbm=variant_data["cbm"],
+            corrected_weight=variant_data["weight_kg"],
+            feedback_type="correction",
+            notes="Customer variant selection"
+        )
+        db.add(feedback)
+        db.commit()
+    except Exception as e:
+        logger.warning(f"Could not save variant feedback: {e}")
+
+    logger.info(f"Variant changed: '{original_name}' -> '{variant_data['name']}' in room {room.name} (job {token})")
+
+    return JSONResponse({
+        "success": True,
+        "new_name": variant_data["name"],
+        "length_cm": variant_data["length_cm"],
+        "width_cm": variant_data["width_cm"],
+        "height_cm": variant_data["height_cm"],
+        "weight_kg": variant_data["weight_kg"],
+        "cbm": variant_data["cbm"],
+        "bulky": variant_data["weight_kg"] > 50,
+        "variants": [v["name"] for v in VARIANT_MAP[category]["variants"]],
+    })
 
 
 @app.post("/s/{company_slug}/{token}/room/{room_id}/confirm_items")
@@ -3451,6 +3549,93 @@ def update_brand_colors(
 
     return RedirectResponse(
         url=f"/{company_slug}/admin/branding?success=true",
+        status_code=303
+    )
+
+
+# ============================================================================
+# COMPANY DETAILS ENDPOINTS - ADMIN
+# ============================================================================
+
+@app.get("/{company_slug}/admin/company-details", response_class=HTMLResponse)
+def company_details_settings(
+    request: Request,
+    company_slug: str,
+    success: Optional[str] = None,
+    error: Optional[str] = None,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """Company details settings page"""
+    company = verify_company_access(company_slug, current_user)
+
+    return templates.TemplateResponse("admin_company_details.html", {
+        "request": request,
+        "title": "Company Details — PrimeHaul OS",
+        "company": company,
+        "company_slug": company_slug,
+        "success": success,
+        "error": error
+    })
+
+
+@app.post("/{company_slug}/admin/company-details/update")
+def update_company_details(
+    company_slug: str,
+    company_name: str = Form(...),
+    email: str = Form(...),
+    phone: Optional[str] = Form(None),
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """Update company details"""
+    company = verify_company_access(company_slug, current_user)
+
+    # Validate company name
+    if not company_name or len(company_name.strip()) < 2:
+        return RedirectResponse(
+            url=f"/{company_slug}/admin/company-details?error=Company name must be at least 2 characters.",
+            status_code=303
+        )
+
+    # Validate email format
+    import re
+    email_pattern = re.compile(r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$')
+    if not email_pattern.match(email.strip()):
+        return RedirectResponse(
+            url=f"/{company_slug}/admin/company-details?error=Please enter a valid email address.",
+            status_code=303
+        )
+
+    # Check email uniqueness (if changed)
+    if email.strip() != company.email:
+        existing = db.query(Company).filter(Company.email == email.strip(), Company.id != company.id).first()
+        if existing:
+            return RedirectResponse(
+                url=f"/{company_slug}/admin/company-details?error=This email is already in use by another company.",
+                status_code=303
+            )
+
+    # Validate phone (optional, basic format)
+    if phone and phone.strip():
+        phone_clean = phone.strip()
+        phone_pattern = re.compile(r'^[\+]?[\d\s\-\(\)]{7,20}$')
+        if not phone_pattern.match(phone_clean):
+            return RedirectResponse(
+                url=f"/{company_slug}/admin/company-details?error=Please enter a valid phone number.",
+                status_code=303
+            )
+
+    # Update company
+    company.company_name = company_name.strip()
+    company.email = email.strip()
+    company.phone = phone.strip() if phone and phone.strip() else None
+    db.commit()
+
+    logger.info(f"Company details updated for {company.slug} by {current_user.email}")
+
+    return RedirectResponse(
+        url=f"/{company_slug}/admin/company-details?success=true",
         status_code=303
     )
 
