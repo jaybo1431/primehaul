@@ -52,7 +52,7 @@ def populate_catalog():
         {
             "source": "ikea", "product_id": "S09216757", "name": "KLIPPAN 2-seat sofa",
             "category": "sofa", "length_cm": 180, "width_cm": 88, "height_cm": 66,
-            "weight_kg": 42.0, "is_bulky": True, "packing_requirement": "none"
+            "weight_kg": 42.0, "is_bulky": False, "packing_requirement": "none"
         },
         {
             "source": "ikea", "product_id": "S20103039", "name": "POÄNG Armchair",
@@ -62,7 +62,7 @@ def populate_catalog():
         {
             "source": "ikea", "product_id": "S79836975", "name": "STRANDMON Wing chair",
             "category": "armchair", "length_cm": 82, "width_cm": 96, "height_cm": 101,
-            "weight_kg": 22.0, "is_bulky": True, "packing_requirement": "none"
+            "weight_kg": 22.0, "is_bulky": False, "packing_requirement": "none"
         },
 
         # ============ IKEA BEDS ============
@@ -84,7 +84,7 @@ def populate_catalog():
         {
             "source": "ikea", "product_id": "S80473753", "name": "SLATTUM Upholstered bed 140x200cm",
             "category": "bed", "length_cm": 205, "width_cm": 155, "height_cm": 105,
-            "weight_kg": 48.0, "is_bulky": True, "packing_requirement": "none"
+            "weight_kg": 48.0, "is_bulky": False, "packing_requirement": "none"
         },
 
         # ============ IKEA STORAGE (Wardrobes, Shelving) ============
@@ -111,7 +111,7 @@ def populate_catalog():
         {
             "source": "ikea", "product_id": "70301537", "name": "KALLAX Shelving unit 2x4",
             "category": "shelving", "length_cm": 77, "width_cm": 39, "height_cm": 147,
-            "weight_kg": 35.5, "is_bulky": True, "packing_requirement": "none"
+            "weight_kg": 35.5, "is_bulky": False, "packing_requirement": "none"
         },
         {
             "source": "ikea", "product_id": "S60275812", "name": "KALLAX Shelving unit 4x4",
@@ -121,12 +121,12 @@ def populate_catalog():
         {
             "source": "ikea", "product_id": "S10323067", "name": "BILLY Bookcase 80x28x202cm",
             "category": "bookcase", "length_cm": 80, "width_cm": 28, "height_cm": 202,
-            "weight_kg": 31.0, "is_bulky": True, "packing_requirement": "none"
+            "weight_kg": 31.0, "is_bulky": False, "packing_requirement": "none"
         },
         {
             "source": "ikea", "product_id": "S30263844", "name": "HEMNES Bookcase 90x37x198cm",
             "category": "bookcase", "length_cm": 90, "width_cm": 37, "height_cm": 198,
-            "weight_kg": 50.0, "is_bulky": True, "packing_requirement": "none"
+            "weight_kg": 50.0, "is_bulky": False, "packing_requirement": "none"
         },
 
         # ============ IKEA DRAWERS ============
@@ -150,17 +150,17 @@ def populate_catalog():
         {
             "source": "ikea", "product_id": "40331753", "name": "EKEDALEN Extendable table",
             "category": "dining_table", "length_cm": 120, "width_cm": 80, "height_cm": 75,
-            "weight_kg": 35.0, "is_bulky": True, "packing_requirement": "none"
+            "weight_kg": 35.0, "is_bulky": False, "packing_requirement": "none"
         },
         {
             "source": "ikea", "product_id": "S19155788", "name": "BJURSTA Extendable table",
             "category": "dining_table", "length_cm": 140, "width_cm": 84, "height_cm": 74,
-            "weight_kg": 42.0, "is_bulky": True, "packing_requirement": "none"
+            "weight_kg": 42.0, "is_bulky": False, "packing_requirement": "none"
         },
         {
             "source": "ikea", "product_id": "S30449825", "name": "INGATORP Extendable table",
             "category": "dining_table", "length_cm": 110, "width_cm": 78, "height_cm": 74,
-            "weight_kg": 38.0, "is_bulky": True, "packing_requirement": "none"
+            "weight_kg": 38.0, "is_bulky": False, "packing_requirement": "none"
         },
         {
             "source": "ikea", "product_id": "60245359", "name": "LACK Side table",
@@ -175,24 +175,24 @@ def populate_catalog():
         {
             "source": "ikea", "product_id": "S00104294", "name": "HEMNES Coffee table",
             "category": "coffee_table", "length_cm": 118, "width_cm": 75, "height_cm": 47,
-            "weight_kg": 28.0, "is_bulky": True, "packing_requirement": "none"
+            "weight_kg": 28.0, "is_bulky": False, "packing_requirement": "none"
         },
 
         # ============ IKEA DESKS ============
         {
             "source": "ikea", "product_id": "S30214157", "name": "MICKE Desk",
             "category": "desk", "length_cm": 142, "width_cm": 50, "height_cm": 75,
-            "weight_kg": 26.0, "is_bulky": True, "packing_requirement": "none"
+            "weight_kg": 26.0, "is_bulky": False, "packing_requirement": "none"
         },
         {
             "source": "ikea", "product_id": "S89326170", "name": "BEKANT Desk 160x80cm",
             "category": "desk", "length_cm": 160, "width_cm": 80, "height_cm": 65,
-            "weight_kg": 45.0, "is_bulky": True, "packing_requirement": "none"
+            "weight_kg": 45.0, "is_bulky": False, "packing_requirement": "none"
         },
         {
             "source": "ikea", "product_id": "S60261151", "name": "HEMNES Desk",
             "category": "desk", "length_cm": 155, "width_cm": 65, "height_cm": 75,
-            "weight_kg": 48.0, "is_bulky": True, "packing_requirement": "none"
+            "weight_kg": 48.0, "is_bulky": False, "packing_requirement": "none"
         },
 
         # ============ WAYFAIR ITEMS ============
@@ -224,12 +224,12 @@ def populate_catalog():
         {
             "source": "wayfair", "product_id": "W006", "name": "Metropolitan Bookcase",
             "category": "bookcase", "length_cm": 100, "width_cm": 35, "height_cm": 190,
-            "weight_kg": 42.0, "is_bulky": True, "packing_requirement": "none"
+            "weight_kg": 42.0, "is_bulky": False, "packing_requirement": "none"
         },
         {
             "source": "wayfair", "product_id": "W007", "name": "Classic Oak Chest 5 Drawers",
             "category": "chest_of_drawers", "length_cm": 90, "width_cm": 45, "height_cm": 110,
-            "weight_kg": 45.0, "is_bulky": True, "packing_requirement": "none"
+            "weight_kg": 45.0, "is_bulky": False, "packing_requirement": "none"
         },
         {
             "source": "wayfair", "product_id": "W008", "name": "Glass Top Coffee Table",
@@ -246,7 +246,7 @@ def populate_catalog():
         {
             "source": "johnlewis", "product_id": "JL002", "name": "Croft Armchair",
             "category": "armchair", "length_cm": 90, "width_cm": 95, "height_cm": 98,
-            "weight_kg": 32.0, "is_bulky": True, "packing_requirement": "none"
+            "weight_kg": 32.0, "is_bulky": False, "packing_requirement": "none"
         },
         {
             "source": "johnlewis", "product_id": "JL003", "name": "Wilton King Size Bed",
@@ -266,7 +266,7 @@ def populate_catalog():
         {
             "source": "johnlewis", "product_id": "JL006", "name": "Montreal Tall Bookcase",
             "category": "bookcase", "length_cm": 80, "width_cm": 40, "height_cm": 200,
-            "weight_kg": 48.0, "is_bulky": True, "packing_requirement": "none"
+            "weight_kg": 48.0, "is_bulky": False, "packing_requirement": "none"
         },
         {
             "source": "johnlewis", "product_id": "JL007", "name": "Fusion Chest of Drawers",
@@ -281,14 +281,14 @@ def populate_catalog():
         {
             "source": "johnlewis", "product_id": "JL009", "name": "Partners Home Office Desk",
             "category": "desk", "length_cm": 150, "width_cm": 75, "height_cm": 76,
-            "weight_kg": 42.0, "is_bulky": True, "packing_requirement": "none"
+            "weight_kg": 42.0, "is_bulky": False, "packing_requirement": "none"
         },
 
         # ============ TV STANDS & SIDEBOARDS ============
         {
             "source": "ikea", "product_id": "S90351877", "name": "BESTÅ TV unit",
             "category": "tv_stand", "length_cm": 120, "width_cm": 40, "height_cm": 38,
-            "weight_kg": 28.0, "is_bulky": True, "packing_requirement": "none"
+            "weight_kg": 28.0, "is_bulky": False, "packing_requirement": "none"
         },
         {
             "source": "ikea", "product_id": "S60245848", "name": "HEMNES Sideboard",
@@ -298,7 +298,7 @@ def populate_catalog():
         {
             "source": "wayfair", "product_id": "W009", "name": "Modern TV Stand 150cm",
             "category": "tv_stand", "length_cm": 150, "width_cm": 45, "height_cm": 50,
-            "weight_kg": 32.0, "is_bulky": True, "packing_requirement": "none"
+            "weight_kg": 32.0, "is_bulky": False, "packing_requirement": "none"
         },
     ]
 

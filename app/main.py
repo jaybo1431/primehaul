@@ -1338,6 +1338,7 @@ async def room_scan_upload(
             if inventory.get("items"):
                 created_items = []
                 for item_data in inventory["items"]:
+                    weight_kg = item_data.get("weight_kg")
                     item = Item(
                         room_id=room.id,
                         name=item_data.get("name", "Unknown item"),
@@ -1346,9 +1347,9 @@ async def room_scan_upload(
                         length_cm=item_data.get("length_cm"),
                         width_cm=item_data.get("width_cm"),
                         height_cm=item_data.get("height_cm"),
-                        weight_kg=item_data.get("weight_kg"),
+                        weight_kg=weight_kg,
                         cbm=item_data.get("cbm"),
-                        bulky=item_data.get("bulky", False),
+                        bulky=(float(weight_kg) > 50) if weight_kg else False,
                         fragile=item_data.get("fragile", False),
                         item_category=item_data.get("item_category", "furniture"),
                         packing_requirement=item_data.get("packing_requirement", "none")
@@ -1503,6 +1504,7 @@ async def room_scan_upload_json(
             if inventory.get("items"):
                 created_items = []
                 for item_data in inventory["items"]:
+                    weight_kg = item_data.get("weight_kg")
                     item = Item(
                         room_id=room.id,
                         name=item_data.get("name", "Unknown item"),
@@ -1511,9 +1513,9 @@ async def room_scan_upload_json(
                         length_cm=item_data.get("length_cm"),
                         width_cm=item_data.get("width_cm"),
                         height_cm=item_data.get("height_cm"),
-                        weight_kg=item_data.get("weight_kg"),
+                        weight_kg=weight_kg,
                         cbm=item_data.get("cbm"),
-                        bulky=item_data.get("bulky", False),
+                        bulky=(float(weight_kg) > 50) if weight_kg else False,
                         fragile=item_data.get("fragile", False),
                         item_category=item_data.get("item_category", "furniture"),
                         packing_requirement=item_data.get("packing_requirement", "none")
@@ -1747,6 +1749,7 @@ async def photos_bulk_upload(
         # Store detected items
         if inventory.get("items"):
             for item_data in inventory["items"]:
+                weight_kg = item_data.get("weight_kg")
                 item = Item(
                     room_id=room.id,
                     name=item_data.get("name", "Unknown item"),
@@ -1755,9 +1758,9 @@ async def photos_bulk_upload(
                     length_cm=item_data.get("length_cm"),
                     width_cm=item_data.get("width_cm"),
                     height_cm=item_data.get("height_cm"),
-                    weight_kg=item_data.get("weight_kg"),
+                    weight_kg=weight_kg,
                     cbm=item_data.get("cbm"),
-                    bulky=item_data.get("bulky", False),
+                    bulky=(float(weight_kg) > 50) if weight_kg else False,
                     fragile=item_data.get("fragile", False),
                     item_category=item_data.get("item_category", "furniture"),
                     packing_requirement=item_data.get("packing_requirement", "none")
@@ -1990,7 +1993,7 @@ def calculate_quote(job: Job, db: Session) -> dict:
             if item.weight_kg:
                 total_weight_kg += float(item.weight_kg) * qty
 
-            if item.bulky:
+            if item.weight_kg and float(item.weight_kg) > float(pricing.bulky_weight_threshold_kg or 50):
                 bulky_items += qty
             if item.fragile:
                 fragile_items += qty
@@ -3658,6 +3661,7 @@ def update_pricing(
     price_per_cbm: float = Form(...),
     callout_fee: float = Form(...),
     bulky_item_fee: float = Form(...),
+    bulky_weight_threshold_kg: int = Form(50),
     fragile_item_fee: float = Form(...),
     weight_threshold_kg: int = Form(...),
     price_per_kg_over_threshold: float = Form(...),
@@ -3716,6 +3720,7 @@ def update_pricing(
     pricing.price_per_cbm = price_per_cbm
     pricing.callout_fee = callout_fee
     pricing.bulky_item_fee = bulky_item_fee
+    pricing.bulky_weight_threshold_kg = bulky_weight_threshold_kg
     pricing.fragile_item_fee = fragile_item_fee
     pricing.weight_threshold_kg = weight_threshold_kg
     pricing.price_per_kg_over_threshold = price_per_kg_over_threshold
@@ -4315,9 +4320,18 @@ def company_marketplace_job_detail(
     base_price = float(pricing.callout_fee)
     cbm_price = total_cbm * float(pricing.price_per_cbm)
     
-    bulky_count = job.inventory_summary.get('bulky_items', 0) if job.inventory_summary else 0
-    fragile_count = job.inventory_summary.get('fragile_items', 0) if job.inventory_summary else 0
-    
+    # Count bulky/fragile items by weight threshold
+    bulky_count = 0
+    fragile_count = 0
+    threshold = float(pricing.bulky_weight_threshold_kg or 50)
+    for room in rooms:
+        for item in room.items:
+            qty = item.quantity or 1
+            if item.weight_kg and float(item.weight_kg) > threshold:
+                bulky_count += qty
+            if item.fragile:
+                fragile_count += qty
+
     bulky_surcharge = bulky_count * float(pricing.bulky_item_fee)
     fragile_surcharge = fragile_count * float(pricing.fragile_item_fee)
     

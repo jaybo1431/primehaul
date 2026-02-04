@@ -94,7 +94,7 @@ def extract_removal_inventory(image_paths: List[str]) -> Dict[str, Any]:
                 "1. DIMENSIONS: Estimate realistic dimensions (length × width × height in cm) for EVERY item\n"
                 "2. WEIGHT: Estimate weight in kg for each item\n"
                 "3. CBM: Calculate cubic meters (length×width×height/1000000) for each item\n"
-                "4. BULKY: Mark as true if item is large furniture or appliance\n"
+                "4. BULKY: Mark as true if item weighs over 50kg (e.g., large wardrobes, heavy appliances, solid wood tables)\n"
                 "5. FRAGILE: Mark as true if item is glass, electronics, or breakable\n"
                 "6. QTY: Count ALL visible items of same type (e.g., 2 identical sofas = qty: 2, 3 wardrobes = qty: 3)\n"
                 "7. NAMES: Be specific (e.g., '3-seater fabric sofa', 'double wardrobe', 'cardboard boxes')\n"

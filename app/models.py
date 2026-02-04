@@ -112,6 +112,7 @@ class PricingConfig(Base):
 
     # Item Surcharges
     bulky_item_fee = Column(DECIMAL(10, 2), nullable=False, default=25.00)
+    bulky_weight_threshold_kg = Column(Integer, default=50)  # Items over this weight are "bulky"
     fragile_item_fee = Column(DECIMAL(10, 2), nullable=False, default=15.00)
 
     # Weight Pricing (over threshold)

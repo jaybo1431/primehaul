@@ -230,13 +230,20 @@ def auto_generate_bid(
     base_price = float(pricing.callout_fee)
     cbm_price = total_cbm * float(pricing.price_per_cbm)
 
-    # Count bulky/fragile items (simplified - check inventory_summary)
+    # Count bulky/fragile items by weight threshold
     bulky_count = 0
     fragile_count = 0
+    threshold = float(pricing.bulky_weight_threshold_kg or 50)
 
-    if job.inventory_summary:
-        bulky_count = job.inventory_summary.get('bulky_items', 0)
-        fragile_count = job.inventory_summary.get('fragile_items', 0)
+    rooms = db.query(MarketplaceRoom).filter(MarketplaceRoom.marketplace_job_id == job.id).all()
+    for room in rooms:
+        items = db.query(MarketplaceItem).filter(MarketplaceItem.marketplace_room_id == room.id).all()
+        for item in items:
+            qty = item.quantity or 1
+            if item.weight_kg and float(item.weight_kg) > threshold:
+                bulky_count += qty
+            if item.fragile:
+                fragile_count += qty
 
     bulky_surcharge = bulky_count * float(pricing.bulky_item_fee)
     fragile_surcharge = fragile_count * float(pricing.fragile_item_fee)

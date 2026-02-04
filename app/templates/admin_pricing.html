@@ -145,6 +145,23 @@
                                 Extra charge per fragile item requiring special care
                             </small>
                         </div>
+
+                        <div class="form-group">
+                            <label for="bulky_weight_threshold_kg">Bulky Weight Threshold (kg)</label>
+                            <input
+                                type="number"
+                                id="bulky_weight_threshold_kg"
+                                name="bulky_weight_threshold_kg"
+                                step="1"
+                                min="1"
+                                required
+                                value="{{ pricing.bulky_weight_threshold_kg or 50 }}"
+                                placeholder="50"
+                            >
+                            <small style="color: #666; font-size: 12px;">
+                                Items weighing more than this are charged the bulky item fee
+                            </small>
+                        </div>
                     </div>
                 </div>
 
