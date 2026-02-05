@@ -178,6 +178,38 @@
         .footer-link a:hover {
             text-decoration: underline;
         }
+
+        .terms-checkbox {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            margin: 20px 0;
+            font-size: 14px;
+            color: #aaa;
+        }
+
+        .terms-checkbox input[type="checkbox"] {
+            width: 20px;
+            height: 20px;
+            margin-top: 2px;
+            accent-color: #2ee59d;
+            cursor: pointer;
+            flex-shrink: 0;
+        }
+
+        .terms-checkbox label {
+            cursor: pointer;
+            line-height: 1.5;
+        }
+
+        .terms-checkbox a {
+            color: #2ee59d;
+            text-decoration: none;
+        }
+
+        .terms-checkbox a:hover {
+            text-decoration: underline;
+        }
     </style>
 </head>
 <body>
@@ -280,6 +312,13 @@
                     </ul>
                 </div>
 
+                <div class="terms-checkbox">
+                    <input type="checkbox" id="accept_terms" name="accept_terms" required>
+                    <label for="accept_terms">
+                        I agree to the <a href="/terms" target="_blank">Terms of Service</a> and <a href="/privacy" target="_blank">Privacy Policy</a>
+                    </label>
+                </div>
+
                 <button type="submit" class="submit-btn">
                     Create Free Account
                 </button>
@@ -317,10 +356,17 @@
             slugInput.value = slug;
         }
 
-        // Password validation
+        // Form validation
         document.getElementById('signupForm').addEventListener('submit', function(e) {
             const password = document.getElementById('password').value;
             const confirm = document.getElementById('password_confirm').value;
+            const acceptTerms = document.getElementById('accept_terms').checked;
+
+            if (!acceptTerms) {
+                e.preventDefault();
+                alert('Please accept the Terms of Service and Privacy Policy');
+                return false;
+            }
 
             if (password !== confirm) {
                 e.preventDefault();

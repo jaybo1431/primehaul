@@ -200,21 +200,15 @@ async def landing_page(request: Request):
 
 
 @app.get("/terms", response_class=HTMLResponse)
-async def terms_page(request: Request, _auth: bool = Depends(staging_auth_required)):
-    """
-    Terms of Service page
-    Protected by password in staging mode
-    """
-    return templates.TemplateResponse("terms.html", {"request": request})
+async def terms_page(request: Request):
+    """Terms of Service page"""
+    return templates.TemplateResponse("legal_terms.html", {"request": request})
 
 
 @app.get("/privacy", response_class=HTMLResponse)
-async def privacy_page(request: Request, _auth: bool = Depends(staging_auth_required)):
-    """
-    Privacy Policy page
-    Protected by password in staging mode
-    """
-    return templates.TemplateResponse("privacy.html", {"request": request})
+async def privacy_page(request: Request):
+    """Privacy Policy page"""
+    return templates.TemplateResponse("legal_privacy.html", {"request": request})
 
 
 @app.get("/contact", response_class=HTMLResponse)

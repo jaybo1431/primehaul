@@ -219,6 +219,44 @@ Made the quote price bigger and clearer on the customer quote preview page — s
 - `app/templates/superadmin_login.html`
 - `alembic/versions/fix006_partner_accounts.py`
 
+### Legal Pages — Terms of Service & Privacy Policy
+
+**Purpose:** Platform needs proper legal documentation for UK GDPR compliance and user accountability.
+
+**Created:**
+- `app/templates/legal_terms.html` — Terms of Service covering:
+  - Service description, account registration, billing model
+  - Pay-per-survey (£9.99) and partner accounts explained
+  - Acceptable use, customer data responsibilities
+  - AI-generated quote disclaimers
+  - Intellectual property, limitation of liability
+  - Termination terms, governing law (England and Wales)
+
+- `app/templates/legal_privacy.html` — Privacy Policy covering:
+  - Data collected from companies and customers (as data processor)
+  - Third parties: Stripe, OpenAI, Mapbox, Railway
+  - Data retention periods
+  - UK GDPR rights (access, rectification, erasure, portability)
+  - Security measures, cookies, international transfers
+  - Contact: privacy@primehaul.co.uk
+
+**Signup Flow:**
+- Added T&Cs acceptance checkbox to `auth_signup.html`
+- Users must agree to Terms of Service and Privacy Policy before creating account
+- Links open in new tab for easy review
+- JavaScript validation ensures checkbox is ticked
+
+**Routes:**
+- `/terms` — Serves Terms of Service page
+- `/privacy` — Serves Privacy Policy page
+
+### Files Created/Modified
+
+- `app/templates/legal_terms.html` — **New**: Terms of Service
+- `app/templates/legal_privacy.html` — **New**: Privacy Policy
+- `app/templates/auth_signup.html` — Added T&Cs checkbox with validation
+- `app/main.py` — Updated /terms and /privacy routes
+
 ### Commits
 
 ```
@@ -486,6 +524,8 @@ MAPBOX_ACCESS_TOKEN=pk.eyJ...
 | Room selection | `app/templates/rooms_pick.html` |
 | Room scan | `app/templates/room_scan.html` |
 | Quote preview | `app/templates/quote_preview.html` |
+| Terms of Service | `app/templates/legal_terms.html` |
+| Privacy Policy | `app/templates/legal_privacy.html` |
 
 ---
 
