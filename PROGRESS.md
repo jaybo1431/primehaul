@@ -1,9 +1,9 @@
 # PrimeHaul OS - Progress Log
 
-**Last Updated:** 4 February 2026
+**Last Updated:** 5 February 2026
 **Repository:** github.com/jaybo1431/primehaul
 **Branch:** main
-**Latest Commit:** `09ad402`
+**Latest Commit:** `88df266`
 
 ---
 
@@ -55,6 +55,52 @@ The platform is fully deployed at **primehaul.co.uk** and tested working.
 - Each company has unique URL: `/s/{company-slug}/{token}/...`
 - Surveys ONLY appear in the correct company's dashboard
 - Complete data isolation via `company_id` foreign keys
+
+---
+
+## Session Log: 5 February 2026
+
+### Distance Pricing — Now Calculated from Coordinates
+
+**Problem:** Distance was hardcoded to £120 regardless of actual distance. The `base_distance_km` and `price_per_km` fields existed in the database but were never used.
+
+**Solution:**
+- Distance now calculated using Haversine formula from pickup/dropoff lat/lng coordinates
+- Admin pricing page has new "Distance Pricing" section with configurable base distance (km) and price per km
+- Quote breakdown shows actual miles calculated
+- Job review shows distance in the route section
+
+### Approval Flow Fixed
+
+**Problem:** Auto-approval triggered during quote preview (when customer was still browsing), causing jobs to show as "Approved" in the dashboard before the customer even submitted. No manual approval step.
+
+**Solution:**
+- Removed auto-approval logic from `calculate_quote()` — all quotes now require manual admin approval
+- Fixed `submit-quote` endpoint to properly set status to `awaiting_approval` and track `submitted_at`
+- Updated `quote_preview.html` to show correct states:
+  - `in_progress` → "Submit for review" button
+  - `awaiting_approval` → "Awaiting approval" message with orange styling
+  - `approved` → "Accept This Quote" button with green styling
+
+### Property Type Auto-Submit
+
+**Problem:** After selecting property type (House, Flat, etc.), customer had to tap a separate "Continue to Rooms" button — unnecessary friction.
+
+**Solution:** Property type tiles now auto-submit on tap. Select House → immediately goes to rooms selection. Cleaner, faster flow.
+
+### Files Modified
+
+- `app/main.py` — Distance calculation, removed auto-approval, fixed submit-quote endpoint, added distance pricing to admin
+- `app/templates/admin_pricing.html` — Added Distance Pricing section
+- `app/templates/admin_job_review_v2.html` — Shows distance in miles
+- `app/templates/quote_preview.html` — Updated status display logic
+- `app/templates/property_type.html` — Auto-submit on tile tap
+
+### Commits
+
+```
+88df266 Fix: Distance pricing, approval flow, and property type UX
+```
 
 ---
 
