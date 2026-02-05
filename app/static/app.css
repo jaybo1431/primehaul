@@ -645,14 +645,12 @@ body{
    QUOTE PREVIEW
 ============================================ */
 .bigprice{
-  font-size:34px;
+  font-size:40px;
   font-weight:800;
-  letter-spacing:-.6px;
-  margin:4px 0 0;
-  background:linear-gradient(135deg, #ffffff 0%, rgba(255,255,255,.85) 100%);
-  -webkit-background-clip:text;
-  -webkit-text-fill-color:transparent;
-  background-clip:text;
+  letter-spacing:-.5px;
+  margin:8px 0;
+  color:#ffffff;
+  text-shadow:0 2px 16px rgba(46,229,157,.3);
   animation:fadeInTitle var(--timing-normal) var(--ease-smooth);
 }
 .pill{
