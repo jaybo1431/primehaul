@@ -3,7 +3,7 @@
 **Last Updated:** 5 February 2026
 **Repository:** github.com/jaybo1431/primehaul
 **Branch:** main
-**Latest Commit:** `79b42b2`
+**Latest Commit:** `613296f`
 
 ---
 
@@ -30,7 +30,7 @@ The platform is fully deployed at **primehaul.co.uk** and tested working.
 - **Furniture variant toggle**: Customers can adjust sizes (e.g. 3-seater sofa → 2-seater)
 - **Kitchen box estimation**: AI estimates boxes for cupboard contents
 - **Wardrobe boxes**: Hanging clothes converted to wardrobe boxes
-- **Glowing packing CTA**: "Need help packing?" always visible with glow animation
+- **Packing service upsell**: Collapsible "Need help packing?" section
 - Instant quote generation with company's custom pricing
 - Terms & Conditions acceptance tracking
 - Deposit payment via Stripe
@@ -144,9 +144,43 @@ Made the quote price bigger and clearer on the customer quote preview page — s
 - `/submit-contact` saves details then redirects to `/do-submit`
 - Better customer name tracking in logs and analytics events
 
+### UX Cleanup — Strip Bloat from Survey and Dashboard
+
+**Goal:** Make the app super easy for both customers and removal company admins. Remove verbose text, redundant UI, and distracting elements while keeping all the power under the hood.
+
+**Customer Survey Changes:**
+| Before | After |
+|--------|-------|
+| Long subtitles with explanations | Short, action-focused text |
+| Dead voice input code (40+ lines) | Removed |
+| Packing service always visible with glow animation | Collapsed `<details>` section |
+| Verbose T&Cs section | Compact single-line link |
+| Hints and pro tips on every page | Removed — UI is self-explanatory |
+
+**Admin Dashboard Changes:**
+| Before | After |
+|--------|-------|
+| 5-step onboarding banner (55 lines) | 3-line compact welcome |
+| "Today's Summary" stats section | Removed (redundant) |
+| Keyboard shortcuts hint | Removed |
+| Full pricing breakdown in job review | Collapsible `<details>` section |
+| T&Cs with IP, version, timestamp | Compact badge: "✓ T&Cs accepted" |
+
+**Files Modified:**
+- `start_v2.html` — Simplified text, removed dead voice code
+- `room_scan.html` — Cleaner instructions
+- `rooms_pick.html` — Removed duplicate code, shorter text
+- `quote_preview.html` — Collapsed packing service
+- `customer_contact.html` — Removed redundant hints
+- `admin_dashboard_v2.html` — Major declutter (-300 lines)
+- `admin_job_review_v2.html` — Collapsible breakdown, compact badges
+
+**Result:** 326 lines of template bloat removed. Cleaner, faster UX.
+
 ### Commits
 
 ```
+613296f UX cleanup: Strip bloat from survey and dashboard
 79b42b2 Fix: Restore customer contact details step in survey flow
 771f43f Feature: Stripe Connect for deposits + pay-per-survey billing
 4d1e8eb Style: Make quote price bigger and clearer
