@@ -8,8 +8,8 @@ from alembic import op
 import sqlalchemy as sa
 from sqlalchemy.dialects import postgresql
 
-revision = 'fix007_learned_corrections'
-down_revision = 'fix006_partner_accounts'
+revision = 'fix007'
+down_revision = 'fix006'
 branch_labels = None
 depends_on = None
 
