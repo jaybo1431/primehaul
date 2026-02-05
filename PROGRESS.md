@@ -3,7 +3,7 @@
 **Last Updated:** 5 February 2026
 **Repository:** github.com/jaybo1431/primehaul
 **Branch:** main
-**Latest Commit:** `613296f`
+**Latest Commit:** `f9d80aa`
 
 ---
 
@@ -46,10 +46,19 @@ The platform is fully deployed at **primehaul.co.uk** and tested working.
 
 ### Billing
 - **Pay-per-survey**: £9.99 per completed survey
+- **Partner accounts**: Unlimited free surveys for infrastructure partners
 - **Enterprise tier**: Contact for 50+ surveys/month
 - 14-day free trial with 3 free surveys
 - Stripe integration
 - Customer portal for self-service
+
+### Superadmin Dashboard (`/superadmin`)
+- Password-protected control center for platform owner
+- All companies, surveys, revenue at a glance
+- ML training data stats (photos, items, corrections)
+- Database stats and recent activity feed
+- Server status indicator
+- Make any company a partner
 
 ### Company Isolation (VERIFIED)
 - Each company has unique URL: `/s/{company-slug}/{token}/...`
@@ -177,9 +186,44 @@ Made the quote price bigger and clearer on the customer quote preview page — s
 
 **Result:** 326 lines of template bloat removed. Cleaner, faster UX.
 
+### Color Scheme Update
+
+**Problem:** Orange colors for "pending" and "awaiting approval" states looked too aggressive and pushy.
+
+**Solution:** Replaced all orange (`#ffa500`) with soft blue (`#60a5fa`) across 11 templates and CSS. Calmer, more professional look.
+
+### Partner Accounts
+
+**Purpose:** Ricky (business partner with real-world infrastructure - trucks, manpower) needs unlimited free surveys for his own removal business.
+
+**Implementation:**
+- Added `is_partner` and `partner_name` fields to Company model
+- Partners skip all billing — unlimited surveys forever
+- Can mark any company as partner via superadmin dashboard
+
+### Superadmin Dashboard
+
+**URL:** `/superadmin` (password protected via `SUPERADMIN_PASSWORD` env var)
+
+**Features:**
+- All companies with status, surveys used, partner badges
+- Key metrics: companies, surveys, items detected, ML corrections, revenue
+- ML training data stats (photos, items, corrections, variant changes)
+- Database stats (jobs, rooms, photos, items, feedback, analytics)
+- Recent activity feed with timestamps
+- Server status indicator
+- Make any company a partner
+
+**Files Created:**
+- `app/templates/superadmin_dashboard.html`
+- `app/templates/superadmin_login.html`
+- `alembic/versions/fix006_partner_accounts.py`
+
 ### Commits
 
 ```
+f9d80aa Feature: Partner accounts + Superadmin dashboard
+57f03fc Style: Replace orange with soft blue for pending states
 613296f UX cleanup: Strip bloat from survey and dashboard
 79b42b2 Fix: Restore customer contact details step in survey flow
 771f43f Feature: Stripe Connect for deposits + pay-per-survey billing
