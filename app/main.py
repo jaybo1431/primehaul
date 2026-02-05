@@ -1024,6 +1024,47 @@ def superadmin_run_learning(request: Request, db: Session = Depends(get_db)):
         return RedirectResponse(url=f"/superadmin/learning?error={str(e)}", status_code=303)
 
 
+@app.post("/superadmin/fix-survey-counts")
+def superadmin_fix_survey_counts(request: Request, db: Session = Depends(get_db)):
+    """
+    One-time fix: Count submitted jobs and update surveys_used for each company.
+    This fixes historical data from before the counter was implemented.
+    """
+    if not verify_superadmin(request):
+        return RedirectResponse(url="/superadmin/login", status_code=303)
+
+    try:
+        companies = db.query(Company).all()
+        fixed = 0
+
+        for company in companies:
+            # Count jobs that have been submitted (not in_progress)
+            submitted_count = db.query(Job).filter(
+                Job.company_id == company.id,
+                Job.status.in_(['awaiting_approval', 'approved', 'rejected', 'completed', 'accepted'])
+            ).count()
+
+            if submitted_count > 0:
+                old_count = company.surveys_used or 0
+                company.surveys_used = submitted_count
+
+                # Also fix free_surveys_remaining
+                used_free = min(submitted_count, 3)
+                company.free_surveys_remaining = max(0, 3 - used_free)
+
+                if old_count != submitted_count:
+                    fixed += 1
+                    logger.info(f"Fixed {company.slug}: {old_count} → {submitted_count} surveys")
+
+        db.commit()
+        logger.info(f"Survey count fix complete: {fixed} companies updated")
+        return RedirectResponse(url=f"/superadmin/dashboard?fixed={fixed}", status_code=303)
+
+    except Exception as e:
+        logger.error(f"Survey count fix error: {str(e)}")
+        return RedirectResponse(url=f"/superadmin/dashboard?error={str(e)}", status_code=303)
+
+
 # ============================================================================
 # CUSTOMER SURVEY ENDPOINTS
 # ============================================================================
@@ -3250,6 +3291,17 @@ def admin_job_review(
 
     if not job:
         return RedirectResponse(url=f"/{company_slug}/admin/dashboard", status_code=303)
+
+    # 🔒 PAYWALL: Don't show detailed data until customer submits (and we count the survey)
+    if job.status == "in_progress":
+        return templates.TemplateResponse("admin_job_pending.html", {
+            "request": request,
+            "title": "Survey In Progress — PrimeHaul OS",
+            "token": token,
+            "job": job,
+            "company": company,
+            "company_slug": company_slug
+        })
 
     quote = calculate_quote(job, db)
 

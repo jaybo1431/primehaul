@@ -286,9 +286,28 @@
       <!-- Quick Actions -->
       <div class="group">
         <div class="section-title">Quick Actions</div>
+
+        {% if request.query_params.get('fixed') %}
+        <div style="background:rgba(46,229,157,.1); border:1px solid rgba(46,229,157,.3); color:#2ee59d; padding:12px; border-radius:8px; margin-bottom:12px; font-size:13px;">
+          ✓ Fixed survey counts for {{ request.query_params.get('fixed') }} companies
+        </div>
+        {% endif %}
+
+        {% if request.query_params.get('error') %}
+        <div style="background:rgba(255,82,82,.1); border:1px solid rgba(255,82,82,.3); color:#ff5252; padding:12px; border-radius:8px; margin-bottom:12px; font-size:13px;">
+          Error: {{ request.query_params.get('error') }}
+        </div>
+        {% endif %}
+
         <div style="display:flex; gap:8px; flex-wrap:wrap;">
           <a href="/superadmin/learning" class="btn primary" style="margin:0; padding:10px 16px; font-size:13px;">🧠 ML Learning</a>
+          <form method="POST" action="/superadmin/fix-survey-counts" style="margin:0;">
+            <button type="submit" class="btn secondary" style="margin:0; padding:10px 16px; font-size:13px;">🔧 Fix Survey Counts</button>
+          </form>
           <a href="/superadmin/logout" class="btn secondary" style="margin:0; padding:10px 16px; font-size:13px;">Logout</a>
+        </div>
+        <div style="font-size:11px; color:rgba(255,255,255,.4); margin-top:8px;">
+          "Fix Survey Counts" recalculates surveys_used from actual submitted jobs (one-time fix for historical data)
         </div>
       </div>
 

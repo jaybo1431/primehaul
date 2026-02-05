@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>{{ title }}</title>
+  <link rel="stylesheet" href="/static/app.css"/>
+  <style>
+    .pending-container{
+      max-width:500px;
+      margin:60px auto;
+      text-align:center;
+      padding:24px;
+    }
+    .pending-icon{
+      font-size:64px;
+      margin-bottom:24px;
+    }
+    .pending-title{
+      font-size:24px;
+      font-weight:700;
+      margin-bottom:12px;
+    }
+    .pending-desc{
+      color:rgba(255,255,255,.6);
+      line-height:1.6;
+      margin-bottom:32px;
+    }
+    .pending-card{
+      background:rgba(255,255,255,.03);
+      border:1px solid rgba(255,255,255,.1);
+      border-radius:12px;
+      padding:20px;
+      margin-bottom:24px;
+    }
+    .pending-stat{
+      display:flex;
+      justify-content:space-between;
+      padding:8px 0;
+      border-bottom:1px solid rgba(255,255,255,.05);
+    }
+    .pending-stat:last-child{
+      border-bottom:none;
+    }
+    .pending-label{
+      color:rgba(255,255,255,.5);
+    }
+    .pending-value{
+      font-weight:600;
+    }
+    .status-badge{
+      display:inline-block;
+      padding:6px 12px;
+      border-radius:6px;
+      background:rgba(96,165,250,.15);
+      color:#60a5fa;
+      font-size:13px;
+      font-weight:600;
+    }
+    .info-box{
+      background:rgba(96,165,250,.1);
+      border:1px solid rgba(96,165,250,.2);
+      border-radius:10px;
+      padding:16px;
+      margin-top:24px;
+      text-align:left;
+    }
+    .info-box h4{
+      color:#60a5fa;
+      font-size:13px;
+      margin-bottom:8px;
+    }
+    .info-box p{
+      color:rgba(255,255,255,.7);
+      font-size:13px;
+      line-height:1.5;
+      margin:0;
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <div class="pending-container">
+      <div class="pending-icon">⏳</div>
+      <div class="pending-title">Customer Still Completing Survey</div>
+      <div class="pending-desc">
+        This customer has started their survey but hasn't submitted it for review yet.
+        You'll be able to see full details once they click "Submit for Review".
+      </div>
+
+      <div class="pending-card">
+        <div class="pending-stat">
+          <span class="pending-label">Survey ID</span>
+          <span class="pending-value">{{ token[:8] }}...</span>
+        </div>
+        <div class="pending-stat">
+          <span class="pending-label">Started</span>
+          <span class="pending-value">{{ job.created_at.strftime('%d %b %Y') if job.created_at else 'Unknown' }}</span>
+        </div>
+        <div class="pending-stat">
+          <span class="pending-label">Status</span>
+          <span class="status-badge">In Progress</span>
+        </div>
+        {% if job.customer_name %}
+        <div class="pending-stat">
+          <span class="pending-label">Customer</span>
+          <span class="pending-value">{{ job.customer_name }}</span>
+        </div>
+        {% endif %}
+      </div>
+
+      <a href="/{{ company_slug }}/admin/dashboard" class="btn secondary" style="margin:0;">
+        ← Back to Dashboard
+      </a>
+
+      <div class="info-box">
+        <h4>Why can't I see the details?</h4>
+        <p>
+          To ensure fair billing, survey details (photos, items, dimensions, pricing) are only
+          visible after the customer submits their survey for review. This is when the survey
+          is counted towards your usage.
+        </p>
+      </div>
+    </div>
+  </div>
+</body>
+</html>
