@@ -929,7 +929,7 @@ def superadmin_dashboard(request: Request, db: Session = Depends(get_db)):
         recent_activity = []
         for event in recent_events:
             company = db.query(Company).filter(Company.id == event.company_id).first()
-            time_diff = datetime.utcnow() - event.recorded_at
+            time_diff = datetime.utcnow() - event.recorded_at.replace(tzinfo=None)
             if time_diff.days > 0:
                 time_ago = f"{time_diff.days}d ago"
             elif time_diff.seconds > 3600:
