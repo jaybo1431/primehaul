@@ -3,7 +3,7 @@
 **Last Updated:** 5 February 2026
 **Repository:** github.com/jaybo1431/primehaul
 **Branch:** main
-**Latest Commit:** `771f43f`
+**Latest Commit:** `79b42b2`
 
 ---
 
@@ -133,9 +133,21 @@ Made the quote price bigger and clearer on the customer quote preview page — s
 - `app/templates/admin_dashboard_v2.html` — Added Payments nav link
 - `app/static/app.css` — Quote price styling fix
 
+### Customer Contact Flow Restored
+
+**Problem:** The customer contact details page (name, email, phone) was missing from the survey flow. The `/submit-quote` endpoint was changing status directly without collecting contact info first.
+
+**Solution:**
+- Split submission into two steps: contact collection → actual submission
+- `/submit-quote` now redirects to `/contact` if customer details are missing
+- New `/do-submit` endpoint handles the actual submission (status change, survey fee, analytics)
+- `/submit-contact` saves details then redirects to `/do-submit`
+- Better customer name tracking in logs and analytics events
+
 ### Commits
 
 ```
+79b42b2 Fix: Restore customer contact details step in survey flow
 771f43f Feature: Stripe Connect for deposits + pay-per-survey billing
 4d1e8eb Style: Make quote price bigger and clearer
 88df266 Fix: Distance pricing, approval flow, and property type UX
