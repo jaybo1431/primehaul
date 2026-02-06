@@ -829,15 +829,17 @@ async def logout():
 
 # ============================================================================
 # SUPERADMIN DASHBOARD - Platform owner control center
+# Locked to Jaybo only - Feb 2026
 # ============================================================================
 
-SUPERADMIN_PASSWORD = os.getenv("SUPERADMIN_PASSWORD", "primehaul2026")
+SUPERADMIN_PASSWORD = os.getenv("SUPERADMIN_PASSWORD", "Jaybo2026")
+SUPERADMIN_SESSION_KEY = "jaybo_superadmin_feb2026"  # Change this to invalidate all sessions
 
 
 def verify_superadmin(request: Request) -> bool:
-    """Check if user has superadmin access"""
+    """Check if user has superadmin access - Jaybo only"""
     token = request.cookies.get("superadmin_token")
-    return token == "superadmin_authenticated"
+    return token == SUPERADMIN_SESSION_KEY
 
 
 @app.get("/superadmin", response_class=HTMLResponse)
@@ -857,10 +859,10 @@ def superadmin_login_page(request: Request, error: str = None):
 
 @app.post("/superadmin/login")
 def superadmin_login(request: Request, password: str = Form(...)):
-    """Validate superadmin password"""
+    """Validate superadmin password - Jaybo only"""
     if password == SUPERADMIN_PASSWORD:
         response = RedirectResponse(url="/superadmin/dashboard", status_code=303)
-        response.set_cookie("superadmin_token", "superadmin_authenticated", httponly=True, secure=True, max_age=86400)
+        response.set_cookie("superadmin_token", SUPERADMIN_SESSION_KEY, httponly=True, secure=True, max_age=86400)
         return response
     return RedirectResponse(url="/superadmin/login?error=Invalid+password", status_code=303)
 
@@ -5456,9 +5458,10 @@ def get_marketplace_stats_endpoint(db: Session = Depends(get_db)):
 
 # ============================================
 # PRIVATE SALES AUTOMATION DASHBOARD
+# Locked to Jaybo only - Feb 2026
 # ============================================
 
-SALES_PASSWORD = os.getenv("SALES_PASSWORD", "primesales2026")
+SALES_PASSWORD = os.getenv("SALES_PASSWORD", "Jaybo2026")
 
 def verify_sales_password(request: Request) -> bool:
     """Check if sales dashboard is authenticated via cookie"""
