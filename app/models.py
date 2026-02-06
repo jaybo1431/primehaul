@@ -383,6 +383,9 @@ class Job(Base):
     custom_price_low = Column(Integer)
     custom_price_high = Column(Integer)
 
+    # Final Quote Price (set by boss when approving - the actual quote sent to customer)
+    final_quote_price = Column(Integer)  # The single fixed price, not a range
+
     # Relationships
     company = relationship("Company", back_populates="jobs")
     rooms = relationship("Room", back_populates="job", cascade="all, delete-orphan")

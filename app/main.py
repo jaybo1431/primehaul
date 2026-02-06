@@ -3393,10 +3393,11 @@ def admin_job_review(
 def admin_approve_job(
     company_slug: str,
     token: str,
+    final_price: int = Form(...),
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
-    """Approve a job"""
+    """Approve a job with a final fixed quote price"""
     company = verify_company_access(company_slug, current_user)
 
     job = db.query(Job).filter(
@@ -3405,14 +3406,16 @@ def admin_approve_job(
     ).first()
 
     if job:
-        # 🔒 PAYWALL: Can only approve submitted jobs
+        # Can only approve submitted jobs
         if job.status == "in_progress":
             return RedirectResponse(url=f"/{company_slug}/admin/dashboard?error=not_submitted", status_code=303)
 
+        # Set the final quote price (single fixed price, not a range)
+        job.final_quote_price = final_price
         job.status = "approved"
         job.approved_at = datetime.utcnow()
         db.commit()
-        logger.info(f"Job {token} approved by admin {current_user.email}")
+        logger.info(f"Job {token} approved by admin {current_user.email} with final price £{final_price}")
 
         # Track analytics event
         track_event(
@@ -3421,12 +3424,13 @@ def admin_approve_job(
             metadata={
                 'job_token': token,
                 'customer_name': job.customer_name,
-                'description': f"Quote approved for {job.customer_name}"
+                'final_price': final_price,
+                'description': f"Quote approved for {job.customer_name} at £{final_price}"
             },
             db=db
         )
 
-        # Send SMS notification to customer
+        # Send SMS notification to customer with final price
         if job.customer_phone:
             try:
                 notify_quote_approved(
@@ -3552,7 +3556,7 @@ def admin_quick_approve(
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
-    """Quick approve from dashboard without opening details"""
+    """Quick approve from dashboard - uses midpoint of estimate as final price"""
     company = verify_company_access(company_slug, current_user)
 
     job = db.query(Job).filter(
@@ -3561,35 +3565,38 @@ def admin_quick_approve(
     ).first()
 
     if job:
-        # 🔒 PAYWALL: Can only approve submitted jobs
+        # Can only approve submitted jobs
         if job.status == "in_progress":
             return JSONResponse({"error": "Survey not yet submitted"}, status_code=403)
 
+        # Calculate quote and use midpoint as final price
+        quote = calculate_quote(job, db)
+        final_price = (quote["estimate_low"] + quote["estimate_high"]) // 2
+
+        job.final_quote_price = final_price
         job.status = "approved"
         job.approved_at = datetime.utcnow()
         db.commit()
-        logger.info(f"Job {token} quick-approved by {current_user.email}")
+        logger.info(f"Job {token} quick-approved by {current_user.email} at £{final_price}")
 
-        # Send SMS notification to customer
+        # Send SMS notification to customer with final price
         if job.customer_phone and job.customer_name:
             try:
-                # Calculate quote for price range
-                quote = calculate_quote(job, db)
                 booking_url = f"https://{os.getenv('RAILWAY_PUBLIC_DOMAIN', 'localhost:8000')}/s/{company_slug}/{token}/booking"
 
                 notify_quote_approved(
                     customer_name=job.customer_name,
                     customer_phone=job.customer_phone,
                     company_name=company.company_name,
-                    price_low=quote["estimate_low"],
-                    price_high=quote["estimate_high"],
+                    price_low=final_price,
+                    price_high=final_price,
                     booking_url=booking_url
                 )
                 logger.info(f"SMS sent to customer for quick-approved job {token}")
             except Exception as e:
                 logger.error(f"Failed to send quick-approve SMS for job {token}: {e}")
 
-        return JSONResponse({"success": True})
+        return JSONResponse({"success": True, "final_price": final_price})
 
     return JSONResponse({"error": "Job not found"}, status_code=404)
 

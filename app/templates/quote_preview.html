@@ -13,12 +13,19 @@
   {% endif %}
 
   <div class="group">
-    <div class="bigprice">£{{ estimate_low }} – £{{ estimate_high }}</div>
-    {% if job.status == 'approved' %}
+    {% if job.status == 'approved' and job.final_quote_price %}
+      <!-- Show final fixed price for approved quotes -->
+      <div class="bigprice" style="color:#2ee59d;">£{{ job.final_quote_price }}</div>
+      <div class="pill" style="background:rgba(46,229,157,.15); color:#2ee59d; border-color:rgba(46,229,157,.3);">✓ Final Quote</div>
+    {% elif job.status == 'approved' %}
+      <!-- Fallback for approved without final price (legacy) -->
+      <div class="bigprice">£{{ estimate_low }} – £{{ estimate_high }}</div>
       <div class="pill" style="background:rgba(46,229,157,.15); color:#2ee59d; border-color:rgba(46,229,157,.3);">✓ Approved</div>
     {% elif job.status == 'awaiting_approval' %}
+      <div class="bigprice">£{{ estimate_low }} – £{{ estimate_high }}</div>
       <div class="pill" style="background:rgba(96,165,250,.15); color:#60a5fa; border-color:rgba(96,165,250,.3);">⏳ Pending Review</div>
     {% else %}
+      <div class="bigprice">£{{ estimate_low }} – £{{ estimate_high }}</div>
       <div class="pill">{{ confidence }}</div>
     {% endif %}
 
