@@ -89,66 +89,71 @@ class OutreachEmail(Base):
 
 EMAIL_TEMPLATES = {
     "initial": {
-        "subject": "Saw {company_name} - thought you'd want this",
-        "body": """Hey {first_name},
+        "subject": "Quick one for {company_name}",
+        "body": """{first_name},
 
-We built something for removal companies that I think you'll like.
+9pm last Tuesday. Customer sends photos of their house.
+9:05pm. Full quote, ready to go.
+9:07pm. They've paid the deposit and booked.
 
-Customers photograph their rooms → AI counts every item → you get a quote ready to approve in 5 minutes.
+That happened. That's what AI-powered quotes look like.
 
-No home visits for standard jobs. No phone tag. No spreadsheets.
+Here's the simple version:
+- Customer photographs each room
+- AI counts every sofa, bed, wardrobe, box
+- Quote calculated instantly using YOUR prices
+- You glance at it, tap approve
+- Done
 
-One company using it said: "I used to spend Sundays doing estimates. Now I approve quotes from the van between jobs."
+No home visits. No phone tag. No Sunday afternoons doing estimates.
 
-Your branding, your prices, your control. Customers think it's your own tech.
+Your branding. Your prices. Customers think it's your own tech.
 
-3 free quotes to try it - takes about a minute to set up: {demo_link}
+I've got 3 free quotes with your name on them: {demo_link}
 
-Worth a look.
+Takes about 60 seconds to set up. See what you think.
 
 Jay
 PrimeHaul"""
     },
 
     "followup_1": {
-        "subject": "Re: Your competitors are quoting in 5 mins now",
+        "subject": "Re: Quick one for {company_name}",
         "body": """{first_name},
 
-Forgot to mention the best bit:
+One thing I should've mentioned:
 
-You approve every quote before it goes out. AI does the counting, but YOU set the final price. Change it, add notes, whatever you want.
+You stay in control. Always.
 
-So you get the speed of instant quotes without losing control.
+The AI counts items and suggests a price. But nothing goes out until YOU approve it. See something you'd price differently? Change it. Want to add a note? Add it.
 
-Here's what the flow looks like:
-1. Customer photographs their rooms (takes them 3 mins)
-2. AI lists every item with dimensions
-3. Quote lands in your phone
-4. You tap "Approve" or adjust the price
-5. Customer gets the quote instantly
+Think of it like having someone who does all the measuring and maths, then hands you the clipboard to sign off.
 
-That's it. No spreadsheets. No home visits for basic quotes. No phone tag.
+The flow:
+Customer photographs rooms → AI lists everything → lands in your phone → you approve or adjust → customer gets it
 
-Still got your 3 free ones here: {demo_link}
+That's it. Your call on everything.
+
+Link's here when you're ready: {demo_link}
 
 Jay"""
     },
 
     "followup_2": {
-        "subject": "One last thought",
-        "body": """Hey {first_name},
+        "subject": "Last one (then I'll leave you alone)",
+        "body": """{first_name},
 
-Last one from me - don't want to clog your inbox.
+Not going to keep emailing you. Just one thought I wanted to share:
 
-Just wanted to share what one company told me last week:
+The feedback that surprised me most wasn't about speed. It was this:
 
-"The customers love it. They send photos at 10pm, wake up to a quote. Makes us look really professional."
+"Customers love it. They photograph their stuff at 10pm, wake up to a quote. We look like a proper professional operation."
 
-That's the bit I didn't expect. It's not just faster - customers actually prefer it. No awkward home visits. No "I'll call you back." Just photos, quote, done.
+Turns out people actually prefer snapping photos over booking a home visit. Faster for them too.
 
-Anyway, the offer's always there if you want it: {demo_link}
+Anyway. If you ever want to try it, 3 free quotes: {demo_link}
 
-Good luck with the moves.
+All the best with the moves.
 
 Jay"""
     },
