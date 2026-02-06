@@ -1557,8 +1557,8 @@ def room_scan_get(request: Request, company_slug: str, token: str, room_id: str,
     if not room:
         return RedirectResponse(url=f"/s/{company_slug}/{token}/rooms", status_code=303)
 
-    # Get items and photos for this room
-    items = db.query(Item).filter(Item.room_id == room.id).all()
+    # Get items and photos for this room (order by ID for consistent indexing)
+    items = db.query(Item).filter(Item.room_id == room.id).order_by(Item.id).all()
     photos = db.query(Photo).filter(Photo.room_id == room.id).all()
 
     # Build items_json for template (include variant options per item)
