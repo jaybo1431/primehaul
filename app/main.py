@@ -53,17 +53,26 @@ from uvicorn.middleware.proxy_headers import ProxyHeadersMiddleware
 app.add_middleware(ProxyHeadersMiddleware, trusted_hosts=["*"])
 
 # Security: Add CORS middleware
+ALLOWED_ORIGINS = [
+    "https://primehaul.co.uk",
+    "https://www.primehaul.co.uk",
+    "https://app.primehaul.co.uk",
+    "http://localhost:8000",  # Local dev
+    "http://127.0.0.1:8000",
+]
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # In production, replace with specific origins
+    allow_origins=ALLOWED_ORIGINS,
     allow_credentials=True,
     allow_methods=["GET", "POST"],
     allow_headers=["*"],
 )
 
-# Security: Add trusted host middleware (configure for production)
-# Uncomment and configure for production:
-# app.add_middleware(TrustedHostMiddleware, allowed_hosts=["example.com", "*.example.com"])
+# Security: Add trusted host middleware
+app.add_middleware(
+    TrustedHostMiddleware,
+    allowed_hosts=["primehaul.co.uk", "*.primehaul.co.uk", "localhost", "127.0.0.1"]
+)
 
 @app.middleware("http")
 async def add_security_headers(request: Request, call_next):
