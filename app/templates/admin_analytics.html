@@ -186,7 +186,7 @@
                                         {% endif %}
                                     </td>
                                     <td style="padding: 12px; color: #aaa; font-size: 14px;">
-                                        {{ event.metadata.get('description', 'N/A') }}
+                                        {{ (event.event_metadata or {}).get('description', 'N/A') }}
                                     </td>
                                     <td style="padding: 12px; color: #666; font-size: 13px;">
                                         {{ event.recorded_at.strftime('%Y-%m-%d %H:%M') }}

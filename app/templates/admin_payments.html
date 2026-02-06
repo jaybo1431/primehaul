@@ -119,44 +119,54 @@
             </div>
         </div>
 
-        <!-- Survey Usage -->
+        <!-- Credits & Usage -->
         <div class="card fade-in" style="margin-top: 24px;">
-            <h2 style="margin-bottom: 16px;">Survey Usage</h2>
+            <h2 style="margin-bottom: 16px;">Credits & Usage</h2>
             <p style="color: #888; margin-bottom: 24px;">
-                Track your survey usage. You get 3 free surveys, then it's £9.99 per survey.
+                {% if usage.is_partner %}
+                Partner account — unlimited surveys included.
+                {% else %}
+                Buy credit packs upfront. 1 credit = 1 survey.
+                {% endif %}
             </p>
 
-            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 24px;">
-                <div style="padding: 16px; background: rgba(255,255,255,.05); border-radius: 12px; text-align: center;">
-                    <div style="font-size: 28px; font-weight: 800; color: #fff;">{{ usage.surveys_used }}</div>
-                    <div style="font-size: 12px; color: #888; margin-top: 4px;">Surveys Used</div>
-                </div>
-                <div style="padding: 16px; background: rgba(46,229,157,.1); border-radius: 12px; text-align: center; border: 1px solid rgba(46,229,157,.2);">
-                    <div style="font-size: 28px; font-weight: 800; color: #2ee59d;">{{ usage.free_surveys_remaining }}</div>
-                    <div style="font-size: 12px; color: #888; margin-top: 4px;">Free Remaining</div>
-                </div>
-                <div style="padding: 16px; background: rgba(255,255,255,.05); border-radius: 12px; text-align: center;">
-                    <div style="font-size: 28px; font-weight: 800; color: #fff;">£{{ "%.2f"|format(usage.total_charged) }}</div>
-                    <div style="font-size: 12px; color: #888; margin-top: 4px;">Total Billed</div>
-                </div>
-            </div>
-
-            <div style="padding: 16px; background: rgba(255,255,255,.05); border-radius: 12px;">
-                <div style="display: flex; justify-content: space-between; align-items: center;">
-                    <div>
-                        <div style="font-weight: 600;">Price per Survey</div>
-                        <div style="font-size: 13px; color: #888;">Charged when customer submits for review</div>
+            <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; margin-bottom: 24px;">
+                <div style="padding: 20px; background: {% if usage.low_credits %}rgba(255,77,79,.1); border: 1px solid rgba(255,77,79,.3){% else %}rgba(46,229,157,.1); border: 1px solid rgba(46,229,157,.2){% endif %}; border-radius: 12px; text-align: center;">
+                    <div style="font-size: 36px; font-weight: 800; color: {% if usage.low_credits %}#ff4d4f{% else %}#2ee59d{% endif %};">
+                        {% if usage.is_partner %}∞{% else %}{{ usage.credits }}{% endif %}
                     </div>
-                    <div style="font-size: 20px; font-weight: 700;">£9.99</div>
+                    <div style="font-size: 12px; color: #888; margin-top: 4px;">Credits Remaining</div>
+                </div>
+                <div style="padding: 20px; background: rgba(255,255,255,.05); border-radius: 12px; text-align: center;">
+                    <div style="font-size: 36px; font-weight: 800; color: #fff;">{{ usage.surveys_used }}</div>
+                    <div style="font-size: 12px; color: #888; margin-top: 4px;">Surveys Completed</div>
                 </div>
             </div>
 
-            {% if not usage.has_payment_method %}
-            <div style="margin-top: 16px; padding: 16px; background: rgba(96,165,250,.1); border: 1px solid rgba(96,165,250,.3); border-radius: 12px;">
-                <div style="font-weight: 600; color: #60a5fa; margin-bottom: 8px;">Payment method required</div>
-                <div style="font-size: 13px; color: #888; margin-bottom: 12px;">Add a payment method to continue using surveys after your free trial.</div>
-                <a href="/{{ company_slug }}/billing" class="btn" style="display: inline-block;">Add Payment Method</a>
+            {% if not usage.is_partner %}
+            <!-- Credit Packs -->
+            <div style="margin-top: 24px;">
+                <h3 style="margin-bottom: 16px; font-size: 16px;">Buy More Credits</h3>
+                <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px;">
+                    {% for pack_id, pack in usage.packs.items() %}
+                    <div style="padding: 16px; background: rgba(255,255,255,.05); border-radius: 12px; border: 1px solid rgba(255,255,255,.1);">
+                        <div style="font-weight: 700; text-transform: capitalize; margin-bottom: 8px;">{{ pack_id }}</div>
+                        <div style="font-size: 24px; font-weight: 800; color: #2ee59d;">{{ pack.price_display }}</div>
+                        <div style="font-size: 13px; color: #888; margin-top: 4px;">{{ pack.credits }} credits ({{ pack.per_survey }}/survey)</div>
+                    </div>
+                    {% endfor %}
+                </div>
+                <div style="margin-top: 16px; text-align: center;">
+                    <a href="/{{ company_slug }}/admin/buy-credits" class="btn btn-primary" style="display: inline-block;">Buy Credits</a>
+                </div>
             </div>
+
+            {% if usage.low_credits %}
+            <div style="margin-top: 16px; padding: 16px; background: rgba(255,77,79,.1); border: 1px solid rgba(255,77,79,.3); border-radius: 12px;">
+                <div style="font-weight: 600; color: #ff4d4f; margin-bottom: 8px;">Low credits warning</div>
+                <div style="font-size: 13px; color: #888;">You have less than 3 credits remaining. Buy more to continue accepting surveys.</div>
+            </div>
+            {% endif %}
             {% endif %}
         </div>
 
