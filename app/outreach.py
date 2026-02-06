@@ -89,108 +89,132 @@ class OutreachEmail(Base):
 
 EMAIL_TEMPLATES = {
     "initial": {
-        "subject": "Quick question about your quoting process",
-        "body": """Hi {first_name},
+        "subject": "Your competitors are quoting in 5 mins now",
+        "body": """Hey {first_name},
 
-Spotted {company_name} online - looks like you've built a solid reputation.
+Be honest - how many quotes did you lose last month because you couldn't get back to them fast enough?
 
-Quick question: how long does it take you to quote a 3-bed house move right now?
+Every removal company I talk to says the same thing: "By the time I called them back, they'd already booked someone else."
 
-We've built a tool that lets your customers photograph their rooms and get an AI-calculated quote in under 5 minutes. No site visits, no phone tag.
+Here's the fix:
 
-It's white-labelled to your brand. Customers think it's your tech.
+Customer clicks your link → snaps photos of their rooms → AI counts EVERYTHING → instant quote.
 
-3 free quotes to try it - no card needed: {demo_link}
+5 minutes. Done. They book on the spot.
 
-Cheers,
+One company using this quoted 23 jobs last week. His words: "I used to spend my whole Sunday doing estimates. Now I approve them from the van between jobs."
+
+I'll set you up with 3 free AI quotes - takes 60 seconds: {demo_link}
+
+Your logo. Your pricing. Customers think it's your tech.
+
 Jay
-PrimeHaul
 
-P.S. Takes 2 minutes to set up. Most companies are quoting the same day."""
+P.S. The busy season's coming. The companies using AI quotes are going to eat everyone else's lunch. Don't be lunch."""
     },
 
     "followup_1": {
-        "subject": "Re: Quick question about your quoting process",
-        "body": """Hi {first_name},
+        "subject": "Re: Your competitors are quoting in 5 mins now",
+        "body": """{first_name},
 
-Just bumping this - did you get a chance to look?
+Quick update - 3 more removal companies signed up yesterday.
 
-One of our removal companies quoted 14 jobs last week using the AI tool. Said it used to take 2 hours of phone calls to do the same.
+Not trying to pressure you. Just saying - your competitors are going to start stealing your leads with instant quotes while you're still playing phone tag.
 
-Here's the link again: {demo_link}
+The maths is brutal:
+- Old way: Customer enquires → you call back in 2 hours → they've already booked
+- New way: Customer enquires → instant AI quote → they book YOU
 
-Happy to jump on a quick call if easier.
+Still got your 3 free quotes waiting: {demo_link}
+
+60 seconds to set up. Seriously.
 
 Jay"""
     },
 
     "followup_2": {
-        "subject": "Last one from me",
-        "body": """Hi {first_name},
+        "subject": "Closing your spot",
+        "body": """Hey {first_name},
 
-I'll assume timing's not right.
+Last email, I promise.
 
-If you ever want to quote jobs 10x faster without hiring more staff, the link's here: {demo_link}
+I'm limiting free trials in each area so companies don't all get the same advantage. Makes sense - if everyone has AI quotes, no one has the edge.
 
-No hard feelings - good luck with the busy season.
+Your 3 free quotes expire in 48 hours: {demo_link}
 
-Jay"""
+After that, you'd have to wait for the next opening.
+
+No pressure. If you're happy with your current close rate, ignore this.
+
+But if you're losing quotes to faster competitors... this is your fix.
+
+Jay
+
+P.S. One guy told me "I wish I'd done this 6 months ago." Don't be that guy in 6 months."""
     },
 
     "reply_interested": {
         "subject": "Re: {original_subject}",
-        "body": """Hi {first_name},
+        "body": """YES {first_name}! Let's get you set up.
 
-Great to hear from you!
+Here's your link: {demo_link}
 
-Here's your personalised demo link - takes about 2 minutes to set up: {demo_link}
+Literally takes 60 seconds:
+1. Click the link, add your company name
+2. Set your pricing (we've got smart defaults)
+3. Send your first quote link to a customer
 
-Once you're in, you can:
-1. Customise your pricing
-2. Add your branding
-3. Send your first quote link to a real customer
+You could have your first AI quote out in the next 10 minutes.
 
-Any questions, just reply here or call me on 07XXX XXX XXX.
+Any issues, just reply here - I'll sort you out.
 
-Jay"""
+Jay
+
+P.S. Pro tip: Send it to a real customer straight away. Nothing beats seeing their reaction when they get an instant quote instead of "we'll call you back"."""
     },
 
     "reply_question": {
         "subject": "Re: {original_subject}",
-        "body": """Hi {first_name},
+        "body": """{first_name},
 
-Good question!
+Great question - here's the answer:
 
 {answer}
 
-Let me know if that helps, or happy to jump on a quick call to walk through it.
+Want me to jump on a quick 5-min call and walk you through it live? Sometimes easier than email.
+
+Or just hit this link and see for yourself: {demo_link}
 
 Jay"""
     },
 
     "reply_objection": {
         "subject": "Re: {original_subject}",
-        "body": """Hi {first_name},
+        "body": """{first_name},
 
-Totally understand.
+Fair point. Let me address that:
 
 {objection_response}
 
-No pressure either way - the link's there if you change your mind: {demo_link}
+Look, I'm not here to twist your arm. You know your business.
 
-All the best,
+But if speed-to-quote is costing you jobs, this solves it overnight: {demo_link}
+
+Cheers,
 Jay"""
     }
 }
 
-# Common objection responses
+# Common objection responses - punchy and real
 OBJECTION_RESPONSES = {
-    "too busy": "Most of our customers said the same thing - that's exactly why they needed it. The tool handles the quoting so you can focus on the actual moves.",
-    "already have software": "Fair enough! Out of curiosity, does your current system let customers photograph rooms and get instant AI quotes? That's the bit most companies are missing.",
-    "too expensive": "Actually, it's pay-per-quote (starts at £6.99/quote for bulk packs). No monthly fees. Most companies make it back on the first job they win.",
-    "not interested": "No worries at all. I'll leave you be. If things change, the offer stands.",
-    "how does it work": "Dead simple: You send customers a link → They photograph each room → AI counts everything and calculates the quote → You review and approve in 30 seconds. The whole thing takes under 5 minutes.",
-    "is it accurate": "The AI has been trained on thousands of UK removals. It's typically within 5-10% of manual estimates, and you can always adjust before approving.",
+    "too busy": "That's literally why you need this. You're too busy to spend 2 hours quoting. This does it in 5 minutes. One guy told me he used to quote on Sundays - now he's actually watching his kid's football games.",
+    "already have software": "Nice! Quick question though - can your customers photograph their rooms and get an instant quote without calling you? That's the game-changer. The companies winning right now are the ones who quote BEFORE the customer has time to call anyone else.",
+    "too expensive": "Here's the maths: It's £6.99 per quote at bulk rates. The average removal job is what, £600-800? You need to win ONE extra job per year to be massively in profit. Most companies are winning 3-4 extra jobs per MONTH because they're first to quote.",
+    "not interested": "Respect. I'll leave you be. One thing though - bookmark this link: {demo_link}. When you lose a job to someone who quoted faster, you'll know where to find me. No hard feelings either way.",
+    "how does it work": "Dead simple: Customer clicks your link → takes 5 photos of their rooms → AI instantly counts every sofa, bed, wardrobe, box → calculates the quote using YOUR prices → you approve it with one tap from your phone. Total time: 5 minutes. No home visit. No phone tag. No spreadsheets.",
+    "is it accurate": "Trained on thousands of UK removals. Typically within 5% of what you'd quote manually. But here's the thing - YOU approve every quote before it goes out. If the AI says £650 and you think it's £700, you change it. You're always in control.",
+    "maybe later": "Totally get it. Just know that I'm limiting free trials by area - don't want every company in your postcode having the same advantage. When you're ready, hit me up and I'll see if there's still a spot.",
+    "send more info": "Even better - just try it. Here's 3 free quotes, no card needed: {demo_link}. Takes 60 seconds to set up. You'll learn more in 5 minutes of using it than any PDF I could send.",
 }
 
 
