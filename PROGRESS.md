@@ -1,15 +1,19 @@
 # PrimeHaul OS - Progress Log
 
-**Last Updated:** 6 February 2026
+**Last Updated:** 7 February 2026
 **Repository:** github.com/jaybo1431/primehaul
 **Branch:** main
-**Latest Commit:** `8b7815b`
+**Slogan:** *An intelligent move.*
 
 ---
 
-## Current Status: LIVE & WORKING
+## Current Status: READY TO SELL
 
-The platform is fully deployed at **primehaul.co.uk** and tested working.
+The platform is fully deployed at **primehaul.co.uk** — now locked down and ready for customer acquisition.
+
+**Passwords (Jaybo Only):**
+- Superadmin: `/superadmin` → `Jaybo2026`
+- Sales Dashboard: `/sales` → `Jaybo2026`
 
 ---
 
@@ -17,10 +21,11 @@ The platform is fully deployed at **primehaul.co.uk** and tested working.
 
 ### Core Platform
 - Multi-tenant B2B SaaS for UK removal companies
-- **Pay-per-survey model**: £9.99/survey (changed from £99/month subscription)
+- **Prepaid credits model**: 3 free credits, then buy packs (£6.99-£9.90/survey)
 - FastAPI backend with 87+ API endpoints
 - PostgreSQL database with 23 models
 - Railway deployment with auto-migrations
+- **Slogan:** "An intelligent move."
 
 ### Customer Survey Flow
 - Multi-step: Location → Property → Access → Date → Rooms → Photos → Review → Quote
@@ -70,6 +75,88 @@ The platform is fully deployed at **primehaul.co.uk** and tested working.
 - Each company has unique URL: `/s/{company-slug}/{token}/...`
 - Surveys ONLY appear in the correct company's dashboard
 - Complete data isolation via `company_id` foreign keys
+
+---
+
+## Session Log: 7 February 2026 (Evening)
+
+### Solo Founder Mode Activated
+
+**Decision:** This is Jaybo's project. No partners signed yet. Building for passive income.
+
+### Security Lockdown
+
+- Changed superadmin password to `Jaybo2026`
+- Changed sales dashboard password to `Jaybo2026`
+- Invalidated all existing sessions with new session key
+- Locked CORS to primehaul.co.uk domains only
+- Enabled TrustedHostMiddleware
+
+### Brand Identity
+
+**Slogan:** "An intelligent move."
+
+Added to:
+- Landing page header (next to logo)
+- Landing page footer
+- Meta title & description (SEO)
+- Signup page
+- Login page
+- Cold email signature
+
+### Cold Email Templates (Perfected)
+
+**Email 1 - "Quick one for {company_name}"**
+- Opens with timestamp story: "9pm... 9:05pm... 9:07pm booked"
+- Shows outcome before explanation
+- Confident close: "See what you think"
+
+**Email 2 - "Re: Quick one..."**
+- Addresses control objection: "You stay in control. Always."
+- Clipboard metaphor for approval flow
+
+**Email 3 - "Last one (then I'll leave you alone)"**
+- Honest subject line
+- Customer experience testimonial
+- Warm exit: "All the best with the moves"
+
+### Lead Scraper Built
+
+**File:** `scripts/scrape_leads.py`
+
+Scrapes from:
+- Checkatrade
+- Yell
+- Thomson Local
+- Curated manual list
+
+**17 leads with emails ready:**
+- 7 in London
+- 4 in Manchester
+- 1 in Birmingham, Nottingham, Leeds, Edinburgh, Southampton, Brighton, Cambridge
+
+### To-Do Before Sending
+
+1. [ ] Set up Google Workspace for `jay@primehaul.co.uk`
+2. [ ] Add MX, SPF, DKIM, DMARC records in Namecheap
+3. [ ] Create App Password
+4. [ ] Configure SMTP in Railway
+5. [ ] Send first batch of emails
+6. [ ] Register with ICO (£40)
+
+### Commits This Session
+
+```
+584d132 Add slogan "An intelligent move." everywhere
+e160eed Lock down all admin access - Jaybo only
+043fdcc Security: Lock down CORS and enable trusted hosts
+3f903c4 Perfect the cold email sequence - story-driven, confident
+1045249 Polish email templates - confident, not desperate
+d36a6b8 Rewrite cold email templates to hit harder
+4e1970b Ignore scraped leads folder
+dddccfd Add private sales automation dashboard with auto email sequences
+e8c4e7e Add email survey invite feature for boss dashboard
+```
 
 ---
 
