@@ -1,13 +1,13 @@
 # PrimeHaul OS - Progress Log
 
-**Last Updated:** 7 February 2026
+**Last Updated:** 13 February 2026
 **Repository:** github.com/jaybo1431/primehaul
 **Branch:** main
 **Slogan:** *An intelligent move.*
 
 ---
 
-## Current Status: READY TO SELL
+## Current Status: READY FOR PUBLIC LAUNCH
 
 The platform is fully deployed at **primehaul.co.uk** — now locked down and ready for customer acquisition.
 
@@ -75,6 +75,176 @@ The platform is fully deployed at **primehaul.co.uk** — now locked down and re
 - Each company has unique URL: `/s/{company-slug}/{token}/...`
 - Surveys ONLY appear in the correct company's dashboard
 - Complete data isolation via `company_id` foreign keys
+
+---
+
+## Session Log: 13 February 2026
+
+### Go-Live Preparation with Rick
+
+Working with business partner Rick to prepare for public launch. Major UX polish, accessibility features, and infrastructure setup.
+
+### Delivery Property Type Added
+
+**Problem:** Survey only asked about collection property type, not delivery location.
+
+**Solution:**
+- Added `dropoff_property_type` column to jobs table
+- New `/dropoff-property` step in survey flow after pickup property type
+- Options: House, Bungalow, Flat, Office, Storage
+- Added "Bungalow" option to collection property types too
+- Quote preview and admin job review now show both property types
+
+### Photo Display Bug Fixed
+
+**Problem:** Room scan photos stuck on "Analysing" and showed blank boxes instead of actual photos.
+
+**Root Cause:** Photo URLs pointed to `/static/uploads/...` but files were stored in `uploads/` and served via `/photo/...` endpoint.
+
+**Solution:**
+- Fixed photo URLs to use correct `/photo/{company_id}/{token}/{filename}` endpoint
+- Added instant photo preview using FileReader API (shows photo immediately while AI processes)
+- Added processing overlay with spinner on photos during AI analysis
+- Two-phase progress: "Uploading" → "AI Analyzing"
+- Better success messages showing item count
+
+### Access Details Validation UX
+
+**Problem:** Customers couldn't proceed from parking/details page but didn't know what was missing.
+
+**Solution:**
+- Added clear validation error banner listing exactly which fields are missing
+- Red highlighting on incomplete fields (lift radio buttons, parking dropdown)
+- Auto-scroll to first error
+- Real-time error clearing when user fills in field
+- Shake animation on error banner to draw attention
+
+### Quote Acceptance Price Fix
+
+**Problem:** Quote acceptance page showed estimate range (£350-£450) instead of final price after admin approved.
+
+**Solution:** Now shows single final price (£400) with "Final price confirmed" label when `job.final_quote_price` is set.
+
+### Mobile Header Overflow Fixed
+
+**Problem:** On mobile, "An intelligent move." tagline pushed "Get 3 Free Credits" button off screen.
+
+**Solution:** Hide tagline on mobile (<768px), reduce header padding/font sizes.
+
+### Landing Page Copy Updates
+
+Updated to reflect credit-based pricing model:
+- "What if I don't like it?" FAQ → explains credits model, no subscription
+- "14-Day Trial" → "Get 3 Free Credits"
+- "Cancel anytime" → "No subscription • Credits never expire"
+- Added ICO registration to data security FAQ
+
+### Light/Dark Mode Toggle
+
+**Feature:** Full theme switching for both customer survey and admin dashboard.
+
+**Implementation:**
+- CSS custom properties for both themes (dark default, light mode via `.light-mode` class)
+- 🌙/☀️ toggle button in nav header
+- Defaults to system preference (`prefers-color-scheme`)
+- Persists to localStorage (separate keys for survey vs admin)
+- Smooth color transitions
+- Updates mobile browser chrome color
+
+**Light Mode Colors:**
+- Background: #f5f5f7 (clean light gray)
+- Cards: #ffffff (white)
+- Text: #1d1d1f (dark gray)
+- Green accent adjusted for contrast
+
+### Voice Guidance (Accessibility)
+
+**Feature:** Optional voice guide that reads instructions aloud on each survey page - "granny proof" for less tech-savvy users.
+
+**Implementation:**
+- 🔇/🔊 toggle button in nav (next to theme toggle)
+- Uses browser's built-in Text-to-Speech (free, works offline)
+- Prefers British English voice when available
+- Slower speech rate (0.9x) for clarity
+- Remembers preference in localStorage
+- Each page has custom voice prompt
+
+**Pages with Voice Guidance:**
+| Page | Message Summary |
+|------|-----------------|
+| Start | "Welcome! Enter your addresses and choose property types..." |
+| Property Type | "What type of property are we collecting from? Tap the matching box..." |
+| Dropoff Property | "What type of property are we delivering to?..." |
+| Access Details | "Tell us about floors, lifts, and parking for both locations..." |
+| Room Selection | "Tap on each room that has items you're moving..." |
+| Room Scan | "Tap Take Photos and point your camera at your furniture..." |
+| Quote Preview | Different messages for pending/awaiting/approved status |
+| Quote Acceptance | "Tick the checkbox and tap Accept Quote..." |
+
+### Email Setup Guide
+
+Created comprehensive email templates and outreach documentation for Rick:
+- 4-email sequence with timing (Day 1 → Day 3 → Day 8 → Day 15)
+- Initial contact + 3 follow-up templates
+- Reply templates for common responses
+- Subject line A/B testing ideas
+- Where to find leads (Checkatrade, Yell, LinkedIn, etc.)
+- Tracking spreadsheet structure
+- GDPR compliance notes
+
+### Infrastructure
+
+- Google Workspace domain verified
+- Email aliases configured (sales@, privacy@ → Rick, support@, hello@ → Jaybo)
+- ICO registration complete
+
+### Alembic Migration Chain Fixed
+
+**Problem:** Deployment failed due to conflicting migration revisions.
+
+**Fix:**
+- Renamed `fix010_dropoff_property_type.py` to `fix011_dropoff_property_type.py`
+- Updated `down_revision` from `fix009` to `fix010_outreach`
+- Fixed `fix010_outreach` to reference `fix009` (not `fix009_final_quote_price`)
+
+### Files Created
+
+- `app/templates/dropoff_property_type.html` — Delivery property type selection
+- `/Users/primehaul/Desktop/PRIMEHAUL_EMAIL_TEMPLATES.md` — Outreach templates for Rick
+- `/Users/primehaul/Desktop/RICK_GO_LIVE_TASKS.md` — Rick's go-live checklist
+- `GO_LIVE_CHECKLIST.md` — Comprehensive launch checklist
+
+### Files Modified
+
+- `app/main.py` — Photo URL fixes, dropoff property endpoints, validation
+- `app/models.py` — Added `dropoff_property_type` column
+- `app/static/app.css` — Light mode theme, theme toggle button styles
+- `app/templates/base.html` — Theme toggle, voice guide toggle, JS for both
+- `app/templates/admin_dashboard_v2.html` — Theme toggle for admin
+- `app/templates/start_v2.html` — Dropoff property type section, voice guidance
+- `app/templates/property_type.html` — Added Bungalow option, voice guidance
+- `app/templates/dropoff_property_type.html` — New template with voice guidance
+- `app/templates/access_questions.html` — Validation UX, voice guidance
+- `app/templates/rooms_pick.html` — Voice guidance
+- `app/templates/room_scan.html` — Photo preview, processing overlay, voice guidance
+- `app/templates/quote_preview.html` — Voice guidance (status-aware)
+- `app/templates/quote_acceptance.html` — Final price display, voice guidance
+- `app/templates/landing_primehaul_uk.html` — Mobile header fix, copy updates, ICO
+
+### Commits
+
+```
+235d6a4 Fix: Correct fix010_outreach down_revision
+0fa717e Fix: Alembic migration chain - rename fix010 to fix011
+12424d2 Fix: Photo display bug and enhance room scan UX
+09be84f UX: Add clear validation feedback on access details page
+7b3ab62 Fix: Show final quote price on acceptance page
+e3d44b3 Fix: Mobile header overflow - hide tagline on small screens
+22e6e3d Fix: Update landing page copy to reflect credit-based pricing
+55d4fa2 Update FAQ: Add ICO registration to data security answer
+a6e8e9f Feature: Add light/dark mode toggle to survey app and admin dashboard
+e39f077 Feature: Add voice guidance for survey app (accessibility)
+```
 
 ---
 
