@@ -39,6 +39,9 @@
             {{ nav_title if nav_title else "primehaul" }}
           </div>
 
+          <button class="theme-toggle" id="voiceToggle" aria-label="Toggle voice guide" title="Voice guide">
+            <span class="voice-icon">🔇</span>
+          </button>
           <button class="theme-toggle" id="themeToggle" aria-label="Toggle light/dark mode" title="Toggle theme">
             <span class="theme-icon">🌙</span>
           </button>
@@ -135,6 +138,91 @@
             applyTheme(e.matches ? 'dark' : 'light');
           }
         });
+
+        // =============================================
+        // VOICE GUIDE FUNCTIONALITY
+        // =============================================
+        const voiceToggle = document.getElementById('voiceToggle');
+        const voiceIcon = voiceToggle ? voiceToggle.querySelector('.voice-icon') : null;
+        let voiceEnabled = localStorage.getItem('ph-voice-guide') === 'true';
+
+        // Check if speech synthesis is supported
+        const speechSupported = 'speechSynthesis' in window;
+
+        function updateVoiceIcon() {
+          if (voiceIcon) {
+            voiceIcon.textContent = voiceEnabled ? '🔊' : '🔇';
+          }
+          if (voiceToggle) {
+            voiceToggle.title = voiceEnabled ? 'Voice guide ON - tap to turn off' : 'Voice guide OFF - tap to turn on';
+          }
+        }
+
+        function speak(text, priority) {
+          if (!voiceEnabled || !speechSupported) return;
+
+          // Cancel any ongoing speech
+          window.speechSynthesis.cancel();
+
+          const utterance = new SpeechSynthesisUtterance(text);
+          utterance.rate = 0.9; // Slightly slower for clarity
+          utterance.pitch = 1;
+          utterance.volume = 1;
+
+          // Try to use a British English voice
+          const voices = window.speechSynthesis.getVoices();
+          const britishVoice = voices.find(v => v.lang === 'en-GB') || voices.find(v => v.lang.startsWith('en'));
+          if (britishVoice) utterance.voice = britishVoice;
+
+          window.speechSynthesis.speak(utterance);
+        }
+
+        function toggleVoice() {
+          voiceEnabled = !voiceEnabled;
+          localStorage.setItem('ph-voice-guide', voiceEnabled ? 'true' : 'false');
+          updateVoiceIcon();
+
+          if (voiceEnabled) {
+            speak('Voice guide is now on. I will help you through each step.');
+            // Speak current page guidance after the intro
+            setTimeout(() => speakPageGuidance(), 2500);
+          } else {
+            window.speechSynthesis.cancel();
+          }
+        }
+
+        function speakPageGuidance() {
+          if (!voiceEnabled) return;
+
+          // Look for page-specific voice guidance
+          const guidanceEl = document.getElementById('voiceGuidance');
+          if (guidanceEl && guidanceEl.dataset.message) {
+            speak(guidanceEl.dataset.message);
+          }
+        }
+
+        // Initialize voice
+        updateVoiceIcon();
+
+        if (voiceToggle) {
+          voiceToggle.addEventListener('click', toggleVoice);
+        }
+
+        // Wait for voices to load, then speak page guidance
+        if (speechSupported) {
+          // Voices may load async
+          if (window.speechSynthesis.getVoices().length > 0) {
+            setTimeout(speakPageGuidance, 500);
+          } else {
+            window.speechSynthesis.addEventListener('voiceschanged', function() {
+              setTimeout(speakPageGuidance, 500);
+            }, { once: true });
+          }
+        }
+
+        // Make speak function globally available for page-specific triggers
+        window.phSpeak = speak;
+        window.phVoiceEnabled = function() { return voiceEnabled; };
       })();
     </script>
   </body>

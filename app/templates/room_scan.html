@@ -1,6 +1,9 @@
 {% extends "base.html" %}
 
 {% block content %}
+  <!-- Voice guidance for this page -->
+  <div id="voiceGuidance" data-message="Time to photograph this room. Tap the Take Photos button and point your camera at your furniture and belongings. Try to get everything in the shot. Wide angle photos work best. Our clever computer will identify all your items automatically. When you're finished with this room, tap Done at the bottom." hidden></div>
+
   {% set room_icons = {
     "Living room": "🛋️",
     "Bed 1": "🛏️",

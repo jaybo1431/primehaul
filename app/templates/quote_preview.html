@@ -1,6 +1,15 @@
 {% extends "base.html" %}
 
 {% block content %}
+  <!-- Voice guidance for this page -->
+  {% if job.status == 'approved' %}
+  <div id="voiceGuidance" data-message="Great news! Your quote has been approved. You can see your final price on screen. When you're ready to book, tap Accept This Quote at the bottom." hidden></div>
+  {% elif job.status == 'awaiting_approval' %}
+  <div id="voiceGuidance" data-message="Your quote has been submitted and our team is reviewing it. We'll send you a text message when it's ready. You can close this page and come back later." hidden></div>
+  {% else %}
+  <div id="voiceGuidance" data-message="Here's your quote summary. You can see how many items we detected and the estimated price range. If you're happy, tap Submit for Review at the bottom. Our team will check it and get back to you shortly." hidden></div>
+  {% endif %}
+
   {% if job.status == 'approved' %}
     <div class="largetitle">Quote approved</div>
     <p class="subtitle">Your quote is ready to book. Secure your moving date now.</p>
