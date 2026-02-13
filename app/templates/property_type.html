@@ -2,55 +2,185 @@
 
 {% block content %}
   <!-- Voice guidance for this page -->
-  <div id="voiceGuidance" data-message="What type of property are we collecting from? Tap on the box that matches your home. Choose from House, Bungalow, Flat, Studio, or Office." hidden></div>
-
-  <div class="largetitle">📦 Collection Property</div>
-  <p class="subtitle">What type of property are we collecting from?</p>
+  <div id="voiceGuidance" data-message="What type of property are we collecting from? Tap the one that matches. Then we'll ask about your delivery property too." hidden></div>
 
   <form id="propForm" method="post" action="/s/{{ company_slug }}/{{ token }}/property">
     <input type="hidden" id="property_type" name="property_type" value="{{ property_type or '' }}"/>
+    <input type="hidden" id="dropoff_property_type" name="dropoff_property_type" value="{{ dropoff_property_type or '' }}"/>
 
-    <div class="tilegrid" role="group" aria-label="Property type">
-      <button class="tile {% if property_type == 'House' %}selected{% endif %}" type="button" data-value="House">
-        <div style="font-size:32px; margin-bottom:8px;">🏠</div>
-        <div class="tile-title">House</div>
-      </button>
-      <button class="tile {% if property_type == 'Bungalow' %}selected{% endif %}" type="button" data-value="Bungalow">
-        <div style="font-size:32px; margin-bottom:8px;">🏡</div>
-        <div class="tile-title">Bungalow</div>
-      </button>
-      <button class="tile {% if property_type == 'Flat' %}selected{% endif %}" type="button" data-value="Flat">
-        <div style="font-size:32px; margin-bottom:8px;">🏢</div>
-        <div class="tile-title">Flat/Apartment</div>
-      </button>
-      <button class="tile {% if property_type == 'Office' %}selected{% endif %}" type="button" data-value="Office">
-        <div style="font-size:32px; margin-bottom:8px;">💼</div>
-        <div class="tile-title">Office</div>
-      </button>
-      <button class="tile {% if property_type == 'Storage' %}selected{% endif %}" type="button" data-value="Storage">
-        <div style="font-size:32px; margin-bottom:8px;">📦</div>
-        <div class="tile-title">Storage Unit</div>
-      </button>
+    <!-- STEP 1: Collection property -->
+    <div id="pickupSection">
+      <div class="largetitle">Collecting from</div>
+      <p class="subtitle">What type of property are we picking up from?</p>
+
+      <div class="tilegrid" id="pickupTiles" role="group" aria-label="Collection property type">
+        <button class="tile {% if property_type == 'House' %}selected{% endif %}" type="button" data-value="House" data-target="pickup">
+          <div style="font-size:32px; margin-bottom:8px;">🏠</div>
+          <div class="tile-title">House</div>
+        </button>
+        <button class="tile {% if property_type == 'Bungalow' %}selected{% endif %}" type="button" data-value="Bungalow" data-target="pickup">
+          <div style="font-size:32px; margin-bottom:8px;">🏡</div>
+          <div class="tile-title">Bungalow</div>
+        </button>
+        <button class="tile {% if property_type == 'Flat' %}selected{% endif %}" type="button" data-value="Flat" data-target="pickup">
+          <div style="font-size:32px; margin-bottom:8px;">🏢</div>
+          <div class="tile-title">Flat/Apartment</div>
+        </button>
+        <button class="tile {% if property_type == 'Office' %}selected{% endif %}" type="button" data-value="Office" data-target="pickup">
+          <div style="font-size:32px; margin-bottom:8px;">💼</div>
+          <div class="tile-title">Office</div>
+        </button>
+        <button class="tile {% if property_type == 'Storage' %}selected{% endif %}" type="button" data-value="Storage" data-target="pickup">
+          <div style="font-size:32px; margin-bottom:8px;">📦</div>
+          <div class="tile-title">Storage Unit</div>
+        </button>
+      </div>
     </div>
 
-    <div class="hint" style="margin-top:14px;">
-      💡 This helps us estimate access time and parking
+    <!-- STEP 2: Delivery property (hidden until pickup selected) -->
+    <div id="dropoffSection" class="prop-step-hidden">
+      <div class="prop-divider">
+        <div class="prop-divider-line"></div>
+        <div class="prop-divider-icon">&#8595;</div>
+        <div class="prop-divider-line"></div>
+      </div>
+
+      <div class="largetitle">Delivering to</div>
+      <p class="subtitle">What type of property are we delivering to?</p>
+
+      <div class="tilegrid" id="dropoffTiles" role="group" aria-label="Delivery property type">
+        <button class="tile {% if dropoff_property_type == 'House' %}selected{% endif %}" type="button" data-value="House" data-target="dropoff">
+          <div style="font-size:32px; margin-bottom:8px;">🏠</div>
+          <div class="tile-title">House</div>
+        </button>
+        <button class="tile {% if dropoff_property_type == 'Bungalow' %}selected{% endif %}" type="button" data-value="Bungalow" data-target="dropoff">
+          <div style="font-size:32px; margin-bottom:8px;">🏡</div>
+          <div class="tile-title">Bungalow</div>
+        </button>
+        <button class="tile {% if dropoff_property_type == 'Flat' %}selected{% endif %}" type="button" data-value="Flat" data-target="dropoff">
+          <div style="font-size:32px; margin-bottom:8px;">🏢</div>
+          <div class="tile-title">Flat/Apartment</div>
+        </button>
+        <button class="tile {% if dropoff_property_type == 'Office' %}selected{% endif %}" type="button" data-value="Office" data-target="dropoff">
+          <div style="font-size:32px; margin-bottom:8px;">💼</div>
+          <div class="tile-title">Office</div>
+        </button>
+        <button class="tile {% if dropoff_property_type == 'Storage' %}selected{% endif %}" type="button" data-value="Storage" data-target="dropoff">
+          <div style="font-size:32px; margin-bottom:8px;">📦</div>
+          <div class="tile-title">Storage Unit</div>
+        </button>
+      </div>
     </div>
   </form>
+
+  <style>
+    .prop-step-hidden {
+      max-height: 0;
+      opacity: 0;
+      overflow: hidden;
+      transition: max-height 0.5s var(--ease-smooth), opacity 0.4s ease;
+    }
+    .prop-step-visible {
+      max-height: 600px;
+      opacity: 1;
+      overflow: visible;
+    }
+    .prop-divider {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin: 28px 0 20px;
+    }
+    .prop-divider-line {
+      flex: 1;
+      height: 1px;
+      background: var(--hair);
+    }
+    .prop-divider-icon {
+      font-size: 20px;
+      color: var(--muted);
+      animation: bounceDown 1.5s ease infinite;
+    }
+    @keyframes bounceDown {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(4px); }
+    }
+    /* Shrink pickup tiles after selection */
+    #pickupSection.step-done .tilegrid {
+      display: flex;
+      gap: 8px;
+      justify-content: center;
+    }
+    #pickupSection.step-done .tile {
+      min-height: auto;
+      padding: 10px 16px;
+      opacity: 0.4;
+      pointer-events: none;
+      transform: scale(0.85);
+      transition: all 0.35s var(--ease-smooth);
+    }
+    #pickupSection.step-done .tile.selected {
+      opacity: 1;
+      pointer-events: auto;
+      transform: scale(1);
+      border-color: var(--success);
+      box-shadow: 0 0 12px rgba(46,229,157,.2);
+    }
+    #pickupSection.step-done .largetitle,
+    #pickupSection.step-done .subtitle {
+      font-size: 14px;
+      margin-bottom: 4px;
+      color: var(--muted);
+      transition: all 0.35s ease;
+    }
+    #pickupSection.step-done .subtitle {
+      display: none;
+    }
+  </style>
 
   <script>
     (function(){
       const form = document.getElementById("propForm");
-      const hidden = document.getElementById("property_type");
-      const tiles = document.querySelectorAll(".tile[data-value]");
+      const pickupHidden = document.getElementById("property_type");
+      const dropoffHidden = document.getElementById("dropoff_property_type");
+      const pickupSection = document.getElementById("pickupSection");
+      const dropoffSection = document.getElementById("dropoffSection");
+      const pickupTiles = document.querySelectorAll('#pickupTiles .tile');
+      const dropoffTiles = document.querySelectorAll('#dropoffTiles .tile');
 
-      tiles.forEach(function(t){
+      // If pickup already selected (coming back), show dropoff immediately
+      if (pickupHidden.value) {
+        pickupSection.classList.add("step-done");
+        dropoffSection.classList.remove("prop-step-hidden");
+        dropoffSection.classList.add("prop-step-visible");
+      }
+
+      pickupTiles.forEach(function(t){
         t.addEventListener("click", function(){
-          for (let i=0; i<tiles.length; i++) tiles[i].classList.remove("selected");
+          // If already in step-done, allow changing selection
+          pickupTiles.forEach(function(b){ b.classList.remove("selected"); });
           t.classList.add("selected");
-          hidden.value = t.getAttribute("data-value") || "";
-          // Auto-submit after selection
-          form.submit();
+          pickupHidden.value = t.getAttribute("data-value") || "";
+
+          // Collapse pickup, reveal dropoff
+          pickupSection.classList.add("step-done");
+          dropoffSection.classList.remove("prop-step-hidden");
+          dropoffSection.classList.add("prop-step-visible");
+
+          // Smooth scroll to dropoff section
+          setTimeout(function(){
+            dropoffSection.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          }, 200);
+        });
+      });
+
+      dropoffTiles.forEach(function(t){
+        t.addEventListener("click", function(){
+          dropoffTiles.forEach(function(b){ b.classList.remove("selected"); });
+          t.classList.add("selected");
+          dropoffHidden.value = t.getAttribute("data-value") || "";
+          // Submit both values
+          setTimeout(function(){ form.submit(); }, 250);
         });
       });
     })();
@@ -61,7 +191,7 @@
   <div class="footer footer-clean">
     <div class="footer-inner">
       <div class="microhint" style="text-align:center;">
-        Tap a property type to continue
+        Select both property types to continue
       </div>
     </div>
   </div>

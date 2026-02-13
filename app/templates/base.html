@@ -146,7 +146,7 @@
         const voiceToggle = document.getElementById('voiceToggle');
         const voiceIcon = voiceToggle ? voiceToggle.querySelector('.voice-icon') : null;
         const voiceLabel = voiceToggle ? voiceToggle.querySelector('.voice-label') : null;
-        let voiceEnabled = localStorage.getItem('ph-voice-guide') === 'true';
+        let voiceEnabled = localStorage.getItem('ph-voice-guide') !== 'false';
         let currentAudio = null;
         let isSpeaking = false;
 

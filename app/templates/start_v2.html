@@ -1,33 +1,20 @@
 {% extends "base.html" %}
 
 {% block content %}
-  <!-- Voice guidance for this page -->
-  <div id="voiceGuidance" data-message="Welcome! Let's get you a quick quote. First, enter your current address in the pickup box, then enter where you're moving to. Choose what type of property you're moving from and to. Then tap Continue at the bottom." hidden></div>
-
-  <!-- Voice Guide Opt-In (shows only on first visit when voice not yet enabled) -->
-  <div id="voiceOptIn" class="voice-optin-card hidden">
-    <div class="voice-optin-icon">🎧</div>
-    <div class="voice-optin-content">
-      <div class="voice-optin-title">Need a helping hand?</div>
-      <div class="voice-optin-desc">Turn on voice guide and I'll talk you through each step. Perfect if you'd prefer audio instructions.</div>
-    </div>
-    <div class="voice-optin-buttons">
-      <button type="button" id="voiceOptInYes" class="voice-optin-btn voice-optin-yes">Yes, guide me</button>
-      <button type="button" id="voiceOptInNo" class="voice-optin-btn voice-optin-no">No thanks</button>
-    </div>
-  </div>
+  <!-- Voice guidance - speaks immediately on first load -->
+  <div id="voiceGuidance" data-message="Welcome! Let's get your quote done in a few simple steps. First, type in the address you're moving from, then where you're moving to. You'll see them on the map. Then pick your property types, and hit Continue." hidden></div>
 
   <div class="largetitle">Get an instant quote</div>
   <p class="subtitle">3 minutes. No signup required.</p>
 
   <form id="startForm" method="post" action="/s/{{ company_slug }}/{{ token }}/start-v2">
-    <!-- Step 1: Addresses -->
+    <!-- Addresses with live map -->
     <div class="group">
       <div style="font-weight:700; margin-bottom:12px;">Move locations</div>
 
       <div style="margin-bottom:16px;">
         <label style="display:block; font-size:13px; font-weight:600; margin-bottom:6px; color:var(--muted);">
-          Pickup address
+          <span class="addr-dot addr-dot-pickup"></span> Pickup address
         </label>
         <input
           type="text"
@@ -46,7 +33,7 @@
 
       <div>
         <label style="display:block; font-size:13px; font-weight:600; margin-bottom:6px; color:var(--muted);">
-          Delivery address
+          <span class="addr-dot addr-dot-dropoff"></span> Delivery address
         </label>
         <input
           type="text"
@@ -62,11 +49,16 @@
         <input type="hidden" id="dropoff-lng" name="dropoff_lng" value="{{ job.dropoff.lng if job and job.dropoff else '' }}" />
         <div id="dropoff-suggestions" class="suggestions-dropdown"></div>
       </div>
+
+      <!-- Live mini map -->
+      <div id="miniMapWrap" class="mini-map-wrap">
+        <div id="miniMap" class="mini-map"></div>
+      </div>
     </div>
 
     <!-- Step 2: Collection Property Type -->
     <div class="group">
-      <div style="font-weight:700; margin-bottom:12px;">📦 Collecting from</div>
+      <div style="font-weight:700; margin-bottom:12px;">Collecting from</div>
       <div class="property-grid">
         <label class="property-card">
           <input type="radio" name="property_type" value="studio_flat" required {% if job and job.property_type == 'studio_flat' %}checked{% endif %} />
@@ -143,7 +135,7 @@
 
     <!-- Step 2b: Delivery Property Type -->
     <div class="group">
-      <div style="font-weight:700; margin-bottom:12px;">🏠 Delivering to</div>
+      <div style="font-weight:700; margin-bottom:12px;">Delivering to</div>
       <div class="property-grid">
         <label class="property-card">
           <input type="radio" name="dropoff_property_type" value="house" required {% if job and job.dropoff_property_type == 'house' %}checked{% endif %} />
@@ -198,11 +190,117 @@
     </div>
   </form>
 
+  <link href="https://api.mapbox.com/mapbox-gl-js/v3.17.0/mapbox-gl.css" rel="stylesheet" />
+  <script src="https://api.mapbox.com/mapbox-gl-js/v3.17.0/mapbox-gl.js"></script>
+
   <script>
-    // Mapbox address autocomplete
+    // Mapbox address autocomplete + live map
     const MAPBOX_TOKEN = "{{ mapbox_token }}";
 
-    function setupAddressAutocomplete(inputId, suggestionsId, latFieldId, lngFieldId) {
+    // ---- Live mini map ----
+    let miniMap = null;
+    let pickupMarker = null;
+    let dropoffMarker = null;
+    let routeLine = null;
+
+    function initMiniMap() {
+      if (!MAPBOX_TOKEN || miniMap) return;
+
+      mapboxgl.accessToken = MAPBOX_TOKEN;
+      miniMap = new mapboxgl.Map({
+        container: 'miniMap',
+        style: 'mapbox://styles/mapbox/dark-v11',
+        center: [-1.5, 53.0],
+        zoom: 5.2,
+        interactive: false,
+        attributionControl: false
+      });
+
+      miniMap.on('load', function() {
+        // Add route line source (empty initially)
+        miniMap.addSource('route', {
+          type: 'geojson',
+          data: { type: 'Feature', geometry: { type: 'LineString', coordinates: [] } }
+        });
+        miniMap.addLayer({
+          id: 'route-line',
+          type: 'line',
+          source: 'route',
+          paint: {
+            'line-color': '#2ee59d',
+            'line-width': 2.5,
+            'line-dasharray': [3, 2],
+            'line-opacity': 0.7
+          }
+        });
+
+        // If addresses already filled (coming back to page)
+        tryPreloadMarkers();
+      });
+    }
+
+    function tryPreloadMarkers() {
+      var pLat = document.getElementById('pickup-lat').value;
+      var pLng = document.getElementById('pickup-lng').value;
+      var dLat = document.getElementById('dropoff-lat').value;
+      var dLng = document.getElementById('dropoff-lng').value;
+
+      if (pLat && pLng) updateMapMarker('pickup', parseFloat(pLng), parseFloat(pLat));
+      if (dLat && dLng) updateMapMarker('dropoff', parseFloat(dLng), parseFloat(dLat));
+    }
+
+    function createMarkerEl(type) {
+      var el = document.createElement('div');
+      el.className = 'map-pin map-pin-' + type;
+      el.innerHTML = type === 'pickup' ? 'A' : 'B';
+      return el;
+    }
+
+    function updateMapMarker(type, lng, lat) {
+      if (!miniMap) return;
+
+      var mapWrap = document.getElementById('miniMapWrap');
+      if (mapWrap) mapWrap.classList.add('map-visible');
+
+      if (type === 'pickup') {
+        if (pickupMarker) pickupMarker.remove();
+        pickupMarker = new mapboxgl.Marker({ element: createMarkerEl('pickup') })
+          .setLngLat([lng, lat])
+          .addTo(miniMap);
+      } else {
+        if (dropoffMarker) dropoffMarker.remove();
+        dropoffMarker = new mapboxgl.Marker({ element: createMarkerEl('dropoff') })
+          .setLngLat([lng, lat])
+          .addTo(miniMap);
+      }
+
+      // Update route line and fit bounds if both markers exist
+      if (pickupMarker && dropoffMarker) {
+        var pCoords = pickupMarker.getLngLat();
+        var dCoords = dropoffMarker.getLngLat();
+
+        miniMap.getSource('route')?.setData({
+          type: 'Feature',
+          geometry: {
+            type: 'LineString',
+            coordinates: [[pCoords.lng, pCoords.lat], [dCoords.lng, dCoords.lat]]
+          }
+        });
+
+        miniMap.fitBounds(
+          [[pCoords.lng, pCoords.lat], [dCoords.lng, dCoords.lat]],
+          { padding: 50, duration: 800, maxZoom: 12 }
+        );
+      } else {
+        miniMap.flyTo({ center: [lng, lat], zoom: 11, duration: 600 });
+      }
+    }
+
+    // Initialize map
+    if (MAPBOX_TOKEN) initMiniMap();
+
+    // ---- Address autocomplete ----
+    function setupAddressAutocomplete(inputId, suggestionsId, latFieldId, lngFieldId, markerType) {
       const input = document.getElementById(inputId);
       const suggestionsDiv = document.getElementById(suggestionsId);
       const latField = document.getElementById(latFieldId);
@@ -244,6 +342,9 @@
                   lngField.value = item.dataset.lng;
                   suggestionsDiv.innerHTML = '';
                   suggestionsDiv.style.display = 'none';
+
+                  // Update the map pin
+                  updateMapMarker(markerType, parseFloat(item.dataset.lng), parseFloat(item.dataset.lat));
                 });
               });
             } else {
@@ -264,9 +365,8 @@
       });
     }
 
-    setupAddressAutocomplete('pickup-input', 'pickup-suggestions', 'pickup-lat', 'pickup-lng');
-    setupAddressAutocomplete('dropoff-input', 'dropoff-suggestions', 'dropoff-lat', 'dropoff-lng');
-
+    setupAddressAutocomplete('pickup-input', 'pickup-suggestions', 'pickup-lat', 'pickup-lng', 'pickup');
+    setupAddressAutocomplete('dropoff-input', 'dropoff-suggestions', 'dropoff-lat', 'dropoff-lng', 'dropoff');
   </script>
 
   <style>
@@ -313,6 +413,55 @@
     .suggestion-item:hover {
       background: var(--accent-light);
     }
+
+    /* Address dot indicators */
+    .addr-dot {
+      display: inline-block;
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      margin-right: 4px;
+      vertical-align: middle;
+    }
+    .addr-dot-pickup { background: #2ee59d; }
+    .addr-dot-dropoff { background: #60a5fa; }
+
+    /* Mini map styles */
+    .mini-map-wrap {
+      margin-top: 16px;
+      border-radius: 14px;
+      overflow: hidden;
+      height: 0;
+      opacity: 0;
+      transition: height 0.5s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.4s ease;
+    }
+    .mini-map-wrap.map-visible {
+      height: 200px;
+      opacity: 1;
+    }
+    .mini-map {
+      width: 100%;
+      height: 200px;
+      border-radius: 14px;
+      border: 1px solid var(--hair);
+    }
+
+    /* Map pin markers */
+    .map-pin {
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: 14px;
+      color: #000;
+      box-shadow: 0 2px 8px rgba(0,0,0,.3);
+      border: 2px solid #fff;
+    }
+    .map-pin-pickup { background: #2ee59d; }
+    .map-pin-dropoff { background: #60a5fa; }
 
     .property-grid {
       display: grid;
@@ -368,117 +517,7 @@
         font-size: 12px;
       }
     }
-
-    /* Voice Opt-In Card Styles */
-    .voice-optin-card {
-      background: linear-gradient(135deg, rgba(46,229,157,.12) 0%, rgba(46,229,157,.05) 100%);
-      border: 2px solid rgba(46,229,157,.4);
-      border-radius: 16px;
-      padding: 20px;
-      margin-bottom: 24px;
-      animation: voicePulse 2s ease-in-out infinite;
-    }
-
-    @keyframes voicePulse {
-      0%, 100% { border-color: rgba(46,229,157,.4); }
-      50% { border-color: rgba(46,229,157,.8); }
-    }
-
-    .voice-optin-icon {
-      font-size: 36px;
-      text-align: center;
-      margin-bottom: 12px;
-    }
-
-    .voice-optin-content {
-      text-align: center;
-      margin-bottom: 16px;
-    }
-
-    .voice-optin-title {
-      font-size: 18px;
-      font-weight: 700;
-      margin-bottom: 6px;
-    }
-
-    .voice-optin-desc {
-      font-size: 14px;
-      color: var(--muted);
-      line-height: 1.5;
-    }
-
-    .voice-optin-buttons {
-      display: flex;
-      gap: 10px;
-    }
-
-    .voice-optin-btn {
-      flex: 1;
-      padding: 14px 16px;
-      border-radius: 12px;
-      font-size: 15px;
-      font-weight: 600;
-      border: none;
-      cursor: pointer;
-      transition: all 0.2s;
-    }
-
-    .voice-optin-yes {
-      background: #2ee59d;
-      color: #000;
-    }
-
-    .voice-optin-yes:hover {
-      background: #26c989;
-    }
-
-    .voice-optin-no {
-      background: rgba(255,255,255,.1);
-      color: var(--text);
-      border: 1px solid var(--hair);
-    }
-
-    .voice-optin-no:hover {
-      background: rgba(255,255,255,.15);
-    }
   </style>
-
-  <script>
-    // Voice opt-in logic - only show on first visit
-    (function() {
-      const optIn = document.getElementById('voiceOptIn');
-      const hasDecided = localStorage.getItem('ph-voice-decided');
-      const voiceEnabled = localStorage.getItem('ph-voice-guide') === 'true';
-
-      // Show opt-in card only if user hasn't decided yet
-      if (!hasDecided && !voiceEnabled && optIn) {
-        optIn.classList.remove('hidden');
-      }
-
-      document.getElementById('voiceOptInYes')?.addEventListener('click', function() {
-        localStorage.setItem('ph-voice-decided', 'true');
-        localStorage.setItem('ph-voice-guide', 'true');
-        optIn.style.animation = 'none';
-        optIn.style.transition = 'all 0.3s ease';
-        optIn.style.opacity = '0';
-        optIn.style.transform = 'scale(0.95)';
-        setTimeout(() => {
-          optIn.classList.add('hidden');
-          // Trigger voice welcome
-          if (window.phSpeak) {
-            window.phSpeak("Great! Voice guide is now on. I'll help you through each step. Let's get started with your moving quote. First, enter your current address in the pickup box at the top.");
-          }
-        }, 300);
-      });
-
-      document.getElementById('voiceOptInNo')?.addEventListener('click', function() {
-        localStorage.setItem('ph-voice-decided', 'true');
-        optIn.style.transition = 'all 0.3s ease';
-        optIn.style.opacity = '0';
-        setTimeout(() => optIn.classList.add('hidden'), 300);
-      });
-    })();
-  </script>
 {% endblock %}
 
 {% block footer %}

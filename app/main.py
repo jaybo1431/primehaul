@@ -1333,7 +1333,7 @@ def move_post(
 
 @app.get("/s/{company_slug}/{token}/property", response_class=HTMLResponse)
 def property_get(request: Request, company_slug: str, token: str, db: Session = Depends(get_db)):
-    """Property type selection page"""
+    """Property type selection page (collection + delivery combined)"""
     company = request.state.company
     job = get_or_create_job(company.id, token, db)
 
@@ -1347,6 +1347,7 @@ def property_get(request: Request, company_slug: str, token: str, db: Session = 
         "back_url": f"/s/{company_slug}/{token}/move",
         "progress": 50,
         "property_type": job.property_type,
+        "dropoff_property_type": job.dropoff_property_type,
     })
 
 
@@ -1356,14 +1357,16 @@ def property_post(
     company_slug: str,
     token: str,
     property_type: str = Form(...),
+    dropoff_property_type: str = Form(...),
     db: Session = Depends(get_db)
 ):
-    """Save pickup property type"""
+    """Save both collection and delivery property types"""
     company = request.state.company
     job = get_or_create_job(company.id, token, db)
     job.property_type = property_type
+    job.dropoff_property_type = dropoff_property_type
     db.commit()
-    return RedirectResponse(url=f"/s/{company_slug}/{token}/dropoff-property", status_code=303)
+    return RedirectResponse(url=f"/s/{company_slug}/{token}/access", status_code=303)
 
 
 # ----------------------------
@@ -1372,21 +1375,8 @@ def property_post(
 
 @app.get("/s/{company_slug}/{token}/dropoff-property", response_class=HTMLResponse)
 def dropoff_property_get(request: Request, company_slug: str, token: str, db: Session = Depends(get_db)):
-    """Delivery property type selection page"""
-    company = request.state.company
-    job = get_or_create_job(company.id, token, db)
-
-    return templates.TemplateResponse("dropoff_property_type.html", {
-        "request": request,
-        "token": token,
-        "company_slug": company_slug,
-        "branding": request.state.branding,
-        "title": f"Delivery Property - {company.company_name}",
-        "nav_title": "Delivery",
-        "back_url": f"/s/{company_slug}/{token}/property",
-        "progress": 55,
-        "dropoff_property_type": job.dropoff_property_type,
-    })
+    """Redirect to combined property page"""
+    return RedirectResponse(url=f"/s/{company_slug}/{token}/property", status_code=303)
 
 
 @app.post("/s/{company_slug}/{token}/dropoff-property")
@@ -1397,7 +1387,7 @@ def dropoff_property_post(
     dropoff_property_type: str = Form(...),
     db: Session = Depends(get_db)
 ):
-    """Save delivery property type"""
+    """Legacy: save delivery property type and continue"""
     company = request.state.company
     job = get_or_create_job(company.id, token, db)
     job.dropoff_property_type = dropoff_property_type
