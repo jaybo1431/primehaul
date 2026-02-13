@@ -48,9 +48,9 @@
       </div>
     </div>
 
-    <!-- Step 2: Property Type -->
+    <!-- Step 2: Collection Property Type -->
     <div class="group">
-      <div style="font-weight:700; margin-bottom:12px;">Property type</div>
+      <div style="font-weight:700; margin-bottom:12px;">📦 Collecting from</div>
       <div class="property-grid">
         <label class="property-card">
           <input type="radio" name="property_type" value="studio_flat" required {% if job and job.property_type == 'studio_flat' %}checked{% endif %} />
@@ -108,7 +108,64 @@
             <div class="property-name">5+ Bed House</div>
           </div>
         </label>
+        <label class="property-card">
+          <input type="radio" name="property_type" value="bungalow" {% if job and job.property_type == 'bungalow' %}checked{% endif %} />
+          <div class="property-card-content">
+            <div class="property-icon">🏘️</div>
+            <div class="property-name">Bungalow</div>
+          </div>
+        </label>
+        <label class="property-card">
+          <input type="radio" name="property_type" value="office" {% if job and job.property_type == 'office' %}checked{% endif %} />
+          <div class="property-card-content">
+            <div class="property-icon">💼</div>
+            <div class="property-name">Office</div>
+          </div>
+        </label>
       </div>
+    </div>
+
+    <!-- Step 2b: Delivery Property Type -->
+    <div class="group">
+      <div style="font-weight:700; margin-bottom:12px;">🏠 Delivering to</div>
+      <div class="property-grid">
+        <label class="property-card">
+          <input type="radio" name="dropoff_property_type" value="house" required {% if job and job.dropoff_property_type == 'house' %}checked{% endif %} />
+          <div class="property-card-content">
+            <div class="property-icon">🏠</div>
+            <div class="property-name">House</div>
+          </div>
+        </label>
+        <label class="property-card">
+          <input type="radio" name="dropoff_property_type" value="bungalow" {% if job and job.dropoff_property_type == 'bungalow' %}checked{% endif %} />
+          <div class="property-card-content">
+            <div class="property-icon">🏘️</div>
+            <div class="property-name">Bungalow</div>
+          </div>
+        </label>
+        <label class="property-card">
+          <input type="radio" name="dropoff_property_type" value="flat" {% if job and job.dropoff_property_type == 'flat' %}checked{% endif %} />
+          <div class="property-card-content">
+            <div class="property-icon">🏢</div>
+            <div class="property-name">Flat</div>
+          </div>
+        </label>
+        <label class="property-card">
+          <input type="radio" name="dropoff_property_type" value="office" {% if job and job.dropoff_property_type == 'office' %}checked{% endif %} />
+          <div class="property-card-content">
+            <div class="property-icon">💼</div>
+            <div class="property-name">Office</div>
+          </div>
+        </label>
+        <label class="property-card">
+          <input type="radio" name="dropoff_property_type" value="storage" {% if job and job.dropoff_property_type == 'storage' %}checked{% endif %} />
+          <div class="property-card-content">
+            <div class="property-icon">📦</div>
+            <div class="property-name">Storage</div>
+          </div>
+        </label>
+      </div>
+      <div class="microhint" style="margin-top:8px;">Helps us plan for stairs, lifts and parking</div>
     </div>
 
     <!-- Step 3: Move Date (Optional but helpful) -->

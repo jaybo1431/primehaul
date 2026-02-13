@@ -1,44 +1,44 @@
 {% extends "base.html" %}
 
 {% block content %}
-  <div class="largetitle">📦 Collection Property</div>
-  <p class="subtitle">What type of property are we collecting from?</p>
+  <div class="largetitle">🏠 Delivery Property</div>
+  <p class="subtitle">What type of property are we delivering to?</p>
 
-  <form id="propForm" method="post" action="/s/{{ company_slug }}/{{ token }}/property">
-    <input type="hidden" id="property_type" name="property_type" value="{{ property_type or '' }}"/>
+  <form id="propForm" method="post" action="/s/{{ company_slug }}/{{ token }}/dropoff-property">
+    <input type="hidden" id="dropoff_property_type" name="dropoff_property_type" value="{{ dropoff_property_type or '' }}"/>
 
-    <div class="tilegrid" role="group" aria-label="Property type">
-      <button class="tile {% if property_type == 'House' %}selected{% endif %}" type="button" data-value="House">
+    <div class="tilegrid" role="group" aria-label="Delivery property type">
+      <button class="tile {% if dropoff_property_type == 'House' %}selected{% endif %}" type="button" data-value="House">
         <div style="font-size:32px; margin-bottom:8px;">🏠</div>
         <div class="tile-title">House</div>
       </button>
-      <button class="tile {% if property_type == 'Bungalow' %}selected{% endif %}" type="button" data-value="Bungalow">
+      <button class="tile {% if dropoff_property_type == 'Bungalow' %}selected{% endif %}" type="button" data-value="Bungalow">
         <div style="font-size:32px; margin-bottom:8px;">🏡</div>
         <div class="tile-title">Bungalow</div>
       </button>
-      <button class="tile {% if property_type == 'Flat' %}selected{% endif %}" type="button" data-value="Flat">
+      <button class="tile {% if dropoff_property_type == 'Flat' %}selected{% endif %}" type="button" data-value="Flat">
         <div style="font-size:32px; margin-bottom:8px;">🏢</div>
         <div class="tile-title">Flat/Apartment</div>
       </button>
-      <button class="tile {% if property_type == 'Office' %}selected{% endif %}" type="button" data-value="Office">
+      <button class="tile {% if dropoff_property_type == 'Office' %}selected{% endif %}" type="button" data-value="Office">
         <div style="font-size:32px; margin-bottom:8px;">💼</div>
         <div class="tile-title">Office</div>
       </button>
-      <button class="tile {% if property_type == 'Storage' %}selected{% endif %}" type="button" data-value="Storage">
+      <button class="tile {% if dropoff_property_type == 'Storage' %}selected{% endif %}" type="button" data-value="Storage">
         <div style="font-size:32px; margin-bottom:8px;">📦</div>
         <div class="tile-title">Storage Unit</div>
       </button>
     </div>
 
     <div class="hint" style="margin-top:14px;">
-      💡 This helps us estimate access time and parking
+      💡 This helps us plan for stairs, lifts, and parking at delivery
     </div>
   </form>
 
   <script>
     (function(){
       const form = document.getElementById("propForm");
-      const hidden = document.getElementById("property_type");
+      const hidden = document.getElementById("dropoff_property_type");
       const tiles = document.querySelectorAll(".tile[data-value]");
 
       tiles.forEach(function(t){

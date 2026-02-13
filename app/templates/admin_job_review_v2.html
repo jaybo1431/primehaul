@@ -359,10 +359,19 @@
           </div>
         </div>
 
-        {% if job.property_type %}
+        {% if job.property_type or job.dropoff_property_type %}
         <div style="margin-top:16px; padding-top:16px; border-top:1px solid var(--hair);">
-          <div style="font-weight:700; margin-bottom:8px;">Property Type</div>
-          <div style="font-size:15px;">{{ job.property_type }}</div>
+          <div style="font-weight:700; margin-bottom:12px;">🏠 Property Types</div>
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
+            <div style="padding:12px; border-radius:10px; background:rgba(46,229,157,.08); border:1px solid rgba(46,229,157,.2);">
+              <div style="font-size:11px; color:var(--muted); text-transform:uppercase; letter-spacing:0.5px; margin-bottom:4px;">Collection</div>
+              <div style="font-size:15px; font-weight:600;">{{ job.property_type or 'Not set' }}</div>
+            </div>
+            <div style="padding:12px; border-radius:10px; background:rgba(96,165,250,.08); border:1px solid rgba(96,165,250,.2);">
+              <div style="font-size:11px; color:var(--muted); text-transform:uppercase; letter-spacing:0.5px; margin-bottom:4px;">Delivery</div>
+              <div style="font-size:15px; font-weight:600;">{{ job.dropoff_property_type or 'Not set' }}</div>
+            </div>
+          </div>
         </div>
         {% endif %}
 

@@ -352,7 +352,8 @@ class Job(Base):
     dropoff = Column(JSONB)
 
     # Property Info
-    property_type = Column(String(100))
+    property_type = Column(String(100))  # Pickup/collection property type
+    dropoff_property_type = Column(String(100))  # Delivery property type
     move_date = Column(DateTime(timezone=True))  # Preferred move date
 
     # Access Parameters (JSONB for flexibility)
