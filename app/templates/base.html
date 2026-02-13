@@ -10,7 +10,7 @@
     <meta name="apple-mobile-web-app-title" content="primehaul" />
 
     <title>{{ title or "primehaul" }}</title>
-    <link rel="stylesheet" href="/static/app.css?v=7" />
+    <link rel="stylesheet" href="/static/app.css?v=8" />
     <script>
       // Apply theme immediately to prevent flash
       (function(){
@@ -39,8 +39,9 @@
             {{ nav_title if nav_title else "primehaul" }}
           </div>
 
-          <button class="theme-toggle" id="voiceToggle" aria-label="Toggle voice guide" title="Voice guide">
+          <button class="voice-toggle" id="voiceToggle" aria-label="Toggle voice guide" title="Voice guide">
             <span class="voice-icon">🔇</span>
+            <span class="voice-label">Voice</span>
           </button>
           <button class="theme-toggle" id="themeToggle" aria-label="Toggle light/dark mode" title="Toggle theme">
             <span class="theme-icon">🌙</span>
@@ -144,11 +145,12 @@
         // =============================================
         const voiceToggle = document.getElementById('voiceToggle');
         const voiceIcon = voiceToggle ? voiceToggle.querySelector('.voice-icon') : null;
+        const voiceLabel = voiceToggle ? voiceToggle.querySelector('.voice-label') : null;
         let voiceEnabled = localStorage.getItem('ph-voice-guide') === 'true';
         let currentAudio = null;
         let isSpeaking = false;
 
-        function updateVoiceIcon(loading) {
+        function updateVoiceUI(loading) {
           if (voiceIcon) {
             if (loading) {
               voiceIcon.textContent = '⏳';
@@ -156,8 +158,16 @@
               voiceIcon.textContent = voiceEnabled ? '🔊' : '🔇';
             }
           }
+          if (voiceLabel) {
+            voiceLabel.textContent = voiceEnabled ? 'ON' : 'Voice';
+          }
           if (voiceToggle) {
-            voiceToggle.title = voiceEnabled ? 'Voice guide ON - tap to turn off' : 'Voice guide OFF - tap to turn on';
+            voiceToggle.title = voiceEnabled ? 'Voice guide is ON - tap to turn off' : 'Tap to enable voice guide';
+            if (voiceEnabled) {
+              voiceToggle.classList.add('voice-on');
+            } else {
+              voiceToggle.classList.remove('voice-on');
+            }
           }
         }
 
@@ -172,7 +182,7 @@
 
           try {
             isSpeaking = true;
-            updateVoiceIcon(true); // Show loading
+            updateVoiceUI(true); // Show loading
 
             // Call OpenAI TTS API
             const response = await fetch('/api/speak', {
@@ -192,22 +202,22 @@
 
             currentAudio.onended = function() {
               isSpeaking = false;
-              updateVoiceIcon(false);
+              updateVoiceUI(false);
               URL.revokeObjectURL(audioUrl);
             };
 
             currentAudio.onerror = function() {
               isSpeaking = false;
-              updateVoiceIcon(false);
+              updateVoiceUI(false);
             };
 
-            updateVoiceIcon(false);
+            updateVoiceUI(false);
             await currentAudio.play();
 
           } catch (err) {
             console.error('Voice guide error:', err);
             isSpeaking = false;
-            updateVoiceIcon(false);
+            updateVoiceUI(false);
           }
         }
 
@@ -217,18 +227,18 @@
             currentAudio = null;
           }
           isSpeaking = false;
-          updateVoiceIcon(false);
+          updateVoiceUI(false);
         }
 
         function toggleVoice() {
           voiceEnabled = !voiceEnabled;
           localStorage.setItem('ph-voice-guide', voiceEnabled ? 'true' : 'false');
-          updateVoiceIcon(false);
+          localStorage.setItem('ph-voice-decided', 'true'); // Mark as decided
+          updateVoiceUI(false);
 
           if (voiceEnabled) {
-            speak('Voice guide is now on. I will help you through each step.');
-            // Speak current page guidance after the intro
-            setTimeout(() => speakPageGuidance(), 4000);
+            // Speak page guidance directly - more useful than generic intro
+            speakPageGuidance();
           } else {
             stopSpeaking();
           }
@@ -245,7 +255,7 @@
         }
 
         // Initialize voice
-        updateVoiceIcon(false);
+        updateVoiceUI(false);
 
         if (voiceToggle) {
           voiceToggle.addEventListener('click', toggleVoice);

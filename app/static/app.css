@@ -88,6 +88,43 @@
   transform:scale(0.9);
 }
 
+/* Voice Toggle Button - more prominent than theme toggle */
+.voice-toggle{
+  background:rgba(255,255,255,.08);
+  border:1px solid var(--hair);
+  cursor:pointer;
+  padding:6px 10px;
+  border-radius:20px;
+  color:var(--muted);
+  font-size:14px;
+  transition:all var(--timing-fast) var(--ease-smooth);
+  display:flex;
+  align-items:center;
+  gap:5px;
+}
+.voice-toggle .voice-icon{
+  font-size:16px;
+}
+.voice-toggle .voice-label{
+  font-size:12px;
+  font-weight:600;
+}
+.voice-toggle:hover{
+  background:var(--accent-light);
+  border-color:var(--accent);
+}
+.voice-toggle:active{
+  transform:scale(0.95);
+}
+.voice-toggle.voice-on{
+  background:rgba(46,229,157,.15);
+  border-color:rgba(46,229,157,.4);
+  color:#2ee59d;
+}
+.voice-toggle.voice-on .voice-label{
+  color:#2ee59d;
+}
+
 /* ============================================
    GLOBAL RESET + BASE
 ============================================ */

@@ -4,6 +4,19 @@
   <!-- Voice guidance for this page -->
   <div id="voiceGuidance" data-message="Welcome! Let's get you a quick quote. First, enter your current address in the pickup box, then enter where you're moving to. Choose what type of property you're moving from and to. Then tap Continue at the bottom." hidden></div>
 
+  <!-- Voice Guide Opt-In (shows only on first visit when voice not yet enabled) -->
+  <div id="voiceOptIn" class="voice-optin-card hidden">
+    <div class="voice-optin-icon">🎧</div>
+    <div class="voice-optin-content">
+      <div class="voice-optin-title">Need a helping hand?</div>
+      <div class="voice-optin-desc">Turn on voice guide and I'll talk you through each step. Perfect if you'd prefer audio instructions.</div>
+    </div>
+    <div class="voice-optin-buttons">
+      <button type="button" id="voiceOptInYes" class="voice-optin-btn voice-optin-yes">Yes, guide me</button>
+      <button type="button" id="voiceOptInNo" class="voice-optin-btn voice-optin-no">No thanks</button>
+    </div>
+  </div>
+
   <div class="largetitle">Get an instant quote</div>
   <p class="subtitle">3 minutes. No signup required.</p>
 
@@ -355,7 +368,117 @@
         font-size: 12px;
       }
     }
+
+    /* Voice Opt-In Card Styles */
+    .voice-optin-card {
+      background: linear-gradient(135deg, rgba(46,229,157,.12) 0%, rgba(46,229,157,.05) 100%);
+      border: 2px solid rgba(46,229,157,.4);
+      border-radius: 16px;
+      padding: 20px;
+      margin-bottom: 24px;
+      animation: voicePulse 2s ease-in-out infinite;
+    }
+
+    @keyframes voicePulse {
+      0%, 100% { border-color: rgba(46,229,157,.4); }
+      50% { border-color: rgba(46,229,157,.8); }
+    }
+
+    .voice-optin-icon {
+      font-size: 36px;
+      text-align: center;
+      margin-bottom: 12px;
+    }
+
+    .voice-optin-content {
+      text-align: center;
+      margin-bottom: 16px;
+    }
+
+    .voice-optin-title {
+      font-size: 18px;
+      font-weight: 700;
+      margin-bottom: 6px;
+    }
+
+    .voice-optin-desc {
+      font-size: 14px;
+      color: var(--muted);
+      line-height: 1.5;
+    }
+
+    .voice-optin-buttons {
+      display: flex;
+      gap: 10px;
+    }
+
+    .voice-optin-btn {
+      flex: 1;
+      padding: 14px 16px;
+      border-radius: 12px;
+      font-size: 15px;
+      font-weight: 600;
+      border: none;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .voice-optin-yes {
+      background: #2ee59d;
+      color: #000;
+    }
+
+    .voice-optin-yes:hover {
+      background: #26c989;
+    }
+
+    .voice-optin-no {
+      background: rgba(255,255,255,.1);
+      color: var(--text);
+      border: 1px solid var(--hair);
+    }
+
+    .voice-optin-no:hover {
+      background: rgba(255,255,255,.15);
+    }
   </style>
+
+  <script>
+    // Voice opt-in logic - only show on first visit
+    (function() {
+      const optIn = document.getElementById('voiceOptIn');
+      const hasDecided = localStorage.getItem('ph-voice-decided');
+      const voiceEnabled = localStorage.getItem('ph-voice-guide') === 'true';
+
+      // Show opt-in card only if user hasn't decided yet
+      if (!hasDecided && !voiceEnabled && optIn) {
+        optIn.classList.remove('hidden');
+      }
+
+      document.getElementById('voiceOptInYes')?.addEventListener('click', function() {
+        localStorage.setItem('ph-voice-decided', 'true');
+        localStorage.setItem('ph-voice-guide', 'true');
+        optIn.style.animation = 'none';
+        optIn.style.transition = 'all 0.3s ease';
+        optIn.style.opacity = '0';
+        optIn.style.transform = 'scale(0.95)';
+        setTimeout(() => {
+          optIn.classList.add('hidden');
+          // Trigger voice welcome
+          if (window.phSpeak) {
+            window.phSpeak("Great! Voice guide is now on. I'll help you through each step. Let's get started with your moving quote. First, enter your current address in the pickup box at the top.");
+          }
+        }, 300);
+      });
+
+      document.getElementById('voiceOptInNo')?.addEventListener('click', function() {
+        localStorage.setItem('ph-voice-decided', 'true');
+        optIn.style.transition = 'all 0.3s ease';
+        optIn.style.opacity = '0';
+        setTimeout(() => optIn.classList.add('hidden'), 300);
+      });
+    })();
+  </script>
 {% endblock %}
 
 {% block footer %}
