@@ -1,6 +1,6 @@
 # PrimeHaul OS - Progress Log
 
-**Last Updated:** 13 February 2026
+**Last Updated:** 13 February 2026 (Evening)
 **Repository:** github.com/jaybo1431/primehaul
 **Branch:** main
 **Slogan:** *An intelligent move.*
@@ -162,22 +162,26 @@ Updated to reflect credit-based pricing model:
 **Feature:** Optional voice guide that reads instructions aloud on each survey page - "granny proof" for less tech-savvy users.
 
 **Implementation:**
-- 🔇/🔊 toggle button in nav (next to theme toggle)
-- Uses browser's built-in Text-to-Speech (free, works offline)
-- Prefers British English voice when available
-- Slower speech rate (0.9x) for clarity
+- Friendly opt-in card on first visit: "Need a helping hand?"
+- "Voice ON" green pill toggle in header (easy to spot and control)
+- Uses **OpenAI TTS** with "nova" voice (natural, human-like)
+- Server-side caching (`tts_cache/`) for fast repeat plays
 - Remembers preference in localStorage
-- Each page has custom voice prompt
+- Every survey page has custom voice prompt
 
-**Pages with Voice Guidance:**
+**ALL Survey Pages with Voice Guidance:**
 | Page | Message Summary |
 |------|-----------------|
 | Start | "Welcome! Enter your addresses and choose property types..." |
-| Property Type | "What type of property are we collecting from? Tap the matching box..." |
+| Property Type | "What type of property are we collecting from?..." |
 | Dropoff Property | "What type of property are we delivering to?..." |
-| Access Details | "Tell us about floors, lifts, and parking for both locations..." |
-| Room Selection | "Tap on each room that has items you're moving..." |
-| Room Scan | "Tap Take Photos and point your camera at your furniture..." |
+| Access Details | "Tell us about floors, lifts, and parking..." |
+| Move Date | "When would you like to move?..." |
+| Move Map | "Let's set your moving locations..." |
+| Room Selection | "Tap on each room that has items..." |
+| Room Scan | "Tap Take Photos and point your camera..." |
+| Photos Bulk | "Time to photograph your home..." |
+| Review Inventory | "Quick check before your quote..." |
 | Quote Preview | Different messages for pending/awaiting/approved status |
 | Quote Acceptance | "Tick the checkbox and tap Accept Quote..." |
 
@@ -231,9 +235,52 @@ Created comprehensive email templates and outreach documentation for Rick:
 - `app/templates/quote_acceptance.html` — Final price display, voice guidance
 - `app/templates/landing_primehaul_uk.html` — Mobile header fix, copy updates, ICO
 
+### Voice Guide Overhaul
+
+**Problem:** Voice guidance existed but wasn't being triggered, and the small speaker icon in the header was too subtle for users to notice. Users wanted something "super intuitive" for less tech-savvy customers.
+
+**Solution:**
+
+1. **Friendly Opt-In Card at Start**
+   - New pulsing green card appears on first visit: "Need a helping hand?"
+   - Two clear buttons: "Yes, guide me" / "No thanks"
+   - Only shows once (remembered via localStorage)
+   - When enabled, speaks a welcoming intro and starts guiding
+
+2. **Improved Header Toggle**
+   - Redesigned from small icon to visible pill button
+   - Shows "Voice" when off, "ON" (green) when active
+   - Green border/background when voice is enabled
+   - Tapping immediately speaks current page guidance
+
+3. **All Survey Pages Now Have Guidance**
+   - Added voice to 4 missing templates:
+     - `move_date.html`: "When would you like to move?..."
+     - `move_map.html`: "Let's set your moving locations..."
+     - `photos_bulk.html`: "Time to photograph your home..."
+     - `review_inventory.html`: "Quick check before your quote..."
+
+4. **Voice Quality Upgrade (OpenAI TTS)**
+   - Changed from robotic browser TTS to OpenAI's "nova" voice
+   - Natural, friendly, human-like speech
+   - Server-side caching (`tts_cache/`) for performance
+   - Works via `/api/speak` POST endpoint
+
+**Files Modified:**
+- `app/templates/start_v2.html` — Voice opt-in card + CSS
+- `app/templates/base.html` — New voice toggle UI + JS
+- `app/static/app.css` — Voice toggle pill styles
+- `app/templates/move_date.html` — Added voice guidance
+- `app/templates/move_map.html` — Added voice guidance
+- `app/templates/photos_bulk.html` — Added voice guidance
+- `app/templates/review_inventory.html` — Added voice guidance
+
 ### Commits
 
 ```
+6a76171 Improve voice guide: add friendly opt-in card and complete all survey pages
+d71019a Upgrade voice guide to OpenAI TTS for natural human-like voice
+3e651e0 Update PROGRESS.md with 13 Feb session - go-live prep with Rick
 235d6a4 Fix: Correct fix010_outreach down_revision
 0fa717e Fix: Alembic migration chain - rename fix010 to fix011
 12424d2 Fix: Photo display bug and enhance room scan UX
