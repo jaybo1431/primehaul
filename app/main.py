@@ -159,7 +159,7 @@ UPLOAD_DIR = Path("uploads")  # Not in app/static - not publicly accessible
 UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
 
 
-def get_or_create_job(company_id: uuid.UUID, token: str, db: Session) -> Job:
+def get_or_create_job(company_id: uuid.UUID, token: str, db: Session, survey_mode: str = None) -> Job:
     """
     Get existing job or create new one
 
@@ -167,6 +167,7 @@ def get_or_create_job(company_id: uuid.UUID, token: str, db: Session) -> Job:
         company_id: Company UUID
         token: Job token
         db: Database session
+        survey_mode: 'quote' (default) or 'survey_only'
 
     Returns:
         Job object
@@ -180,7 +181,8 @@ def get_or_create_job(company_id: uuid.UUID, token: str, db: Session) -> Job:
         job = Job(
             company_id=company_id,
             token=token,
-            status='in_progress'
+            status='in_progress',
+            survey_mode=survey_mode or 'quote'
         )
         db.add(job)
         db.commit()
@@ -1210,20 +1212,29 @@ def start_v2_get(request: Request, company_slug: str, token: str, db: Session = 
     """New streamlined start page - combines addresses + property type"""
     from datetime import date
     company = request.state.company
-    job = get_or_create_job(company.id, token, db)
+
+    # Read survey mode from query param (only applied on first access / job creation)
+    mode_param = request.query_params.get("mode", "quote")
+    if mode_param not in ("quote", "survey_only"):
+        mode_param = "quote"
+
+    job = get_or_create_job(company.id, token, db, survey_mode=mode_param)
+
+    is_survey = job.survey_mode == "survey_only"
 
     return templates.TemplateResponse("start_v2.html", {
         "request": request,
         "token": token,
         "company_slug": company_slug,
         "branding": request.state.branding,
-        "title": f"Get Quote - {company.company_name}",
-        "nav_title": "Get Quote",
+        "title": f"{'Moving Survey' if is_survey else 'Get Quote'} - {company.company_name}",
+        "nav_title": "Moving Survey" if is_survey else "Get Quote",
         "back_url": None,
         "progress": 10,
         "mapbox_token": os.getenv("MAPBOX_ACCESS_TOKEN", ""),
         "job": job,
-        "today": date.today().isoformat()
+        "today": date.today().isoformat(),
+        "is_survey": is_survey,
     })
 
 
@@ -2331,6 +2342,8 @@ def review_get(request: Request, company_slug: str, token: str, db: Session = De
     job = get_or_create_job(company.id, token, db)
     rooms = db.query(Room).filter(Room.job_id == job.id).all()
 
+    is_survey = job.survey_mode == "survey_only"
+
     return templates.TemplateResponse("review_inventory.html", {
         "request": request,
         "token": token,
@@ -2341,13 +2354,78 @@ def review_get(request: Request, company_slug: str, token: str, db: Session = De
         "back_url": f"/s/{company_slug}/{token}/rooms",
         "progress": 90,
         "rooms": rooms,
+        "is_survey": is_survey,
     })
 
 
 @app.post("/s/{company_slug}/{token}/review/finish")
-def review_finish(company_slug: str, token: str):
-    """Proceed to packing services"""
+def review_finish(request: Request, company_slug: str, token: str, db: Session = Depends(get_db)):
+    """Proceed to packing services or survey complete"""
+    company = request.state.company
+    job = get_or_create_job(company.id, token, db)
+
+    if job.survey_mode == "survey_only":
+        return RedirectResponse(url=f"/s/{company_slug}/{token}/survey-complete", status_code=303)
+
     return RedirectResponse(url=f"/s/{company_slug}/{token}/packing-services", status_code=303)
+
+
+@app.get("/s/{company_slug}/{token}/survey-complete", response_class=HTMLResponse)
+def survey_complete_get(request: Request, company_slug: str, token: str, db: Session = Depends(get_db)):
+    """Survey-only completion page — inventory summary, no pricing"""
+    company = request.state.company
+    job = get_or_create_job(company.id, token, db)
+
+    rooms = db.query(Room).filter(Room.job_id == job.id).all()
+
+    total_items = 0
+    total_cbm = 0.0
+    total_weight = 0.0
+    bulky_count = 0
+    fragile_count = 0
+    room_stats = []
+
+    for room in rooms:
+        items = db.query(Item).filter(Item.room_id == room.id).all()
+        room_item_count = sum(i.qty for i in items)
+        total_items += room_item_count
+        for item in items:
+            qty = item.qty
+            if item.cbm:
+                total_cbm += float(item.cbm) * qty
+            if item.weight_kg:
+                total_weight += float(item.weight_kg) * qty
+            if item.bulky:
+                bulky_count += qty
+            if item.fragile:
+                fragile_count += qty
+        room_stats.append({"name": room.name, "item_count": room_item_count})
+
+    total_cbm = round(total_cbm, 2)
+    total_weight = round(total_weight, 0)
+
+    # Persist totals
+    job.total_cbm = total_cbm
+    job.total_weight_kg = total_weight
+    db.commit()
+
+    return templates.TemplateResponse("survey_complete.html", {
+        "request": request,
+        "token": token,
+        "company_slug": company_slug,
+        "branding": request.state.branding,
+        "title": f"Survey Complete - {company.company_name}",
+        "nav_title": "Survey Complete",
+        "back_url": f"/s/{company_slug}/{token}/review",
+        "progress": 100,
+        "job": job,
+        "total_items": total_items,
+        "total_cbm": total_cbm,
+        "total_weight": total_weight,
+        "bulky_count": bulky_count,
+        "fragile_count": fragile_count,
+        "room_stats": room_stats,
+    })
 
 
 @app.get("/s/{company_slug}/{token}/packing-services", response_class=HTMLResponse)

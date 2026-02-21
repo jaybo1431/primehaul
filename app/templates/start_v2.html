@@ -4,8 +4,13 @@
   <!-- Voice guidance - speaks immediately on first load -->
   <div id="voiceGuidance" data-message="Hey there! Let's get you a quick moving quote. Pop in the address you're moving from, and where you're heading to. You'll see them appear on the map. Then pick what type of property you're collecting from, and what you're delivering to. If you know your moving date, add that too. Then hit Continue at the bottom!" hidden></div>
 
+  {% if is_survey %}
+  <div class="largetitle">Moving survey</div>
+  <p class="subtitle">Help us catalog your items.</p>
+  {% else %}
   <div class="largetitle">Get an instant quote</div>
   <p class="subtitle">3 minutes. No signup required.</p>
+  {% endif %}
 
   <form id="startForm" method="post" action="/s/{{ company_slug }}/{{ token }}/start-v2">
     <!-- Addresses with live map -->

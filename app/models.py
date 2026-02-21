@@ -371,6 +371,7 @@ class Job(Base):
 
     # Status & Timestamps
     status = Column(String(50), nullable=False, default='in_progress', index=True)  # in_progress, awaiting_approval, approved, rejected
+    survey_mode = Column(String(20), nullable=False, default='quote', server_default='quote')  # 'quote' or 'survey_only'
     submitted_at = Column(DateTime(timezone=True), index=True)
     approved_at = Column(DateTime(timezone=True))
     rejected_at = Column(DateTime(timezone=True))

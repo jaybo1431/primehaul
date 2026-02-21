@@ -81,6 +81,14 @@
       border-radius:6px;
       background:rgba(255,255,255,.05);
     }
+    .mode-pill{
+      background:transparent;
+    }
+    .mode-pill-active{
+      background:rgba(46,229,157,.2) !important;
+      color:#2ee59d;
+      opacity:1 !important;
+    }
   </style>
 </head>
 <body>
@@ -161,10 +169,26 @@
       <!-- Create Survey Link -->
       <div class="group" style="background:rgba(46,229,157,.1); border:1px solid rgba(46,229,157,.3);">
         <div style="display:flex; align-items:center; justify-content:space-between; gap:12px;">
-          <div style="font-weight:700;">New Customer Quote</div>
+          <div style="font-weight:700;">New Customer Link</div>
           <button onclick="generateSurveyLink()" class="quick-approve-btn" style="padding:12px 20px;">
             + Create Link
           </button>
+        </div>
+
+        <!-- Mode toggle -->
+        <div id="modeToggle" style="display:flex; gap:0; margin-top:12px; border-radius:8px; overflow:hidden; border:1px solid var(--hair);">
+          <label style="flex:1; cursor:pointer;">
+            <input type="radio" name="link_mode" value="quote" checked style="display:none;" />
+            <div class="mode-pill mode-pill-active" data-mode="quote" style="padding:10px; text-align:center; font-size:13px; font-weight:700; transition:all 150ms;">
+              Quote
+            </div>
+          </label>
+          <label style="flex:1; cursor:pointer;">
+            <input type="radio" name="link_mode" value="survey_only" style="display:none;" />
+            <div class="mode-pill" data-mode="survey_only" style="padding:10px; text-align:center; font-size:13px; font-weight:700; transition:all 150ms; opacity:.5;">
+              Survey Only
+            </div>
+          </label>
         </div>
 
         <div id="generatedLinkSection" style="display:none; margin-top:14px; padding-top:14px; border-top:1px solid rgba(46,229,157,.2);">
@@ -440,6 +464,21 @@
     // Update stats on load
     updateStats();
 
+    // ========== MODE TOGGLE ==========
+    document.querySelectorAll('input[name="link_mode"]').forEach(radio => {
+      radio.addEventListener('change', function() {
+        document.querySelectorAll('.mode-pill').forEach(pill => {
+          pill.classList.remove('mode-pill-active');
+          pill.style.opacity = '.5';
+        });
+        const activePill = document.querySelector(`.mode-pill[data-mode="${this.value}"]`);
+        if (activePill) {
+          activePill.classList.add('mode-pill-active');
+          activePill.style.opacity = '1';
+        }
+      });
+    });
+
     // ========== SURVEY LINK GENERATOR ==========
     function generateSurveyLink() {
       // Generate a random 8-character token
@@ -449,19 +488,25 @@
         token += chars.charAt(Math.floor(Math.random() * chars.length));
       }
 
+      // Read selected mode
+      const mode = document.querySelector('input[name="link_mode"]:checked')?.value || 'quote';
+      const isSurvey = mode === 'survey_only';
+
       // Build the full URL
       const baseUrl = window.location.origin;
-      const surveyUrl = `${baseUrl}/s/{{ company_slug }}/${token}/start-v2`;
+      let surveyUrl = `${baseUrl}/s/{{ company_slug }}/${token}/start-v2`;
+      if (isSurvey) surveyUrl += '?mode=survey_only';
 
       // Show the link section
       document.getElementById('generatedLinkSection').style.display = 'block';
       document.getElementById('surveyLinkInput').value = surveyUrl;
 
       // Update share links
-      const message = encodeURIComponent(`Hi! Please fill out this quick survey for your removal quote: ${surveyUrl}`);
+      const desc = isSurvey ? 'item survey' : 'removal quote';
+      const message = encodeURIComponent(`Hi! Please fill out this quick survey for your ${desc}: ${surveyUrl}`);
       document.getElementById('whatsappShare').href = `https://wa.me/?text=${message}`;
       document.getElementById('smsShare').href = `sms:?body=${message}`;
-      document.getElementById('emailShare').href = `mailto:?subject=Your Removal Quote Survey&body=${message}`;
+      document.getElementById('emailShare').href = `mailto:?subject=Your ${isSurvey ? 'Moving Survey' : 'Removal Quote Survey'}&body=${message}`;
 
       // Scroll to show the link
       document.getElementById('generatedLinkSection').scrollIntoView({ behavior: 'smooth', block: 'center' });

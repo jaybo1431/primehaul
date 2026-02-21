@@ -2,10 +2,10 @@
 
 {% block content %}
   <!-- Voice guidance for this page -->
-  <div id="voiceGuidance" data-message="Here's everything we've spotted so far. Have a quick look through to make sure it all looks right. You can tap any room to add more photos or make changes. Happy with it? Tap Get Quote at the bottom and we'll crunch the numbers for you!" hidden></div>
+  <div id="voiceGuidance" data-message="{% if is_survey %}Here's everything we've spotted so far. Have a quick look through to make sure it all looks right. You can tap any room to add more photos or make changes. Happy with it? Tap Finish Survey at the bottom!{% else %}Here's everything we've spotted so far. Have a quick look through to make sure it all looks right. You can tap any room to add more photos or make changes. Happy with it? Tap Get Quote at the bottom and we'll crunch the numbers for you!{% endif %}" hidden></div>
 
   <div class="largetitle">Review inventory</div>
-  <p class="subtitle">Quick check before we prepare your quote.</p>
+  <p class="subtitle">{% if is_survey %}Quick check before finishing.{% else %}Quick check before we prepare your quote.{% endif %}</p>
 
   {% if rooms and rooms|length > 0 %}
     <div class="group">
@@ -42,7 +42,7 @@
     <div class="footer-inner">
       <form id="finishForm" method="post" action="/s/{{ company_slug }}/{{ token }}/review/finish"></form>
       <button class="btn" type="submit" form="finishForm" {% if not rooms or rooms|length==0 %}disabled{% endif %}>
-        Get quote
+        {% if is_survey %}Finish survey{% else %}Get quote{% endif %}
       </button>
       {% if not rooms or rooms|length==0 %}
         <div class="microhint" style="text-align:center; margin-top:8px;">Add at least one room to continue.</div>
