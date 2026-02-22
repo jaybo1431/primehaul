@@ -11,7 +11,7 @@ import stripe
 from dotenv import load_dotenv
 from sqlalchemy.orm import Session
 
-from app.models import Company, StripeEvent
+from app.models import Company, Job, StripeEvent
 
 load_dotenv()
 
@@ -624,15 +624,44 @@ def handle_invoice_payment_failed(event_data: dict, db: Session):
 
 def handle_checkout_completed(event_data: dict, db: Session):
     """
-    Handle checkout.session.completed event - for credit purchases
+    Handle checkout.session.completed event - for credit purchases and deposit payments
     """
     session = event_data["object"]
     metadata = session.get("metadata", {})
+    checkout_type = metadata.get("type")
 
-    # Only process credit purchases
-    if metadata.get("type") != "credit_purchase":
+    if checkout_type == "deposit":
+        _handle_deposit_checkout(session, metadata, db)
+    elif checkout_type == "credit_purchase":
+        _handle_credit_purchase_checkout(metadata, db)
+
+
+def _handle_deposit_checkout(session: dict, metadata: dict, db: Session):
+    """Mark job as deposit_paid when Stripe checkout completes"""
+    job_token = metadata.get("job_token")
+    if not job_token:
+        logger.error(f"Deposit checkout missing job_token: {metadata}")
         return
 
+    job = db.query(Job).filter(Job.token == job_token).first()
+    if not job:
+        logger.error(f"Job not found for deposit checkout: {job_token}")
+        return
+
+    if job.status == "deposit_paid":
+        logger.info(f"Job {job_token} already marked deposit_paid, skipping")
+        return
+
+    job.status = "deposit_paid"
+    job.deposit_paid_at = datetime.utcnow()
+    db.commit()
+
+    amount = session.get("amount_total", 0) / 100
+    logger.info(f"Deposit paid for job {job_token}: £{amount:.2f}")
+
+
+def _handle_credit_purchase_checkout(metadata: dict, db: Session):
+    """Process credit purchase from checkout"""
     company_id = metadata.get("company_id")
     credits_to_add = int(metadata.get("credits", 0))
     pack_id = metadata.get("pack_id")

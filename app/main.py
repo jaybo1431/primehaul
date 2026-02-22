@@ -3456,6 +3456,14 @@ def booking_confirmed_page(
     company = request.state.company
     job = get_or_create_job(company.id, token, db)
 
+    # Safety net: if customer lands here after Stripe payment but webhook hasn't fired yet,
+    # update job status to deposit_paid
+    if job.status in ("approved", "booked_pending_payment"):
+        job.status = "deposit_paid"
+        job.deposit_paid_at = datetime.utcnow()
+        db.commit()
+        logger.info(f"Job {token} marked deposit_paid via confirmation page (safety net)")
+
     return templates.TemplateResponse("booking_confirmed.html", {
         "request": request,
         "company_slug": company_slug,
@@ -3514,6 +3522,11 @@ def admin_dashboard(
         Job.status == 'rejected'
     ).order_by(Job.rejected_at.desc()).limit(10).all()
 
+    deposit_jobs = db.query(Job).filter(
+        Job.company_id == company.id,
+        Job.status == 'deposit_paid'
+    ).order_by(Job.deposit_paid_at.desc()).limit(10).all()
+
     # Welcome message for new signups
     welcome = request.query_params.get("welcome") == "true"
 
@@ -3541,6 +3554,7 @@ def admin_dashboard(
         "awaiting_jobs": awaiting_jobs,
         "approved_jobs": approved_jobs,
         "rejected_jobs": rejected_jobs,
+        "deposit_jobs": deposit_jobs,
         "welcome": welcome,
         "show_onboarding": show_onboarding,
         "credits": credit_info["credits"],

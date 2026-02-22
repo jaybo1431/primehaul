@@ -376,6 +376,7 @@ class Job(Base):
     approved_at = Column(DateTime(timezone=True))
     rejected_at = Column(DateTime(timezone=True))
     rejection_reason = Column(Text)
+    deposit_paid_at = Column(DateTime(timezone=True))
 
     # Calculations
     total_cbm = Column(DECIMAL(10, 2), default=0)

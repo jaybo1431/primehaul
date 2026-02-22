@@ -340,6 +340,45 @@
         </div>
       {% endif %}
 
+      <!-- Deposits Received -->
+      {% if deposit_jobs|length > 0 %}
+        <div class="group">
+          <div class="rowhead">
+            <div class="rowtitle">💰 Deposits Received</div>
+            <div class="rowsub">{{ deposit_jobs|length }}</div>
+          </div>
+
+          <div class="invlist">
+            {% for job in deposit_jobs %}
+              <a class="invlink" href="/{{ company_slug }}/admin/job/{{ job.token }}" style="border-color:rgba(245,185,50,.3); background:rgba(245,185,50,.06);">
+                <div class="invtop">
+                  <div style="flex:1;">
+                    <div class="invroom">
+                      💰 <strong>{{ job.customer_name or ('Job #' + job.token[:8]) }}</strong>
+                    </div>
+                    <div class="customer-info">
+                      {% if job.customer_email %}✉️ {{ job.customer_email }}{% endif %}
+                      {% if job.customer_phone %} • 📱 {{ job.customer_phone }}{% endif %}
+                    </div>
+                  </div>
+                  <div class="invmeta" style="color:#f5b932; font-weight:700;">Deposit Paid</div>
+                </div>
+                <div class="invitems">
+                  <strong>£{{ "%.0f"|format((job.final_quote_price or job.custom_price_low or ((job.total_cbm or 0) * 35 + 250))) }}</strong>
+                  (deposit: £{{ "%.0f"|format((job.final_quote_price or job.custom_price_low or ((job.total_cbm or 0) * 35 + 250)) * 0.2) }})
+                  {% if job.move_date %}• 📅 {{ job.move_date.strftime('%d %b %Y') }}{% endif %}
+                </div>
+                <div class="invitems" style="font-size:12px; color:#888; margin-top:2px;">
+                  {% if job.pickup and job.pickup.label %}📍 {{ job.pickup.label[:40] }}{% endif %}
+                  {% if job.dropoff and job.dropoff.label %} → {{ job.dropoff.label[:40] }}{% endif %}
+                  {% if job.deposit_paid_at %} • Paid {{ job.deposit_paid_at.strftime('%d %b %H:%M') }}{% endif %}
+                </div>
+              </a>
+            {% endfor %}
+          </div>
+        </div>
+      {% endif %}
+
     </div>
 
   </div>
