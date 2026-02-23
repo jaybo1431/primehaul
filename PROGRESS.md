@@ -1,6 +1,6 @@
 # PrimeHaul OS - Progress Log
 
-**Last Updated:** 22 February 2026
+**Last Updated:** 23 February 2026
 **Repository:** github.com/jaybo1431/primehaul
 **Branch:** main
 **Slogan:** *An intelligent move.*
@@ -75,6 +75,75 @@ The platform is fully deployed at **primehaul.co.uk** — now locked down and re
 - Each company has unique URL: `/s/{company-slug}/{token}/...`
 - Surveys ONLY appear in the correct company's dashboard
 - Complete data isolation via `company_id` foreign keys
+
+---
+
+## Session Log: 23 February 2026
+
+### Quote Approval Email Notification
+
+**Feature:** When the boss approves a quote (standard or quick-approve), the customer now receives a professional HTML email with their approved price and a link to book.
+
+**Email Contents:**
+- "Your Quote is Ready" header with company branding
+- Prominent approved price in green (£X,XXX.XX)
+- Move summary (collection → delivery addresses)
+- "View Quote & Book" CTA button
+- Company name and phone in footer
+- Plain text fallback included
+
+**Integration Points:**
+- Standard approval endpoint (`/{slug}/admin/job/{token}/approve`)
+- Quick approval endpoint (`/{slug}/admin/job/{token}/quick-approve`)
+- Only sends if customer has an email address
+- Wrapped in try/except — email failure never blocks approval
+
+### Per-Company Email Sending (Two-Tier System)
+
+**Problem:** All emails were sent from PrimeHaul's SMTP account. Bosses wanted emails to come from their own company email address.
+
+**Solution — Two tiers:**
+
+**Tier 1 (Default, no setup):** Emails sent as *"Smith Removals via PrimeHaul"* from `noreply@primehaul.co.uk` with Reply-To set to the company's email. Customer replies go directly to the company.
+
+**Tier 2 (Company SMTP):** Boss configures their own SMTP credentials in Company Details settings. Emails then send directly from their own email address (e.g. `info@smithremovals.co.uk`).
+
+**Settings UI (Company Details page):**
+- SMTP Server + Port fields (grid layout)
+- Email/Username field
+- Password field (with Gmail App Password link)
+- Optional From Email override
+- "Send Test Email" button (sends to company's contact email)
+- Status badges: green check when configured, yellow warning when not
+- Collapsible "Common email provider settings" cheat sheet (Gmail, Outlook, Yahoo, Zoho)
+
+**Technical Changes:**
+- `send_email()` accepts optional `smtp_config` dict — uses company SMTP when provided, falls back to PrimeHaul default
+- `send_quote_approved_email()` routes through company SMTP or falls back to "via PrimeHaul" branding
+- Both approval endpoints build SMTP config from company model fields
+
+### Database Migration
+
+| Migration | Purpose |
+|-----------|---------|
+| `fix014_company_smtp_settings.py` | Add `smtp_host`, `smtp_port`, `smtp_username`, `smtp_password`, `smtp_from_email` to companies |
+
+### Files Created
+
+- `alembic/versions/fix014_company_smtp_settings.py` — SMTP columns migration
+
+### Files Modified
+
+- `app/models.py` — 5 new SMTP columns on Company model
+- `app/notifications.py` — New `send_quote_approved_email()` function, `send_email()` updated with `from_name`, `reply_to`, `smtp_config` params
+- `app/main.py` — Email send in both approval endpoints, 2 new SMTP endpoints (save + test), updated company details GET with SMTP query params
+- `app/templates/admin_company_details.html` — New "Email Settings" section with full SMTP config UI
+
+### Commits
+
+```
+d4f2fb0 Add quote approval email and per-company SMTP settings
+```
 
 ---
 
@@ -1109,7 +1178,7 @@ git push origin main
 6. [x] Activity tracking for product insights
 7. [ ] Test with real companies
 8. [ ] Switch Stripe to live mode
-9. [ ] Email notifications (optional)
+9. [x] Email notifications (quote approval + per-company SMTP)
 10. [ ] Google Analytics (optional)
 
 ---
