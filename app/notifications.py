@@ -866,7 +866,8 @@ def send_survey_invitation(
 
             <div class="footer">
                 <p>{company.company_name}</p>
-                <p style="color: #bbb; font-size: 11px;">Powered by PrimeHaul — AI-powered removal quotes</p>
+                <p style="color: #bbb; font-size: 11px;">Powered by <a href="https://primehaul.co.uk" style="color: #bbb;">PrimeHaul</a> — AI-powered removal quotes</p>
+                <p style="color: #999; font-size: 11px;">info@primehaul.co.uk · ICO Reg: 00013181949</p>
             </div>
         </div>
     </body>
@@ -1008,7 +1009,8 @@ def send_quote_approved_email(
 
             <div class="footer">
                 <p>{company_name}</p>
-                <p style="color: #bbb; font-size: 11px;">Powered by PrimeHaul — AI-powered removal quotes</p>
+                <p style="color: #bbb; font-size: 11px;">Powered by <a href="https://primehaul.co.uk" style="color: #bbb;">PrimeHaul</a> — AI-powered removal quotes</p>
+                <p style="color: #999; font-size: 11px;">info@primehaul.co.uk · ICO Reg: 00013181949</p>
             </div>
         </div>
     </body>
