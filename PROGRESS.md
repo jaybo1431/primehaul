@@ -1,6 +1,6 @@
 # PrimeHaul OS - Progress Log
 
-**Last Updated:** 13 February 2026 (Evening)
+**Last Updated:** 22 February 2026
 **Repository:** github.com/jaybo1431/primehaul
 **Branch:** main
 **Slogan:** *An intelligent move.*
@@ -75,6 +75,46 @@ The platform is fully deployed at **primehaul.co.uk** — now locked down and re
 - Each company has unique URL: `/s/{company-slug}/{token}/...`
 - Surveys ONLY appear in the correct company's dashboard
 - Complete data isolation via `company_id` foreign keys
+
+---
+
+## Session Log: 22 February 2026
+
+### PrimeHaul Promotional Video Ad
+
+Built a full animated video ad using **Remotion** (React-based video framework) with AI voiceover via **ElevenLabs**.
+
+**Video Structure — 7 Scenes (~100 seconds):**
+1. **Intro** — Logo + "Stop Quoting Blind. Start Quoting Smart."
+2. **The Problem** — Wasted site visits, slow quotes, lost jobs
+3. **Customer Flow** — Phone mockup: link → pin drop → photos → done
+4. **AI Magic** — AI scanning photos, detecting items with CBM/weight
+5. **Boss Dashboard** — Survey notification, job card, price setting, deposit
+6. **Results** — Animated stats (10x faster, 30% more jobs, 0 site visits)
+7. **CTA** — Free trial, primehaul.co.uk, "Built by djam.ai"
+
+**Voice:** George (British male) on ElevenLabs Turbo v2.5 model — energetic, natural UK accent with low stability/high style for expressiveness.
+
+**Three Formats Rendered:**
+- `video/out/primehaul-demo.mp4` — 1920x1080 (YouTube/website) — 8.8 MB
+- `video/out/primehaul-tiktok.mp4` — 1080x1920 (TikTok/Reels) — 8.8 MB
+- `video/out/primehaul-square.mp4` — 1080x1080 (Instagram/Facebook) — 8.5 MB
+
+**Tech Stack:**
+- Remotion 4.0.242 for animation/rendering
+- ElevenLabs API for TTS voiceover (George voice, turbo_v2_5 model)
+- 7 React scene components with spring animations, typewriter effects, phone mockups
+- `generate-audio.js` script for bulk audio generation
+
+**Key Files:**
+| What | File |
+|------|------|
+| Main composition | `video/src/PrimeHaulDemo.tsx` |
+| Scene components | `video/src/scenes/Scene1-7*.tsx` |
+| Timing config | `video/src/helpers/timing.ts` |
+| Audio generator | `video/generate-audio.js` |
+| Color palette | `video/src/helpers/colors.ts` |
+| Animations | `video/src/helpers/animations.ts` |
 
 ---
 

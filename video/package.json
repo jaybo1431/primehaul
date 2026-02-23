@@ -1,0 +1,23 @@
+{
+  "name": "primehaul-video",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "studio": "remotion studio src/index.ts",
+    "render": "remotion render src/index.ts PrimeHaulDemo out/primehaul-demo.mp4",
+    "render:tiktok": "remotion render src/index.ts PrimeHaulTikTok out/primehaul-tiktok.mp4",
+    "render:square": "remotion render src/index.ts PrimeHaulSquare out/primehaul-square.mp4",
+    "audio": "node generate-audio.js"
+  },
+  "dependencies": {
+    "@remotion/cli": "4.0.242",
+    "openai": "^6.22.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "remotion": "4.0.242"
+  },
+  "devDependencies": {
+    "@types/react": "^18.3.12",
+    "typescript": "^5.6.3"
+  }
+}
