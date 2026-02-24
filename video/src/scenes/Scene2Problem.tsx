@@ -16,19 +16,19 @@ const PAIN_POINTS = [
     icon: "\u26FD",
     text: "Driving across town for site visits that lead nowhere",
     color: RED,
-    delay: 30,
+    delay: 20,
   },
   {
     icon: "\u231B",
     text: "Customers waiting days while competitors swoop in",
     color: AMBER,
-    delay: 180,
+    delay: 100,
   },
   {
     icon: "\uD83D\uDCB8",
     text: "Losing jobs and burning fuel every single week",
     color: RED,
-    delay: 320,
+    delay: 175,
   },
 ];
 

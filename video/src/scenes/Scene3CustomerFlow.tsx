@@ -13,9 +13,9 @@ import { Vignette } from "../components/Vignette";
 import { PhoneFrame } from "../components/PhoneFrame";
 
 const getScreen = (f: number): "link" | "map" | "photos" | "done" => {
-  if (f < 120) return "link";
-  if (f < 280) return "map";
-  if (f < 440) return "photos";
+  if (f < 70) return "link";
+  if (f < 160) return "map";
+  if (f < 250) return "photos";
   return "done";
 };
 
@@ -49,7 +49,7 @@ const LinkScreen: React.FC<{ f: number }> = ({ f }) => {
 };
 
 const MapScreen: React.FC<{ f: number }> = ({ f }) => {
-  const localF = f - 120;
+  const localF = f - 70;
   const pin1 = spring({ frame: Math.max(0, localF), fps: FPS, from: 0, to: 1, delay: 15, durationInFrames: 15, config: { damping: 6, stiffness: 200 } });
   const pin2 = spring({ frame: Math.max(0, localF), fps: FPS, from: 0, to: 1, delay: 40, durationInFrames: 15, config: { damping: 6, stiffness: 200 } });
 
@@ -75,7 +75,7 @@ const MapScreen: React.FC<{ f: number }> = ({ f }) => {
 };
 
 const PhotoScreen: React.FC<{ f: number }> = ({ f }) => {
-  const localF = f - 280;
+  const localF = f - 160;
   const rooms = [
     { label: "Living Room", icon: "🛋️", delay: 8 },
     { label: "Bedroom", icon: "🛏️", delay: 24 },
@@ -105,7 +105,7 @@ const PhotoScreen: React.FC<{ f: number }> = ({ f }) => {
 };
 
 const DoneScreen: React.FC<{ f: number }> = ({ f }) => {
-  const localF = f - 440;
+  const localF = f - 250;
   const progress = interpolate(localF, [5, 45], [0, 100], clamp);
   const checkScale = spring({ frame: Math.max(0, localF), fps: FPS, from: 0, to: 1, delay: 50, durationInFrames: 16, config: { damping: 6, stiffness: 200 } });
 

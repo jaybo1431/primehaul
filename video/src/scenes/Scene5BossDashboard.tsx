@@ -17,29 +17,29 @@ export const Scene5BossDashboard: React.FC = () => {
   const title = useFadeIn(5, 14, 12);
 
   // Notification
-  const notifProg = spring({ frame: f, fps: FPS, from: 0, to: 1, delay: 30, durationInFrames: 14, config: { damping: 6, stiffness: 200 } });
-  const notifShake = f > 30 && f < 38 ? Math.sin(f * 50) * 4 : 0;
+  const notifProg = spring({ frame: f, fps: FPS, from: 0, to: 1, delay: 15, durationInFrames: 14, config: { damping: 6, stiffness: 200 } });
+  const notifShake = f > 15 && f < 23 ? Math.sin(f * 50) * 4 : 0;
 
   // Job card
-  const cardProg = spring({ frame: f, fps: FPS, from: 0, to: 1, delay: 100, durationInFrames: 18, config: { damping: 9 } });
+  const cardProg = spring({ frame: f, fps: FPS, from: 0, to: 1, delay: 50, durationInFrames: 18, config: { damping: 9 } });
 
-  // Price editing — "You set your own price" ~13s into VO = frame 390
-  const priceEditProg = spring({ frame: f, fps: FPS, from: 0, to: 1, delay: 340, durationInFrames: 16, config: { damping: 8 } });
-  const priceValue = interpolate(f, [360, 420], [849, 925], clamp);
-  const priceGlow = f > 360 && f < 440 ? interpolate(Math.sin(f * 0.15), [-1, 1], [0.3, 1]) : 0;
+  // Price editing — "Set your price"
+  const priceEditProg = spring({ frame: f, fps: FPS, from: 0, to: 1, delay: 140, durationInFrames: 16, config: { damping: 8 } });
+  const priceValue = interpolate(f, [155, 200], [849, 925], clamp);
+  const priceGlow = f > 155 && f < 220 ? interpolate(Math.sin(f * 0.15), [-1, 1], [0.3, 1]) : 0;
 
-  // Approve — "Hit approve" ~17s = frame 510
-  const approveDelay = 500;
+  // Approve — "Hit approve"
+  const approveDelay = 230;
   const btnProg = spring({ frame: f, fps: FPS, from: 0, to: 1, delay: approveDelay, durationInFrames: 12, config: { damping: 6, stiffness: 200 } });
-  const btnPressed = f > approveDelay + 30;
-  const checkProg = spring({ frame: f, fps: FPS, from: 0, to: 1, delay: approveDelay + 33, durationInFrames: 14, config: { damping: 6, stiffness: 180 } });
+  const btnPressed = f > approveDelay + 25;
+  const checkProg = spring({ frame: f, fps: FPS, from: 0, to: 1, delay: approveDelay + 28, durationInFrames: 14, config: { damping: 6, stiffness: 180 } });
 
-  // Deposit — "They pay a deposit" ~20s = frame 600
-  const depositProg = spring({ frame: f, fps: FPS, from: 0, to: 1, delay: 620, durationInFrames: 18, config: { damping: 8 } });
-  const depositAmount = interpolate(f, [620, 670], [0, 185], clamp);
+  // Deposit — "They pay a deposit through Stripe"
+  const depositProg = spring({ frame: f, fps: FPS, from: 0, to: 1, delay: 310, durationInFrames: 18, config: { damping: 8 } });
+  const depositAmount = interpolate(f, [310, 350], [0, 185], clamp);
 
   // Revenue
-  const revProg = spring({ frame: f, fps: FPS, from: 0, to: 1, delay: 700, durationInFrames: 16, config: { damping: 8 } });
+  const revProg = spring({ frame: f, fps: FPS, from: 0, to: 1, delay: 360, durationInFrames: 16, config: { damping: 8 } });
 
   return (
     <AbsoluteFill style={{ background: BG, ...env }}>

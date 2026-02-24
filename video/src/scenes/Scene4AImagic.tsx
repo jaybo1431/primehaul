@@ -12,10 +12,10 @@ import { FloatingParticles } from "../components/FloatingParticles";
 import { Vignette } from "../components/Vignette";
 
 const DETECTED_ITEMS = [
-  { name: "3-Seater Sofa", cbm: "1.80", weight: "45kg", delay: 140, x: 10, y: 10 },
-  { name: "Double Wardrobe", cbm: "2.14", weight: "62kg", delay: 190, x: 52, y: 8 },
-  { name: "Dining Table + 4 Chairs", cbm: "1.45", weight: "38kg", delay: 240, x: 6, y: 52 },
-  { name: "Moving Boxes x12", cbm: "3.60", weight: "84kg", delay: 290, x: 52, y: 50 },
+  { name: "3-Seater Sofa", cbm: "1.80", weight: "45kg", delay: 80, x: 10, y: 10 },
+  { name: "Double Wardrobe", cbm: "2.14", weight: "62kg", delay: 110, x: 52, y: 8 },
+  { name: "Dining Table + 4 Chairs", cbm: "1.45", weight: "38kg", delay: 140, x: 6, y: 52 },
+  { name: "Moving Boxes x12", cbm: "3.60", weight: "84kg", delay: 170, x: 52, y: 50 },
 ];
 
 export const Scene4AImagic: React.FC = () => {
@@ -23,21 +23,21 @@ export const Scene4AImagic: React.FC = () => {
   const env = useEnvelope(S4_DUR);
   const title = useFadeIn(5, 14, 12);
 
-  const scanProgress = interpolate(f, [60, 300], [0, 100], clamp);
-  const scanOpacity = interpolate(f, [60, 80, 280, 310], [0, 0.8, 0.8, 0], clamp);
+  const scanProgress = interpolate(f, [30, 170], [0, 100], clamp);
+  const scanOpacity = interpolate(f, [30, 50, 160, 180], [0, 0.8, 0.8, 0], clamp);
 
   // Accuracy badge
-  const accuracyProg = spring({ frame: f, fps: FPS, from: 0, to: 1, delay: 380, durationInFrames: 18, config: { damping: 8 } });
+  const accuracyProg = spring({ frame: f, fps: FPS, from: 0, to: 1, delay: 200, durationInFrames: 18, config: { damping: 8 } });
 
   // Totals
-  const totalsProg = spring({ frame: f, fps: FPS, from: 0, to: 1, delay: 500, durationInFrames: 18, config: { damping: 8 } });
-  const totalCBM = interpolate(f, [500, 560], [0, 8.99], clamp);
-  const totalWeight = interpolate(f, [500, 560], [0, 229], clamp);
-  const totalItems = interpolate(f, [500, 560], [0, 24], clamp);
+  const totalsProg = spring({ frame: f, fps: FPS, from: 0, to: 1, delay: 250, durationInFrames: 18, config: { damping: 8 } });
+  const totalCBM = interpolate(f, [250, 290], [0, 8.99], clamp);
+  const totalWeight = interpolate(f, [250, 290], [0, 229], clamp);
+  const totalItems = interpolate(f, [250, 290], [0, 24], clamp);
 
   // Quote
-  const quoteAppear = spring({ frame: f, fps: FPS, from: 0, to: 1, delay: 650, durationInFrames: 18, config: { damping: 7, stiffness: 140 } });
-  const priceCount = interpolate(f, [650, 710], [0, 849], clamp);
+  const quoteAppear = spring({ frame: f, fps: FPS, from: 0, to: 1, delay: 310, durationInFrames: 18, config: { damping: 7, stiffness: 140 } });
+  const priceCount = interpolate(f, [310, 345], [0, 849], clamp);
 
   return (
     <AbsoluteFill style={{ background: BG, ...env }}>

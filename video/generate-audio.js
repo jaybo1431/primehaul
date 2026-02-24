@@ -11,27 +11,27 @@ const scenes = [
   },
   {
     file: "s2.mp3",
-    text: "Right now, you're driving across town for site visits that lead nowhere. Customers are waiting days for a quote, and by the time you get back to them, they've already booked someone else. You're losing jobs and burning fuel.",
+    text: "You're driving across town for site visits that go nowhere. By the time you send a quote, the customer's already booked someone else.",
   },
   {
     file: "s3.mp3",
-    text: "With PrimeHaul, you send your customer a simple link. No app to download. No signup. They drop a pin for collection, drop a pin for delivery, then walk room by room snapping photos of everything that needs moving. The whole thing takes five minutes.",
+    text: "With PrimeHaul, you send a link. Your customer drops a pin, snaps a few photos room by room, and that's it. Five minutes, done.",
   },
   {
     file: "s4.mp3",
-    text: "Here's where it gets clever. Our AI scans every single photo and identifies each item automatically. Sofa, wardrobe, dining table, boxes. It calculates the exact cubic metres and weight for every piece. This isn't guesswork. It's trained on thousands of household items, so your inventory is accurate down to the last box.",
+    text: "Our AI scans every photo and identifies each item. Sofas, wardrobes, boxes. It calculates the exact volume and weight. No guesswork.",
   },
   {
     file: "s5.mp3",
-    text: "The completed survey lands straight on your dashboard. You see the full inventory, the measured volume, the total weight. You set your own price. Your rates, your margins, your rules. Hit approve, and your customer gets the quote instantly. They pay a deposit right there through Stripe. Job locked in. No chasing. No back and forth.",
+    text: "The survey lands on your dashboard with the full inventory. Set your price, hit approve, and your customer gets the quote instantly. They pay a deposit through Stripe. Job locked in.",
   },
   {
     file: "s6.mp3",
-    text: "Removal companies on PrimeHaul quote ten times faster, win thirty percent more jobs, and spend zero hours on wasted site visits. That's more revenue with less driving.",
+    text: "Quote ten times faster. Win thirty percent more jobs. Zero wasted site visits.",
   },
   {
     file: "s7.mp3",
-    text: "Start your free trial today. No credit card needed. PrimeHaul dot co dot UK.",
+    text: "Try it free today. PrimeHaul dot co dot UK.",
   },
 ];
 

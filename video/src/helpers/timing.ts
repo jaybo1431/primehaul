@@ -2,13 +2,13 @@ export const FPS = 30;
 export const TRANS = 18;
 
 // Scene durations (frames) — matched to ElevenLabs audio + 1s buffer
-export const S1_DUR = 150;  // Intro (5s)    — audio: 3.9s
-export const S2_DUR = 396;  // The Problem (13.2s) — audio: 12.1s
-export const S3_DUR = 510;  // Customer Flow (17s) — audio: 16.0s
-export const S4_DUR = 672;  // AI Magic (22.4s) — audio: 21.4s
-export const S5_DUR = 684;  // Boss Dashboard (22.8s) — audio: 21.7s
-export const S6_DUR = 378;  // Results (12.6s) — audio: 11.5s
-export const S7_DUR = 210;  // CTA (7s)      — audio: 6.0s
+export const S1_DUR = 140;  // Intro (4.7s)    — audio: 3.7s
+export const S2_DUR = 250;  // The Problem (8.3s) — audio: 7.3s
+export const S3_DUR = 294;  // Customer Flow (9.8s) — audio: 8.8s
+export const S4_DUR = 352;  // AI Magic (11.7s) — audio: 10.7s
+export const S5_DUR = 380;  // Boss Dashboard (12.7s) — audio: 11.7s
+export const S6_DUR = 208;  // Results (6.9s) — audio: 5.9s
+export const S7_DUR = 136;  // CTA (4.5s)      — audio: 3.5s
 
 // Scene start frames
 export const S1_START = 0;
@@ -19,4 +19,4 @@ export const S5_START = S4_START + S4_DUR;
 export const S6_START = S5_START + S5_DUR;
 export const S7_START = S6_START + S6_DUR;
 
-export const TOTAL_FRAMES = S7_START + S7_DUR; // 3000 frames = 100s
+export const TOTAL_FRAMES = S7_START + S7_DUR; // 1760 frames ≈ 58.7s
