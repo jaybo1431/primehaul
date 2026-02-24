@@ -2,12 +2,15 @@ import os
 import uuid
 import logging
 import json
+import secrets
+import asyncio
 from pathlib import Path
 from datetime import datetime, timedelta
 from dotenv import load_dotenv
 from typing import List, Optional
+from io import BytesIO
 
-from fastapi import FastAPI, Request, Form, UploadFile, File, Response, Depends, HTTPException, status
+from fastapi import FastAPI, Request, Form, UploadFile, File, Response, Depends, HTTPException, status, BackgroundTasks
 from fastapi.responses import HTMLResponse, RedirectResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
@@ -17,7 +20,11 @@ from fastapi.security import HTTPBasicCredentials
 from sqlalchemy.orm import Session
 from sqlalchemy import func
 import aiofiles
+from slowapi import Limiter, _rate_limit_exceeded_handler
+from slowapi.util import get_remote_address
+from slowapi.errors import RateLimitExceeded
 
+from app.config import settings
 from app.ai_vision import extract_removal_inventory
 from app.database import get_db, engine
 from app.models import Base, Company, User, PricingConfig, Job, Room, Item, Photo, AdminNote, UsageAnalytics, UserInteraction, AIItemPrediction, MarketplaceJob, Bid, JobBroadcast, Commission, MarketplaceRoom, MarketplaceItem, MarketplacePhoto, ItemFeedback, FurnitureCatalog, TrainingDataset, LearnedCorrection
@@ -35,8 +42,11 @@ load_dotenv()
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
+# Rate limiter (in-memory, no Redis needed)
+limiter = Limiter(key_func=get_remote_address)
+
 # Staging mode configuration
-STAGING_MODE = os.getenv("STAGING_MODE", "false").lower() == "true"
+STAGING_MODE = settings.STAGING_MODE
 
 if STAGING_MODE:
     from app.staging_auth import security, verify_staging_auth
@@ -47,6 +57,10 @@ else:
     verify_staging_auth = None
 
 app = FastAPI(title="PrimeHaul OS", version="1.0.0")
+
+# Register rate limiter
+app.state.limiter = limiter
+app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 
 # Trust Railway's proxy headers (X-Forwarded-Proto, X-Forwarded-For)
 from uvicorn.middleware.proxy_headers import ProxyHeadersMiddleware
@@ -71,7 +85,7 @@ app.add_middleware(
 # Security: Add trusted host middleware
 app.add_middleware(
     TrustedHostMiddleware,
-    allowed_hosts=["primehaul.co.uk", "*.primehaul.co.uk", "localhost", "127.0.0.1"]
+    allowed_hosts=["primehaul.co.uk", "*.primehaul.co.uk", "localhost", "127.0.0.1", "testserver"]
 )
 
 @app.middleware("http")
@@ -82,6 +96,28 @@ async def add_security_headers(request: Request, call_next):
     response.headers["X-Frame-Options"] = "DENY"
     response.headers["X-XSS-Protection"] = "1; mode=block"
     response.headers["Strict-Transport-Security"] = "max-age=31536000; includeSubDomains"
+    response.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
+    response.headers["Permissions-Policy"] = "camera=(self), microphone=(), geolocation=(self)"
+    response.headers["Content-Security-Policy"] = (
+        "default-src 'self'; "
+        "script-src 'self' 'unsafe-inline' https://js.stripe.com https://api.mapbox.com; "
+        "style-src 'self' 'unsafe-inline' https://api.mapbox.com https://fonts.googleapis.com; "
+        "img-src 'self' data: blob: https://*.mapbox.com https://*.stripe.com; "
+        "font-src 'self' https://fonts.gstatic.com; "
+        "connect-src 'self' https://api.mapbox.com https://*.mapbox.com https://api.stripe.com https://events.mapbox.com; "
+        "frame-src https://js.stripe.com https://hooks.stripe.com; "
+        "object-src 'none'; "
+        "base-uri 'self'"
+    )
+    return response
+
+
+@app.middleware("http")
+async def add_static_cache_headers(request: Request, call_next):
+    """Add cache headers for static assets"""
+    response = await call_next(request)
+    if request.url.path.startswith("/static/"):
+        response.headers["Cache-Control"] = "public, max-age=604800, immutable"
     return response
 
 
@@ -157,6 +193,49 @@ templates = Jinja2Templates(directory="app/templates")
 # Photos will be served through an authenticated endpoint
 UPLOAD_DIR = Path("uploads")  # Not in app/static - not publicly accessible
 UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
+
+
+def compress_photo(content: bytes, max_dimension: int = 2048, quality: int = 80) -> bytes:
+    """Compress and resize a photo. Returns original bytes if compression fails."""
+    try:
+        from PIL import Image, ExifTags
+        img = Image.open(BytesIO(content))
+
+        # Auto-rotate from EXIF
+        try:
+            for orientation in ExifTags.TAGS.keys():
+                if ExifTags.TAGS[orientation] == 'Orientation':
+                    break
+            exif = img._getexif()
+            if exif and orientation in exif:
+                if exif[orientation] == 3:
+                    img = img.rotate(180, expand=True)
+                elif exif[orientation] == 6:
+                    img = img.rotate(270, expand=True)
+                elif exif[orientation] == 8:
+                    img = img.rotate(90, expand=True)
+        except (AttributeError, KeyError):
+            pass
+
+        # Resize if larger than max_dimension
+        if max(img.size) > max_dimension:
+            img.thumbnail((max_dimension, max_dimension), Image.LANCZOS)
+
+        # Convert to RGB if needed (e.g. RGBA PNGs)
+        if img.mode in ("RGBA", "P"):
+            img = img.convert("RGB")
+
+        buf = BytesIO()
+        img.save(buf, format="JPEG", quality=quality, optimize=True)
+        compressed = buf.getvalue()
+
+        # Only use compressed version if it's actually smaller
+        if len(compressed) < len(content):
+            return compressed
+        return content
+    except Exception as e:
+        logger.warning(f"Photo compression failed, using original: {e}")
+        return content
 
 
 def get_or_create_job(company_id: uuid.UUID, token: str, db: Session, survey_mode: str = None) -> Job:
@@ -261,7 +340,7 @@ async def dev_dashboard(
     Password protected: Set DEV_DASHBOARD_PASSWORD in .env
     """
     # Simple password protection
-    DEV_PASSWORD = os.getenv("DEV_DASHBOARD_PASSWORD", "dev2025")
+    DEV_PASSWORD = settings.DEV_DASHBOARD_PASSWORD
 
     # Check password (via query param for simplicity)
     if password != DEV_PASSWORD:
@@ -403,13 +482,13 @@ async def dev_dashboard(
         {
             "title": "Deploy to production",
             "action": "Heroku/Railway/Render setup",
-            "done": os.getenv("APP_ENV") == "production",
+            "done": settings.APP_ENV == "production",
             "priority": "high"
         },
         {
             "title": "Configure Stripe billing",
             "action": "Create product, set up webhooks",
-            "done": bool(os.getenv("STRIPE_PRICE_ID")),
+            "done": bool(settings.STRIPE_PRICE_ID),
             "priority": "high"
         },
         {
@@ -521,11 +600,13 @@ async def dev_dashboard(
             "time": time_ago
         })
 
-    # Get recent jobs
+    # Get recent jobs (batch-fetch companies to avoid N+1)
     recent_jobs = db.query(Job).order_by(Job.created_at.desc()).limit(5).all()
+    job_company_ids = {j.company_id for j in recent_jobs}
+    job_companies = {c.id: c for c in db.query(Company).filter(Company.id.in_(job_company_ids)).all()} if job_company_ids else {}
     for job in recent_jobs:
         time_ago = _time_ago(job.created_at, now)
-        company = db.query(Company).filter(Company.id == job.company_id).first()
+        company = job_companies.get(job.company_id)
         if company:
             if job.approved_at:
                 recent_activity.append({
@@ -564,7 +645,7 @@ async def dev_dashboard(
             "message": f"Churn rate is {churn_rate}% (target: <10%). Interview churned customers to understand why."
         })
 
-    if not os.getenv("STRIPE_WEBHOOK_SECRET"):
+    if not settings.STRIPE_WEBHOOK_SECRET:
         alerts.append({
             "title": "Stripe Webhooks Not Configured",
             "message": "Set STRIPE_WEBHOOK_SECRET in .env to handle subscription events."
@@ -642,6 +723,7 @@ async def login_page(request: Request):
 
 
 @app.post("/auth/login")
+@limiter.limit("5/minute")
 async def login(
     request: Request,
     email: str = Form(...),
@@ -834,14 +916,16 @@ async def logout():
 # Locked to Jaybo only - Feb 2026
 # ============================================================================
 
-SUPERADMIN_PASSWORD = os.getenv("SUPERADMIN_PASSWORD", "Jaybo2026")
-SUPERADMIN_SESSION_KEY = "jaybo_superadmin_feb2026"  # Change this to invalidate all sessions
+SUPERADMIN_PASSWORD = settings.SUPERADMIN_PASSWORD
+SUPERADMIN_SESSION_KEY = secrets.token_hex(32)  # Randomized per deploy — all sessions invalidated on restart
 
 
 def verify_superadmin(request: Request) -> bool:
     """Check if user has superadmin access - Jaybo only"""
     token = request.cookies.get("superadmin_token")
-    return token == SUPERADMIN_SESSION_KEY
+    if not token:
+        return False
+    return secrets.compare_digest(token, SUPERADMIN_SESSION_KEY)
 
 
 @app.get("/superadmin", response_class=HTMLResponse)
@@ -860,9 +944,10 @@ def superadmin_login_page(request: Request, error: str = None):
 
 
 @app.post("/superadmin/login")
+@limiter.limit("3/minute")
 def superadmin_login(request: Request, password: str = Form(...)):
     """Validate superadmin password - Jaybo only"""
-    if password == SUPERADMIN_PASSWORD:
+    if secrets.compare_digest(password, SUPERADMIN_PASSWORD):
         response = RedirectResponse(url="/superadmin/dashboard", status_code=303)
         response.set_cookie("superadmin_token", SUPERADMIN_SESSION_KEY, httponly=True, secure=True, max_age=86400)
         return response
@@ -933,11 +1018,13 @@ def superadmin_dashboard(request: Request, db: Session = Depends(get_db)):
             "analytics": db.query(UsageAnalytics).count()
         }
 
-        # Recent activity (last 20 analytics events)
+        # Recent activity (last 20 analytics events) — batch-fetch companies
         recent_events = db.query(UsageAnalytics).order_by(UsageAnalytics.recorded_at.desc()).limit(20).all()
+        event_company_ids = {e.company_id for e in recent_events}
+        event_companies = {c.id: c for c in db.query(Company).filter(Company.id.in_(event_company_ids)).all()} if event_company_ids else {}
         recent_activity = []
         for event in recent_events:
-            company = db.query(Company).filter(Company.id == event.company_id).first()
+            company = event_companies.get(event.company_id)
             time_diff = datetime.utcnow() - event.recorded_at.replace(tzinfo=None)
             if time_diff.days > 0:
                 time_ago = f"{time_diff.days}d ago"
@@ -953,11 +1040,13 @@ def superadmin_dashboard(request: Request, db: Session = Depends(get_db)):
                 "metadata": str(event.metadata)[:100] if event.metadata else None
             })
 
-        # Recent ML feedback (last 30 corrections/changes)
+        # Recent ML feedback (last 30 corrections/changes) — batch-fetch companies
         recent_feedback_records = db.query(ItemFeedback).order_by(ItemFeedback.created_at.desc()).limit(30).all()
+        fb_company_ids = {fb.company_id for fb in recent_feedback_records}
+        fb_companies = {c.id: c for c in db.query(Company).filter(Company.id.in_(fb_company_ids)).all()} if fb_company_ids else {}
         recent_feedback = []
         for fb in recent_feedback_records:
-            company = db.query(Company).filter(Company.id == fb.company_id).first()
+            company = fb_companies.get(fb.company_id)
             time_diff = datetime.utcnow() - fb.created_at.replace(tzinfo=None)
             if time_diff.days > 0:
                 time_ago = f"{time_diff.days}d ago"
@@ -1191,7 +1280,7 @@ def survey_start(request: Request, company_slug: str, token: str, db: Session = 
         "nav_title": "Get Quote",
         "back_url": None,
         "progress": 10,
-        "mapbox_token": os.getenv("MAPBOX_ACCESS_TOKEN", ""),
+        "mapbox_token": settings.MAPBOX_ACCESS_TOKEN,
         "job": job,
         "today": date.today().isoformat()
     })
@@ -1231,7 +1320,7 @@ def start_v2_get(request: Request, company_slug: str, token: str, db: Session = 
         "nav_title": "Moving Survey" if is_survey else "Get Quote",
         "back_url": None,
         "progress": 10,
-        "mapbox_token": os.getenv("MAPBOX_ACCESS_TOKEN", ""),
+        "mapbox_token": settings.MAPBOX_ACCESS_TOKEN,
         "job": job,
         "today": date.today().isoformat(),
         "is_survey": is_survey,
@@ -1280,7 +1369,7 @@ def start_v2_post(
     if move_date:
         try:
             job.move_date = datetime.strptime(move_date, "%Y-%m-%d")
-        except:
+        except (ValueError, TypeError):
             pass  # Skip if invalid date
 
     db.commit()
@@ -1304,7 +1393,7 @@ def move_get(request: Request, company_slug: str, token: str, db: Session = Depe
         "nav_title": "Set your move",
         "back_url": f"/s/{company_slug}/{token}",
         "progress": 25,
-        "mapbox_token": os.getenv("MAPBOX_ACCESS_TOKEN", ""),
+        "mapbox_token": settings.MAPBOX_ACCESS_TOKEN,
         "pickup": job.pickup,
         "dropoff": job.dropoff,
     })
@@ -1696,12 +1785,21 @@ async def room_scan_upload(
         fname = f"{uuid.uuid4().hex[:12]}{ext}"
         file_path = company_upload_dir / fname
 
-        # Save file with size validation
+        # Save file with size validation and compression
         try:
             content = await f.read()
             if len(content) > MAX_FILE_SIZE:
                 logger.warning(f"File {f.filename} exceeds size limit")
                 continue
+
+            # Compress photo (resize to max 2048px, JPEG quality 80)
+            original_size = len(content)
+            content = compress_photo(content)
+            if len(content) < original_size:
+                logger.info(f"Compressed {f.filename}: {original_size // 1024}KB → {len(content) // 1024}KB")
+                # Update filename to .jpg if compressed
+                fname = f"{uuid.uuid4().hex[:12]}.jpg"
+                file_path = company_upload_dir / fname
 
             async with aiofiles.open(file_path, 'wb') as out_file:
                 await out_file.write(content)
@@ -1739,7 +1837,7 @@ async def room_scan_upload(
                 logger.warning(f"Could not get learned patterns: {e}")
 
             logger.info(f"Analyzing {len(saved_paths)} photos with AI vision...")
-            inventory = extract_removal_inventory(saved_paths, learned_guidance=learned_guidance)
+            inventory = await asyncio.to_thread(extract_removal_inventory, saved_paths, learned_guidance=learned_guidance)
 
             # 🧠 SELF-LEARNING: Apply learned corrections to AI detections (backup)
             if inventory.get("items"):
@@ -1923,7 +2021,7 @@ async def room_scan_upload_json(
                 logger.warning(f"Could not get learned patterns: {e}")
 
             logger.info(f"Analyzing {len(saved_paths)} photos with AI vision...")
-            inventory = extract_removal_inventory(saved_paths, learned_guidance=learned_guidance)
+            inventory = await asyncio.to_thread(extract_removal_inventory, saved_paths, learned_guidance=learned_guidance)
 
             # 🧠 SELF-LEARNING: Apply learned corrections to AI detections (backup)
             if inventory.get("items"):
@@ -2253,7 +2351,7 @@ async def photos_bulk_upload(
 
         # Use AI to analyze all photos together
         logger.info(f"Analyzing {len(saved_paths)} photos with AI for bulk upload...")
-        inventory = extract_removal_inventory(saved_paths, learned_guidance=learned_guidance)
+        inventory = await asyncio.to_thread(extract_removal_inventory, saved_paths, learned_guidance=learned_guidance)
 
         # 🧠 SELF-LEARNING: Apply learned corrections to AI detections (backup)
         if inventory.get("items"):
@@ -3403,7 +3501,7 @@ def deposit_payment_page(
     balance_due = quote["estimate_low"] - deposit_amount
 
     # Check if Stripe is configured
-    stripe_configured = bool(os.getenv("STRIPE_SECRET_KEY"))
+    stripe_configured = bool(settings.STRIPE_SECRET_KEY)
 
     # Check if company has Stripe Connect set up for receiving deposits
     connect_ready = company.stripe_connect_onboarding_complete
@@ -3475,7 +3573,7 @@ def booking_confirmed_page(
 
 @app.get("/test-map", response_class=HTMLResponse)
 def test_map(request: Request):
-    token = os.getenv("MAPBOX_ACCESS_TOKEN", "")
+    token = settings.MAPBOX_ACCESS_TOKEN
     return templates.TemplateResponse("test_map.html", {
         "request": request,
         "title": "Test Map — PrimeHaul OS",
@@ -3715,7 +3813,8 @@ def admin_approve_job(
     token: str,
     final_price: int = Form(...),
     current_user: User = Depends(get_current_user),
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    background_tasks: BackgroundTasks = BackgroundTasks()
 ):
     """Approve a job with a final fixed quote price"""
     company = verify_company_access(company_slug, current_user)
@@ -3761,46 +3860,41 @@ def admin_approve_job(
         except Exception as e:
             logger.debug(f"Activity tracking error: {e}")
 
-        # Send SMS notification to customer with final price
-        if job.customer_phone:
-            try:
-                notify_quote_approved(
-                    phone=job.customer_phone,
-                    company_name=company.company_name,
-                    booking_url=f"https://{os.getenv('RAILWAY_PUBLIC_DOMAIN', 'localhost:8000')}/s/{company_slug}/{token}/booking"
-                )
-            except Exception as e:
-                logger.error(f"Failed to send approval SMS: {e}")
+        booking_url = f"https://{settings.RAILWAY_PUBLIC_DOMAIN}/s/{company_slug}/{token}/booking"
 
-        # Send email notification to customer with approved quote
+        # Send SMS notification in background
+        if job.customer_phone:
+            background_tasks.add_task(
+                notify_quote_approved,
+                phone=job.customer_phone,
+                company_name=company.company_name,
+                booking_url=booking_url
+            )
+
+        # Send email notification in background
         if job.customer_email:
-            try:
-                from app.notifications import send_quote_approved_email
-                booking_url = f"https://{os.getenv('RAILWAY_PUBLIC_DOMAIN', 'localhost:8000')}/s/{company_slug}/{token}/booking"
-                # Use company's own SMTP if configured
-                company_smtp = None
-                if company.smtp_host and company.smtp_username and company.smtp_password:
-                    company_smtp = {
-                        "host": company.smtp_host,
-                        "port": company.smtp_port or 587,
-                        "username": company.smtp_username,
-                        "password": company.smtp_password,
-                        "from_email": company.smtp_from_email or company.smtp_username,
-                    }
-                send_quote_approved_email(
-                    customer_email=job.customer_email,
-                    customer_name=job.customer_name or "",
-                    company_name=company.company_name,
-                    final_price=final_price,
-                    quote_url=booking_url,
-                    pickup_label=(job.pickup or {}).get("label", ""),
-                    dropoff_label=(job.dropoff or {}).get("label", ""),
-                    company_phone=company.phone or "",
-                    company_email=company.email or "",
-                    smtp_config=company_smtp
-                )
-            except Exception as e:
-                logger.error(f"Failed to send approval email: {e}")
+            company_smtp = None
+            if company.smtp_host and company.smtp_username and company.smtp_password:
+                company_smtp = {
+                    "host": company.smtp_host,
+                    "port": company.smtp_port or 587,
+                    "username": company.smtp_username,
+                    "password": company.smtp_password,
+                    "from_email": company.smtp_from_email or company.smtp_username,
+                }
+            background_tasks.add_task(
+                notifications.send_quote_approved_email,
+                customer_email=job.customer_email,
+                customer_name=job.customer_name or "",
+                company_name=company.company_name,
+                final_price=final_price,
+                quote_url=booking_url,
+                pickup_label=(job.pickup or {}).get("label", ""),
+                dropoff_label=(job.dropoff or {}).get("label", ""),
+                company_phone=company.phone or "",
+                company_email=company.email or "",
+                smtp_config=company_smtp
+            )
 
     return RedirectResponse(url=f"/{company_slug}/admin/dashboard", status_code=303)
 
@@ -3915,7 +4009,8 @@ def admin_quick_approve(
     company_slug: str,
     token: str,
     current_user: User = Depends(get_current_user),
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    background_tasks: BackgroundTasks = BackgroundTasks()
 ):
     """Quick approve from dashboard - uses midpoint of estimate as final price"""
     company = verify_company_access(company_slug, current_user)
@@ -3940,51 +4035,44 @@ def admin_quick_approve(
         db.commit()
         logger.info(f"Job {token} quick-approved by {current_user.email} at £{final_price}")
 
-        booking_url = f"https://{os.getenv('RAILWAY_PUBLIC_DOMAIN', 'localhost:8000')}/s/{company_slug}/{token}/booking"
+        booking_url = f"https://{settings.RAILWAY_PUBLIC_DOMAIN}/s/{company_slug}/{token}/booking"
 
-        # Send SMS notification to customer with final price
+        # Send SMS notification in background
         if job.customer_phone and job.customer_name:
-            try:
-                notify_quote_approved(
-                    customer_name=job.customer_name,
-                    customer_phone=job.customer_phone,
-                    company_name=company.company_name,
-                    price_low=final_price,
-                    price_high=final_price,
-                    booking_url=booking_url
-                )
-                logger.info(f"SMS sent to customer for quick-approved job {token}")
-            except Exception as e:
-                logger.error(f"Failed to send quick-approve SMS for job {token}: {e}")
+            background_tasks.add_task(
+                notify_quote_approved,
+                customer_name=job.customer_name,
+                customer_phone=job.customer_phone,
+                company_name=company.company_name,
+                price_low=final_price,
+                price_high=final_price,
+                booking_url=booking_url
+            )
 
-        # Send email notification to customer with approved quote
+        # Send email notification in background
         if job.customer_email:
-            try:
-                from app.notifications import send_quote_approved_email
-                # Use company's own SMTP if configured
-                company_smtp = None
-                if company.smtp_host and company.smtp_username and company.smtp_password:
-                    company_smtp = {
-                        "host": company.smtp_host,
-                        "port": company.smtp_port or 587,
-                        "username": company.smtp_username,
-                        "password": company.smtp_password,
-                        "from_email": company.smtp_from_email or company.smtp_username,
-                    }
-                send_quote_approved_email(
-                    customer_email=job.customer_email,
-                    customer_name=job.customer_name or "",
-                    company_name=company.company_name,
-                    final_price=final_price,
-                    quote_url=booking_url,
-                    pickup_label=(job.pickup or {}).get("label", ""),
-                    dropoff_label=(job.dropoff or {}).get("label", ""),
-                    company_phone=company.phone or "",
-                    company_email=company.email or "",
-                    smtp_config=company_smtp
-                )
-            except Exception as e:
-                logger.error(f"Failed to send quick-approve email for job {token}: {e}")
+            company_smtp = None
+            if company.smtp_host and company.smtp_username and company.smtp_password:
+                company_smtp = {
+                    "host": company.smtp_host,
+                    "port": company.smtp_port or 587,
+                    "username": company.smtp_username,
+                    "password": company.smtp_password,
+                    "from_email": company.smtp_from_email or company.smtp_username,
+                }
+            background_tasks.add_task(
+                notifications.send_quote_approved_email,
+                customer_email=job.customer_email,
+                customer_name=job.customer_name or "",
+                company_name=company.company_name,
+                final_price=final_price,
+                quote_url=booking_url,
+                pickup_label=(job.pickup or {}).get("label", ""),
+                dropoff_label=(job.dropoff or {}).get("label", ""),
+                company_phone=company.phone or "",
+                company_email=company.email or "",
+                smtp_config=company_smtp
+            )
 
         return JSONResponse({"success": True, "final_price": final_price})
 
@@ -4202,7 +4290,7 @@ def create_checkout(
     company = verify_company_access(company_slug, current_user)
 
     # Build success and cancel URLs
-    app_url = os.getenv("APP_URL", "https://primehaul.co.uk")
+    app_url = settings.APP_URL
     success_url = f"{app_url}/{company_slug}/billing?billing_success=true"
     cancel_url = f"{app_url}/{company_slug}/billing?billing_canceled=true"
 
@@ -4235,7 +4323,7 @@ def manage_subscription(
     company = verify_company_access(company_slug, current_user)
 
     # Build return URL
-    app_url = os.getenv("APP_URL", "https://primehaul.co.uk")
+    app_url = settings.APP_URL
     return_url = f"{app_url}/{company_slug}/billing"
 
     try:
@@ -4321,7 +4409,7 @@ def start_stripe_connect(
     """Start Stripe Connect onboarding for receiving deposits"""
     company = verify_company_access(company_slug, current_user)
 
-    app_url = os.getenv("APP_URL", "https://primehaul.co.uk")
+    app_url = settings.APP_URL
 
     try:
         # Create Connect account if needed
@@ -4405,7 +4493,7 @@ def create_checkout_session_deposit(
     quote = calculate_quote(job, db)
     deposit_amount_pence = int(quote["estimate_low"] * 0.20 * 100)
 
-    app_url = os.getenv("APP_URL", "https://primehaul.co.uk")
+    app_url = settings.APP_URL
 
     try:
         import stripe
@@ -4481,11 +4569,11 @@ async def upload_logo(
     """Upload company logo"""
     company = verify_company_access(company_slug, current_user)
 
-    # Validate file type
-    allowed_types = ["image/png", "image/jpeg", "image/jpg", "image/svg+xml"]
+    # Validate file type (SVG excluded — XSS vector)
+    allowed_types = ["image/png", "image/jpeg", "image/jpg", "image/webp"]
     if logo.content_type not in allowed_types:
         return RedirectResponse(
-            url=f"/{company_slug}/admin/branding?error=Invalid file type. Please upload PNG, JPG, or SVG.",
+            url=f"/{company_slug}/admin/branding?error=Invalid file type. Please upload PNG, JPG, or WebP.",
             status_code=303
         )
 
@@ -4501,8 +4589,12 @@ async def upload_logo(
     logos_dir = Path("app/static/logos")
     logos_dir.mkdir(parents=True, exist_ok=True)
 
-    # Determine file extension
-    extension = logo.filename.split('.')[-1] if '.' in logo.filename else 'png'
+    # Determine file extension (validate against allowlist)
+    ALLOWED_EXTENSIONS = {"png", "jpg", "jpeg", "webp"}
+    _, ext = os.path.splitext(logo.filename or "logo.png")
+    extension = ext.lstrip(".").lower()
+    if extension not in ALLOWED_EXTENSIONS:
+        extension = "png"
     filename = f"{company.id}.{extension}"
     file_path = logos_dir / filename
 
@@ -4882,7 +4974,7 @@ def admin_terms_page(
     try:
         major, minor = map(int, current_version.split('.'))
         next_version = f"{major}.{minor + 1}"
-    except:
+    except (ValueError, TypeError):
         next_version = "1.1"
 
     # Get success/error from query params
@@ -4941,7 +5033,7 @@ async def upload_terms_document(
         try:
             major, minor = map(int, company.tcs_version.split('.'))
             new_version = f"{major}.{minor + 1}"
-        except:
+        except (ValueError, TypeError):
             new_version = "1.1"
     else:
         new_version = "1.0"
@@ -5349,7 +5441,7 @@ async def track_user_interaction(
         if metadata:
             try:
                 meta_dict = json.loads(metadata)
-            except:
+            except (json.JSONDecodeError, TypeError):
                 pass
 
         # Create interaction record
@@ -5459,7 +5551,7 @@ def marketplace_move_get(request: Request, token: str, db: Session = Depends(get
         "nav_title": "Set your move",
         "back_url": f"/marketplace",
         "progress": 25,
-        "mapbox_token": os.getenv("MAPBOX_ACCESS_TOKEN", ""),
+        "mapbox_token": settings.MAPBOX_ACCESS_TOKEN,
         "pickup": job.pickup,
         "dropoff": job.dropoff,
     })
@@ -5890,16 +5982,16 @@ def get_marketplace_stats_endpoint(db: Session = Depends(get_db)):
 # Locked to Jaybo only - Feb 2026
 # ============================================
 
-SALES_PASSWORD = os.getenv("SALES_PASSWORD", "Jaybo2026")
+SALES_PASSWORD = settings.SALES_PASSWORD
+SALES_SESSION_KEY = secrets.token_hex(32)  # Randomized per deploy
+
 
 def verify_sales_password(request: Request) -> bool:
     """Check if sales dashboard is authenticated via cookie"""
     token = request.cookies.get("sales_auth")
     if not token:
         return False
-    import hashlib
-    expected = hashlib.sha256(SALES_PASSWORD.encode()).hexdigest()[:32]
-    return token == expected
+    return secrets.compare_digest(token, SALES_SESSION_KEY)
 
 
 @app.get("/sales/login", response_class=HTMLResponse)
@@ -5935,13 +6027,12 @@ def sales_login_page(request: Request):
 
 
 @app.post("/sales/login")
+@limiter.limit("3/minute")
 def sales_login(request: Request, password: str = Form(...)):
     """Authenticate sales dashboard"""
-    if password == SALES_PASSWORD:
-        import hashlib
-        token = hashlib.sha256(SALES_PASSWORD.encode()).hexdigest()[:32]
+    if secrets.compare_digest(password, SALES_PASSWORD):
         response = RedirectResponse(url="/sales", status_code=303)
-        response.set_cookie("sales_auth", token, max_age=86400 * 7, httponly=True)
+        response.set_cookie("sales_auth", SALES_SESSION_KEY, max_age=86400 * 7, httponly=True, secure=True)
         return response
     return RedirectResponse(url="/sales/login?error=1", status_code=303)
 
@@ -5973,7 +6064,7 @@ def sales_dashboard(request: Request, db: Session = Depends(get_db)):
     ).count()
 
     # Check if automation is enabled
-    automation_enabled = os.getenv("SALES_AUTOMATION", "false").lower() == "true"
+    automation_enabled = settings.SALES_AUTOMATION
 
     return templates.TemplateResponse("sales_dashboard.html", {
         "request": request,
@@ -6121,4 +6212,27 @@ async def text_to_speech(request: Request):
     except Exception as e:
         logger.error(f"TTS error: {e}")
         return JSONResponse({"error": "Speech generation failed"}, status_code=500)
+
+
+# ============================================================================
+# CUSTOM ERROR HANDLERS
+# ============================================================================
+
+from starlette.exceptions import HTTPException as StarletteHTTPException
+
+@app.exception_handler(404)
+async def not_found_handler(request: Request, exc: StarletteHTTPException):
+    """Custom 404 page"""
+    return templates.TemplateResponse("error_404.html", {"request": request}, status_code=404)
+
+@app.exception_handler(500)
+async def server_error_handler(request: Request, exc: Exception):
+    """Custom 500 page with plain HTML fallback"""
+    try:
+        return templates.TemplateResponse("error_500.html", {"request": request}, status_code=500)
+    except Exception:
+        return HTMLResponse(
+            content='<html><body style="background:#0b0b0c;color:#fff;font-family:sans-serif;display:flex;align-items:center;justify-content:center;height:100vh;margin:0"><div style="text-align:center"><h1 style="font-size:48px;color:#ff6b6b">500</h1><p>Something went wrong</p><a href="/" style="color:#2ee59d">Back to Home</a></div></body></html>',
+            status_code=500
+        )
 

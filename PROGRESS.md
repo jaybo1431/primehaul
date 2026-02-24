@@ -1,19 +1,17 @@
 # PrimeHaul OS - Progress Log
 
-**Last Updated:** 23 February 2026
+**Last Updated:** 24 February 2026
 **Repository:** github.com/jaybo1431/primehaul
 **Branch:** main
 **Slogan:** *An intelligent move.*
 
 ---
 
-## Current Status: READY FOR PUBLIC LAUNCH
+## Current Status: HARDENED & LAUNCH-READY
 
-The platform is fully deployed at **primehaul.co.uk** — now locked down and ready for customer acquisition.
+The platform is fully deployed at **primehaul.co.uk** — security-hardened, performance-optimized, and tested.
 
-**Passwords (Jaybo Only):**
-- Superadmin: `/superadmin` → `Jaybo2026`
-- Sales Dashboard: `/sales` → `Jaybo2026`
+**Passwords:** Now loaded from environment variables (Railway). No more hardcoded defaults.
 
 ---
 
@@ -75,6 +73,60 @@ The platform is fully deployed at **primehaul.co.uk** — now locked down and re
 - Each company has unique URL: `/s/{company-slug}/{token}/...`
 - Surveys ONLY appear in the correct company's dashboard
 - Complete data isolation via `company_id` foreign keys
+
+---
+
+## Session Log: 24 February 2026
+
+### Full Security Audit & Sharpening — 4 Phases Implemented
+
+**Phase 1: Security Hardening**
+- Removed all hardcoded password defaults (`SUPERADMIN_PASSWORD`, `SALES_PASSWORD`) — app now crashes on startup if not set via env vars
+- `DEV_DASHBOARD_PASSWORD` keeps default for local dev but logs a warning
+- Created centralized `app/config.py` with `Settings` class — replaced 30+ scattered `os.getenv()` calls
+- Session keys now randomized per deploy (`secrets.token_hex(32)`) — all sessions invalidated on restart
+- All password comparisons now use `secrets.compare_digest()` (timing-attack safe)
+- Blocked SVG uploads for logos (XSS vector) — now only allows PNG, JPG, WebP
+- Fixed extension parsing to use `os.path.splitext()` with allowlist
+- Fixed 4 bare `except:` clauses with specific exception types
+- Added 3 security headers: `Referrer-Policy`, `Permissions-Policy`, `Content-Security-Policy`
+- Added rate limiting via `slowapi`: `/auth/login` (5/min), `/superadmin/login` (3/min), `/sales/login` (3/min)
+
+**Phase 2: Performance**
+- Wrapped email and SMS sending in `BackgroundTasks` on both approval endpoints — response returns instantly
+- Wrapped AI vision calls in `asyncio.to_thread()` — frees event loop during 3-8s OpenAI calls
+- Fixed N+1 queries in superadmin dashboard — batch-fetches companies instead of individual queries (3 lookups replaced ~55)
+- Added database indexes: `idx_jobs_created_at`, `idx_jobs_status_submitted`, `idx_item_feedback_created`
+- Added `Cache-Control: public, max-age=604800, immutable` for `/static/*` paths
+- Added photo compression on upload: Pillow resizes to max 2048px, JPEG quality 80, auto-rotates from EXIF
+
+**Phase 3: UX Polish**
+- Created custom 404 and 500 error pages matching PrimeHaul dark theme
+- 500 handler has plain HTML fallback if template rendering fails
+- Added canonical URL, Twitter Card tags, og:image to landing page
+- Added JSON-LD `SoftwareApplication` structured data for Google rich results
+
+**Phase 4: Test Infrastructure**
+- Added `pytest`, `httpx`, `pytest-asyncio` to requirements
+- Created `tests/conftest.py` with SQLite in-memory database, UUID/JSONB type adapters
+- Created 19 tests across 3 files: `test_auth.py`, `test_survey_flow.py`, `test_quote_approval.py`
+- All 19 tests passing
+
+**Files Changed:**
+- `app/config.py` — New centralized settings
+- `app/main.py` — Security fixes, performance optimizations, error handlers
+- `requirements.txt` — Added `slowapi`, `pytest`, `httpx`, `pytest-asyncio`
+- `alembic/versions/fix015_performance_indexes.py` — New performance indexes
+- `app/templates/error_404.html` — New custom 404 page
+- `app/templates/error_500.html` — New custom 500 page
+- `app/templates/landing_primehaul_uk.html` — SEO meta tags, OG tags, JSON-LD
+- `tests/` — New test infrastructure and test files
+- `pytest.ini` — Test configuration
+
+**Action Required:**
+- Set strong `SUPERADMIN_PASSWORD` and `SALES_PASSWORD` in Railway env vars (app will crash without them)
+- Run `alembic upgrade head` to apply performance indexes
+- Create `app/static/og-image.png` (1200x630px) for social sharing previews
 
 ---
 
