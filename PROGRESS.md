@@ -78,6 +78,77 @@ The platform is fully deployed at **primehaul.co.uk** — now locked down and re
 
 ---
 
+## Session Log: 23 February 2026 (Continued)
+
+### Video Ads Shortened — 100s → 59s
+
+**Problem:** Feedback that the promo videos were too long at ~100 seconds.
+
+**Solution:** Rewrote all 7 voiceover scripts to be more concise, regenerated audio via ElevenLabs, and compressed animation timing across all scenes.
+
+**Script Changes:**
+- S2 (Problem): Cut to two sharp sentences about wasted site visits and losing customers
+- S3 (Customer Flow): Tightened to "send a link, drop a pin, snap photos, done"
+- S4 (AI Magic): Focused on scan → identify → calculate, no filler
+- S5 (Boss Dashboard): Streamlined to set price → approve → deposit paid
+- S6 (Results): Kept punchy stats — 10x faster, 30% more jobs, zero site visits
+- S7 (CTA): Unchanged — already tight
+
+**Animation Timing Compressed:**
+- Scene 2: Pain point delays (30,180,320) → (20,100,175)
+- Scene 3: Screen transitions (120,280,440) → (70,160,250)
+- Scene 4: Scan/accuracy/totals/quote delays all compressed ~60%
+- Scene 5: Notification/card/price/approve/deposit delays all compressed ~60%
+
+**New Durations:**
+| Scene | Old | New |
+|-------|-----|-----|
+| S1 Intro | 4.7s | 4.7s |
+| S2 Problem | 12.3s | 8.3s |
+| S3 Customer Flow | 18.3s | 9.8s |
+| S4 AI Magic | 23.7s | 11.7s |
+| S5 Boss Dashboard | 25.3s | 12.7s |
+| S6 Results | 8.7s | 6.9s |
+| S7 CTA | 6.3s | 4.5s |
+| **Total** | **~100s** | **~59s** |
+
+**Renders (all 3 formats):**
+- `video/out/primehaul-demo.mp4` — 1920x1080, 6.1 MB
+- `video/out/primehaul-tiktok.mp4` — 1080x1920, 6.2 MB
+- `video/out/primehaul-square.mp4` — 1080x1080, 5.9 MB
+
+**Files Modified:**
+- `video/generate-audio.js` — Shorter scripts for all 7 scenes
+- `video/public/s1-s7.mp3` — Regenerated audio files
+- `video/src/helpers/timing.ts` — Updated durations (1760 frames ≈ 58.7s)
+- `video/src/scenes/Scene2Problem.tsx` — Compressed pain point delays
+- `video/src/scenes/Scene3CustomerFlow.tsx` — Compressed screen transitions
+- `video/src/scenes/Scene4AImagic.tsx` — Compressed all animation delays
+- `video/src/scenes/Scene5BossDashboard.tsx` — Compressed all animation delays
+
+### ICO Registration & Contact Emails
+
+- Updated `legal_privacy.html` — ICO registration from `[To be registered]` to `00013181949`
+- Updated `landing_primehaul_uk.html` — ICO in FAQ, contact emails in footer (info@, sales@, support@), ICO in footer
+- Updated `app/notifications.py` — Added ICO and info@ to all email footers
+
+### Google Workspace Email Migration
+
+Migrated MX records from Namecheap Private Email to Google Workspace:
+- Added 5 Google MX records in Namecheap DNS
+- Verified propagation via Google DNS
+- Still pending: App Password generation from hello@primehaul.co.uk + Railway SMTP env vars
+
+### Commits
+
+```
+10d01f7 Add ICO registration number and contact emails to footer and legal pages
+86c4eb1 Update PROGRESS.md with 23 Feb session — email notifications and SMTP settings
+1a7912d Shorten video ads from 100s to 59s with tighter scripts and animations
+```
+
+---
+
 ## Session Log: 23 February 2026
 
 ### Quote Approval Email Notification
