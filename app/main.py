@@ -62,6 +62,22 @@ app = FastAPI(title="PrimeHaul OS", version="1.0.0")
 app.state.limiter = limiter
 app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 
+# Handle 401 errors: redirect browser requests to login instead of showing blank JSON
+@app.exception_handler(HTTPException)
+async def http_exception_handler(request: Request, exc: HTTPException):
+    if exc.status_code == 401:
+        # Check if this is a browser request (wants HTML, not an API/fetch call)
+        accept = request.headers.get("accept", "")
+        if "text/html" in accept:
+            # Redirect to login with a return URL
+            login_url = f"/auth/login?next={request.url.path}"
+            return RedirectResponse(url=login_url, status_code=303)
+    # For all other HTTP exceptions, return default JSON response
+    return JSONResponse(
+        status_code=exc.status_code,
+        content={"detail": exc.detail},
+    )
+
 # Trust Railway's proxy headers (X-Forwarded-Proto, X-Forwarded-For)
 from uvicorn.middleware.proxy_headers import ProxyHeadersMiddleware
 app.add_middleware(ProxyHeadersMiddleware, trusted_hosts=["*"])
@@ -715,10 +731,11 @@ def _time_ago(dt, now):
 # ============================================================================
 
 @app.get("/auth/login", response_class=HTMLResponse)
-async def login_page(request: Request):
+async def login_page(request: Request, next: Optional[str] = None):
     """Show login page"""
     return templates.TemplateResponse("auth_login.html", {
-        "request": request
+        "request": request,
+        "next": next or ""
     })
 
 
@@ -728,6 +745,7 @@ async def login(
     request: Request,
     email: str = Form(...),
     password: str = Form(...),
+    next: Optional[str] = Form(None),
     db: Session = Depends(get_db)
 ):
     """Process login and create JWT token"""
@@ -737,7 +755,8 @@ async def login(
     if not user or not verify_password(password, user.password_hash):
         return templates.TemplateResponse("auth_login.html", {
             "request": request,
-            "error": "Invalid email or password"
+            "error": "Invalid email or password",
+            "next": next or ""
         })
 
     # Check company subscription status
@@ -745,7 +764,8 @@ async def login(
     if company.subscription_status not in ['trial', 'active']:
         return templates.TemplateResponse("auth_login.html", {
             "request": request,
-            "error": "Your subscription has expired. Please contact support."
+            "error": "Your subscription has expired. Please contact support.",
+            "next": next or ""
         })
 
     # Create JWT token
@@ -755,8 +775,11 @@ async def login(
     user.last_login_at = datetime.utcnow()
     db.commit()
 
-    # Redirect to company dashboard
-    response = RedirectResponse(url=f"/{company.slug}/admin/dashboard", status_code=303)
+    # Redirect to next URL if provided and safe, otherwise to company dashboard
+    redirect_url = f"/{company.slug}/admin/dashboard"
+    if next and next.startswith("/") and not next.startswith("//"):
+        redirect_url = next
+    response = RedirectResponse(url=redirect_url, status_code=303)
     response.set_cookie(
         key="access_token",
         value=token,

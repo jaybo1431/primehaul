@@ -146,6 +146,7 @@
             {% endif %}
 
             <form method="POST" action="/auth/login">
+                {% if next %}<input type="hidden" name="next" value="{{ next }}">{% endif %}
                 <div class="form-group">
                     <label>Email Address</label>
                     <input
