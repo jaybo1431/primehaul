@@ -905,8 +905,9 @@ def send_quote_approved_email(
     customer_email: str,
     customer_name: str,
     company_name: str,
-    final_price: int,
-    quote_url: str,
+    estimate_low: int,
+    estimate_high: int,
+    accept_url: str,
     pickup_label: str = "",
     dropoff_label: str = "",
     company_phone: str = "",
@@ -915,23 +916,12 @@ def send_quote_approved_email(
 ) -> bool:
     """
     Send email to customer when their quote has been approved.
-
-    Args:
-        customer_email: Customer's email address
-        customer_name: Customer's name
-        company_name: Name of the removal company
-        final_price: Approved final price in pounds
-        quote_url: URL to view/accept the quote
-        pickup_label: Collection address label (optional)
-        dropoff_label: Delivery address label (optional)
-        company_phone: Company phone number (optional)
-        company_email: Company email for reply-to (optional)
-
-    Returns:
-        True if sent successfully
+    Shows an estimate range and a simple "I'm Happy" CTA.
     """
     greeting = f"Hi {customer_name}," if customer_name else "Hi there,"
-    price_formatted = format_currency(final_price)
+    price_low = format_currency(estimate_low)
+    price_high = format_currency(estimate_high)
+    price_range = f"{price_low} – {price_high}"
 
     # Build move summary section if addresses available
     move_summary_html = ""
@@ -943,7 +933,7 @@ def send_quote_approved_email(
                     {'<p style="margin: 8px 0;"><strong>Delivery:</strong> ' + dropoff_label + '</p>' if dropoff_label else ''}
                 </div>"""
 
-    subject = f"Your Quote is Ready — {price_formatted} from {company_name}"
+    subject = f"Your Quote Estimate — {price_range} from {company_name}"
 
     html_body = f"""
     <!DOCTYPE html>
@@ -969,7 +959,7 @@ def send_quote_approved_email(
     <body>
         <div class="container">
             <div class="header">
-                <h1>Your Quote is Ready</h1>
+                <h1>Your Estimated Quote</h1>
                 <p>From {company_name}</p>
             </div>
 
@@ -977,27 +967,27 @@ def send_quote_approved_email(
                 <p style="font-size: 17px;">{greeting}</p>
 
                 <p style="font-size: 17px;">
-                    Great news! <strong>{company_name}</strong> has reviewed your move details and prepared a fixed-price quote for you.
+                    Great news! <strong>{company_name}</strong> has reviewed your move details and prepared an estimate for you.
                 </p>
 
                 <div class="price-card">
-                    <div class="price-label">Your Approved Quote</div>
-                    <div class="price">{price_formatted}</div>
-                    <p style="color: #666; margin: 5px 0 0 0; font-size: 14px;">Fixed price — no hidden fees</p>
+                    <div class="price-label">Your Estimated Quote</div>
+                    <div class="price">{price_range}</div>
+                    <p style="color: #666; margin: 5px 0 0 0; font-size: 14px;">Based on your move details</p>
                 </div>
 
                 {move_summary_html}
 
                 <center>
-                    <a href="{quote_url}" class="cta-button">
-                        View Quote & Book →
+                    <a href="{accept_url}" class="cta-button">
+                        I'm Happy With This Quote
                     </a>
-                    <p style="color: #888; font-size: 13px; margin-top: 10px;">Click to view full details and confirm your booking</p>
+                    <p style="color: #888; font-size: 13px; margin-top: 10px;">Click to let {company_name} know you'd like to proceed</p>
                 </center>
 
                 <div class="info-box">
                     <strong>What happens next?</strong><br>
-                    Click the button above to review your quote. If you're happy, you can confirm your booking and choose a move date — all online, no phone calls needed.
+                    If you're happy with this estimate, click the button above. We'll let {company_name} know, and they'll be in touch to finalise your booking.
                 </div>
 
                 <div class="company-info">
@@ -1019,17 +1009,17 @@ def send_quote_approved_email(
 
     text_body = f"""{greeting}
 
-Great news! {company_name} has reviewed your move details and prepared a fixed-price quote for you.
+Great news! {company_name} has reviewed your move details and prepared an estimate for you.
 
-YOUR APPROVED QUOTE: {price_formatted}
-Fixed price — no hidden fees.
+YOUR ESTIMATED QUOTE: {price_range}
+Based on your move details.
 
 {f"Collection: {pickup_label}" if pickup_label else ""}
 {f"Delivery: {dropoff_label}" if dropoff_label else ""}
 
-VIEW QUOTE & BOOK: {quote_url}
+I'M HAPPY WITH THIS QUOTE: {accept_url}
 
-Click the link above to review your quote and confirm your booking.
+If you're happy with this estimate, click the link above. We'll let {company_name} know, and they'll be in touch to finalise your booking.
 
 {company_name}
 {company_phone or ''}
@@ -1049,3 +1039,117 @@ Click the link above to review your quote and confirm your booking.
             from_name=f"{company_name} via PrimeHaul",
             reply_to=company_email or None
         )
+
+
+# ==========================================
+# CUSTOMER ACCEPTED QUOTE NOTIFICATION (to boss)
+# ==========================================
+
+def send_customer_accepted_notification(
+    company_email: str,
+    company_name: str,
+    customer_name: str,
+    customer_email: str,
+    customer_phone: str = "",
+    estimate_low: int = 0,
+    estimate_high: int = 0,
+    pickup_label: str = "",
+    dropoff_label: str = "",
+) -> bool:
+    """
+    Notify the company that a customer has accepted their quote estimate.
+    Sends to the company email with reply-to set to the customer.
+    """
+    price_low = format_currency(estimate_low)
+    price_high = format_currency(estimate_high)
+    price_range = f"{price_low} – {price_high}"
+
+    subject = f"Quote Accepted! {customer_name} is ready to book"
+
+    html_body = f"""
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <style>
+            body {{ font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif; line-height: 1.6; color: #333; margin: 0; padding: 0; }}
+            .container {{ max-width: 600px; margin: 0 auto; padding: 20px; }}
+            .header {{ background: linear-gradient(135deg, #2ee59d 0%, #26c785 100%); color: white; padding: 30px; border-radius: 12px 12px 0 0; text-align: center; }}
+            .header h1 {{ margin: 0; font-size: 24px; }}
+            .header p {{ margin: 10px 0 0 0; opacity: 0.9; }}
+            .content {{ background: #f9f9f9; padding: 30px; border-radius: 0 0 12px 12px; }}
+            .detail-card {{ background: white; padding: 25px; border-radius: 10px; margin: 20px 0; border: 1px solid #e0e0e0; }}
+            .detail-row {{ padding: 8px 0; border-bottom: 1px solid #f0f0f0; }}
+            .detail-row:last-child {{ border-bottom: none; }}
+            .detail-label {{ color: #666; font-size: 13px; text-transform: uppercase; letter-spacing: 0.5px; }}
+            .detail-value {{ font-weight: 600; font-size: 16px; margin-top: 4px; }}
+            .cta-button {{ display: inline-block; background: #2ee59d; color: white; padding: 16px 36px; text-decoration: none; border-radius: 8px; font-weight: 700; font-size: 16px; margin: 20px 0; }}
+            .footer {{ text-align: center; color: #999; font-size: 12px; margin-top: 30px; padding-top: 20px; border-top: 1px solid #eee; }}
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <div class="header">
+                <h1>Customer Accepted!</h1>
+                <p>{customer_name} is happy with the estimate</p>
+            </div>
+
+            <div class="content">
+                <p style="font-size: 17px;">
+                    Great news! <strong>{customer_name}</strong> has confirmed they're happy with the quote estimate of <strong>{price_range}</strong>.
+                </p>
+
+                <div class="detail-card">
+                    <div class="detail-row">
+                        <div class="detail-label">Customer Name</div>
+                        <div class="detail-value">{customer_name}</div>
+                    </div>
+                    <div class="detail-row">
+                        <div class="detail-label">Email</div>
+                        <div class="detail-value"><a href="mailto:{customer_email}">{customer_email}</a></div>
+                    </div>
+                    {f'<div class="detail-row"><div class="detail-label">Phone</div><div class="detail-value"><a href="tel:{customer_phone}">{customer_phone}</a></div></div>' if customer_phone else ''}
+                    <div class="detail-row">
+                        <div class="detail-label">Estimate</div>
+                        <div class="detail-value" style="color: #2ee59d;">{price_range}</div>
+                    </div>
+                    {f'<div class="detail-row"><div class="detail-label">Collection</div><div class="detail-value">{pickup_label}</div></div>' if pickup_label else ''}
+                    {f'<div class="detail-row"><div class="detail-label">Delivery</div><div class="detail-value">{dropoff_label}</div></div>' if dropoff_label else ''}
+                </div>
+
+                <center>
+                    <a href="mailto:{customer_email}" class="cta-button">
+                        Reply to {customer_name}
+                    </a>
+                    <p style="color: #888; font-size: 13px; margin-top: 10px;">Get in touch to arrange the booking</p>
+                </center>
+            </div>
+
+            <div class="footer">
+                <p>PrimeHaul Notification</p>
+                <p style="color: #bbb; font-size: 11px;">Powered by <a href="https://primehaul.co.uk" style="color: #bbb;">PrimeHaul</a> — AI-powered removal quotes</p>
+            </div>
+        </div>
+    </body>
+    </html>
+    """
+
+    text_body = f"""Quote Accepted! {customer_name} is ready to book.
+
+{customer_name} has confirmed they're happy with the estimate of {price_range}.
+
+Customer Details:
+- Name: {customer_name}
+- Email: {customer_email}
+{f"- Phone: {customer_phone}" if customer_phone else ""}
+- Estimate: {price_range}
+{f"- Collection: {pickup_label}" if pickup_label else ""}
+{f"- Delivery: {dropoff_label}" if dropoff_label else ""}
+
+Reply to {customer_email} to arrange the booking.
+    """
+
+    return send_email(
+        company_email, subject, html_body, text_body,
+        from_name="PrimeHaul",
+        reply_to=customer_email
+    )

@@ -93,11 +93,11 @@ def notify_quote_approved(customer_name: str, customer_phone: str, company_name:
     """Send notification when quote is approved"""
     message = f"""Hi {customer_name}! ✅
 
-Your {company_name} quote is APPROVED!
+Your {company_name} quote estimate is ready!
 
-💰 Price: £{price_low:,}-£{price_high:,}
+💰 Estimate: £{price_low:,}-£{price_high:,}
 
-Book your move now:
+Happy with the price? Click to let us know:
 {booking_url}
 
 Reply STOP to opt out"""

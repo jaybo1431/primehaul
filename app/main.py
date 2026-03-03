@@ -3145,37 +3145,99 @@ def do_submit_quote(
 
 
 # ----------------------------
-# CALENDAR BOOKING
+# ACCEPT QUOTE (simplified flow)
 # ----------------------------
 
-@app.get("/s/{company_slug}/{token}/booking", response_class=HTMLResponse)
-def booking_calendar_get(request: Request, company_slug: str, token: str, db: Session = Depends(get_db)):
-    """Calendar booking page with time slots"""
-    from datetime import date, timedelta
-
+@app.get("/s/{company_slug}/{token}/accept-quote", response_class=HTMLResponse)
+def accept_quote(
+    request: Request,
+    company_slug: str,
+    token: str,
+    db: Session = Depends(get_db),
+    background_tasks: BackgroundTasks = BackgroundTasks()
+):
+    """Customer clicks 'I'm Happy' — marks quote as accepted, notifies boss"""
     company = request.state.company
-    job = get_or_create_job(company.id, token, db)
+    job = db.query(Job).filter(
+        Job.token == token,
+        Job.company_id == company.id
+    ).first()
+
+    if not job:
+        return HTMLResponse("<h1>Quote not found</h1>", status_code=404)
+
     quote = calculate_quote(job, db)
+    estimate_low = quote["estimate_low"]
+    estimate_high = quote["estimate_high"]
 
-    # Set date range (today to 180 days out for flexibility)
-    min_date = date.today().isoformat()
-    max_date = (date.today() + timedelta(days=180)).isoformat()
+    # Idempotent: only process on first visit
+    if job.status == "approved":
+        job.status = "customer_accepted"
+        db.commit()
+        logger.info(f"Job {token} accepted by customer {job.customer_name}")
 
-    return templates.TemplateResponse("booking_calendar.html", {
+        # Send boss notification email
+        if company.email:
+            background_tasks.add_task(
+                notifications.send_customer_accepted_notification,
+                company_email=company.email,
+                company_name=company.company_name,
+                customer_name=job.customer_name or "",
+                customer_email=job.customer_email or "",
+                customer_phone=job.customer_phone or "",
+                estimate_low=estimate_low,
+                estimate_high=estimate_high,
+                pickup_label=(job.pickup or {}).get("label", ""),
+                dropoff_label=(job.dropoff or {}).get("label", ""),
+            )
+
+        # Track activity
+        try:
+            from app import activity_tracker
+            activity_tracker.track_customer_action(db, str(company.id), "quote_accepted", job_token=token, metadata={
+                "customer_name": job.customer_name,
+                "estimate_low": estimate_low,
+                "estimate_high": estimate_high,
+            })
+        except Exception as e:
+            logger.debug(f"Activity tracking error: {e}")
+
+        # Track analytics
+        track_event(
+            company_id=company.id,
+            event_type='customer_accepted_quote',
+            metadata={
+                'job_token': token,
+                'customer_name': job.customer_name,
+                'estimate_low': estimate_low,
+                'estimate_high': estimate_high,
+                'description': f"{job.customer_name} accepted quote estimate"
+            },
+            db=db
+        )
+
+    return templates.TemplateResponse("quote_accepted.html", {
         "request": request,
         "token": token,
         "company_slug": company_slug,
         "branding": request.state.branding,
-        "title": f"Book Move - {company.company_name}",
-        "nav_title": "Book Your Move",
-        "back_url": f"/s/{company_slug}/{token}/quote-preview",
-        "progress": 95,
+        "title": f"Thank You — {company.company_name}",
+        "nav_title": "Quote Accepted",
         "job": job,
-        "estimate_low": quote["estimate_low"],
-        "estimate_high": quote["estimate_high"],
-        "min_date": min_date,
-        "max_date": max_date,
+        "company": company,
+        "estimate_low": estimate_low,
+        "estimate_high": estimate_high,
     })
+
+
+# ----------------------------
+# CALENDAR BOOKING (redirects to accept-quote)
+# ----------------------------
+
+@app.get("/s/{company_slug}/{token}/booking")
+def booking_calendar_get(company_slug: str, token: str):
+    """Redirect old booking URL to new accept-quote flow"""
+    return RedirectResponse(url=f"/s/{company_slug}/{token}/accept-quote", status_code=301)
 
 
 @app.post("/s/{company_slug}/{token}/booking/confirm")
@@ -3883,15 +3945,23 @@ def admin_approve_job(
         except Exception as e:
             logger.debug(f"Activity tracking error: {e}")
 
-        booking_url = f"https://{settings.RAILWAY_PUBLIC_DOMAIN}/s/{company_slug}/{token}/booking"
+        # Calculate quote for estimate range
+        quote = calculate_quote(job, db)
+        estimate_low = quote["estimate_low"]
+        estimate_high = quote["estimate_high"]
+
+        accept_url = f"https://{settings.RAILWAY_PUBLIC_DOMAIN}/s/{company_slug}/{token}/accept-quote"
 
         # Send SMS notification in background
         if job.customer_phone:
             background_tasks.add_task(
                 notify_quote_approved,
-                phone=job.customer_phone,
+                customer_name=job.customer_name or "",
+                customer_phone=job.customer_phone,
                 company_name=company.company_name,
-                booking_url=booking_url
+                price_low=estimate_low,
+                price_high=estimate_high,
+                booking_url=accept_url
             )
 
         # Send email notification in background
@@ -3910,8 +3980,9 @@ def admin_approve_job(
                 customer_email=job.customer_email,
                 customer_name=job.customer_name or "",
                 company_name=company.company_name,
-                final_price=final_price,
-                quote_url=booking_url,
+                estimate_low=estimate_low,
+                estimate_high=estimate_high,
+                accept_url=accept_url,
                 pickup_label=(job.pickup or {}).get("label", ""),
                 dropoff_label=(job.dropoff or {}).get("label", ""),
                 company_phone=company.phone or "",
@@ -4058,7 +4129,10 @@ def admin_quick_approve(
         db.commit()
         logger.info(f"Job {token} quick-approved by {current_user.email} at £{final_price}")
 
-        booking_url = f"https://{settings.RAILWAY_PUBLIC_DOMAIN}/s/{company_slug}/{token}/booking"
+        estimate_low = quote["estimate_low"]
+        estimate_high = quote["estimate_high"]
+
+        accept_url = f"https://{settings.RAILWAY_PUBLIC_DOMAIN}/s/{company_slug}/{token}/accept-quote"
 
         # Send SMS notification in background
         if job.customer_phone and job.customer_name:
@@ -4067,9 +4141,9 @@ def admin_quick_approve(
                 customer_name=job.customer_name,
                 customer_phone=job.customer_phone,
                 company_name=company.company_name,
-                price_low=final_price,
-                price_high=final_price,
-                booking_url=booking_url
+                price_low=estimate_low,
+                price_high=estimate_high,
+                booking_url=accept_url
             )
 
         # Send email notification in background
@@ -4088,8 +4162,9 @@ def admin_quick_approve(
                 customer_email=job.customer_email,
                 customer_name=job.customer_name or "",
                 company_name=company.company_name,
-                final_price=final_price,
-                quote_url=booking_url,
+                estimate_low=estimate_low,
+                estimate_high=estimate_high,
+                accept_url=accept_url,
                 pickup_label=(job.pickup or {}).get("label", ""),
                 dropoff_label=(job.dropoff or {}).get("label", ""),
                 company_phone=company.phone or "",
