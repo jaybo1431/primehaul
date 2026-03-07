@@ -1,6 +1,6 @@
 # PrimeHaul OS - Progress Log
 
-**Last Updated:** 24 February 2026
+**Last Updated:** 3 March 2026
 **Repository:** github.com/jaybo1431/primehaul
 **Branch:** main
 **Slogan:** *An intelligent move.*
@@ -73,6 +73,36 @@ The platform is fully deployed at **primehaul.co.uk** — security-hardened, per
 - Each company has unique URL: `/s/{company-slug}/{token}/...`
 - Surveys ONLY appear in the correct company's dashboard
 - Complete data isolation via `company_id` foreign keys
+
+---
+
+## Session Log: 3 March 2026
+
+### Simplified Quote Flow — 10 Steps → 3
+
+**Problem:** The post-approval customer journey was 10 web form steps: booking calendar → contact details → quote submission → quote preview → quote acceptance → T&Cs → move date → deposit → booking confirmed. Way too much friction.
+
+**New Flow (3 steps):**
+1. Boss approves quote → customer gets email showing **estimate range** (£X – £Y)
+2. Customer clicks **"I'm Happy With This Quote"** → simple thank-you page
+3. Boss gets **email + in-app notification** with customer contact info → continues via direct communication
+
+**Changes:**
+
+| File | What Changed |
+|------|-------------|
+| `app/notifications.py` | `send_quote_approved_email()` now takes `estimate_low`/`estimate_high` instead of `final_price`. Shows price range, CTA changed to "I'm Happy With This Quote". Added new `send_customer_accepted_notification()` that emails boss with customer contact details when they accept. |
+| `app/main.py` | Both `/admin/job/{token}/approve` and `/quick-approve` routes now pass estimate range + accept-quote URL. New `GET /s/{slug}/{token}/accept-quote` route — idempotent, sets status to `customer_accepted`, sends boss notification, tracks activity + analytics. Old `/booking` URL 301-redirects to `/accept-quote`. |
+| `app/templates/quote_accepted.html` | New clean thank-you page — green checkmark, estimate range card, 3-step "what happens next", company contact buttons. |
+| `app/sms.py` | `notify_quote_approved()` updated — shows estimate range, CTA changed to "Happy with the price? Click to let us know:" |
+
+**Old booking flow templates kept as dead code** (booking_calendar, quote_preview, etc.) — unreachable from new flow, can clean up later.
+
+### Commits
+
+```
+6066625 Simplify quote flow: end at estimate, let boss handle booking
+```
 
 ---
 
