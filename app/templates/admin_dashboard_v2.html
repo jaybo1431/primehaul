@@ -191,6 +191,10 @@
           </label>
         </div>
 
+        <div id="creditWarning" style="display:none; margin-top:12px; padding:10px 14px; background:rgba(255,107,107,.15); border:1px solid rgba(255,107,107,.3); border-radius:8px; font-size:13px; color:#ff6b6b;">
+          ⚠️ You're out of credits! <a href="/{{ company_slug }}/admin/buy-credits" style="color:#ff6b6b; font-weight:700; text-decoration:underline;">Buy more</a> to send surveys.
+        </div>
+
         <div id="generatedLinkSection" style="display:none; margin-top:14px; padding-top:14px; border-top:1px solid rgba(46,229,157,.2);">
           <div style="display:flex; gap:8px; align-items:center;">
             <input type="text" id="surveyLinkInput" readonly style="flex:1; padding:10px 12px; background:rgba(0,0,0,.3); border:1px solid var(--hair); border-radius:6px; color:#fff; font-size:13px; font-family:monospace;">
@@ -408,26 +412,25 @@
         });
 
         if (response.ok) {
+          const data = await response.json();
           btn.textContent = '✅ Approved!';
           btn.style.background = '#2ee59d';
 
-          // Remove from list after animation
-          setTimeout(() => {
-            const card = document.querySelector(`[data-job-id="${token}"]`);
-            if (card) {
-              card.style.transition = 'all 300ms ease';
-              card.style.opacity = '0';
-              card.style.transform = 'translateX(100px)';
-              setTimeout(() => card.remove(), 300);
-            }
+          // Remove card from list
+          const card = document.querySelector(`[data-job-id="${token}"]`);
+          if (card) {
+            card.style.transition = 'all 300ms ease';
+            card.style.opacity = '0';
+            card.style.transform = 'translateX(100px)';
+            setTimeout(() => card.remove(), 300);
+          }
 
-            // Update counts
-            const count = parseInt(document.getElementById('awaitingCount').textContent) - 1;
-            document.getElementById('awaitingCount').textContent = count;
+          // Update counts
+          const count = parseInt(document.getElementById('awaitingCount').textContent) - 1;
+          document.getElementById('awaitingCount').textContent = count;
 
-            // Reload page after 1 second to refresh all stats
-            setTimeout(() => location.reload(), 1000);
-          }, 800);
+          // Show approval modal with customer details
+          showApprovalModal(data);
         } else {
           btn.textContent = '❌ Failed';
           btn.disabled = false;
@@ -442,6 +445,79 @@
           btn.textContent = '⚡ Quick Approve';
         }, 2000);
       }
+    }
+
+    function showApprovalModal(data) {
+      // Remove existing modal if any
+      const existing = document.getElementById('approvalModal');
+      if (existing) existing.remove();
+
+      const name = data.customer_name || 'Customer';
+      const email = data.customer_email || '';
+      const phone = data.customer_phone || '';
+      const price = data.final_price;
+      const pickup = data.pickup_label || '';
+      const dropoff = data.dropoff_label || '';
+      const companyName = data.company_name || '{{ company.company_name }}';
+
+      const emailBody = `Hi ${name},\n\nGreat news! We've reviewed your moving survey and prepared your quote.\n\nYour estimated price is £${price}${pickup ? ' for your move from ' + pickup : ''}${dropoff ? ' to ' + dropoff : ''}.\n\nPlease get in touch if you'd like to go ahead or have any questions.\n\nBest regards,\n${companyName}`;
+
+      const modal = document.createElement('div');
+      modal.id = 'approvalModal';
+      modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:9999;display:flex;align-items:center;justify-content:center;padding:16px;';
+      modal.innerHTML = `
+        <div style="background:var(--surface,#1a1a1c);border:1px solid var(--hair);border-radius:16px;max-width:500px;width:100%;max-height:90vh;overflow-y:auto;padding:24px;">
+          <div style="text-align:center;margin-bottom:20px;">
+            <div style="font-size:40px;margin-bottom:6px;">✅</div>
+            <h2 style="font-size:20px;font-weight:800;color:#2ee59d;margin:0;">Quote Approved!</h2>
+            <div style="color:var(--muted);font-size:14px;margin-top:4px;">£${price} for ${name}</div>
+          </div>
+
+          <div style="background:rgba(46,229,157,.08);border:1px solid rgba(46,229,157,.3);border-radius:10px;padding:16px;margin-bottom:16px;">
+            <div style="font-weight:700;margin-bottom:10px;">Customer Details</div>
+            ${name ? `<div style="padding:6px 0;font-size:14px;">👤 ${name}</div>` : ''}
+            ${email ? `<div style="padding:6px 0;font-size:14px;">📧 <a href="mailto:${email}" style="color:#2ee59d;text-decoration:none;">${email}</a></div>` : ''}
+            ${phone ? `<div style="padding:6px 0;font-size:14px;">📱 <a href="tel:${phone}" style="color:#2ee59d;text-decoration:none;">${phone}</a></div>` : ''}
+            ${pickup ? `<div style="padding:6px 0;font-size:14px;">📍 <strong>From:</strong> ${pickup}</div>` : ''}
+            ${dropoff ? `<div style="padding:6px 0;font-size:14px;">📍 <strong>To:</strong> ${dropoff}</div>` : ''}
+          </div>
+
+          <div style="margin-bottom:16px;">
+            <div style="font-weight:700;margin-bottom:8px;">Email Template</div>
+            <div id="modalEmailTemplate" style="background:rgba(0,0,0,.3);border:1px solid var(--hair);border-radius:8px;padding:14px;font-size:13px;line-height:1.6;white-space:pre-wrap;position:relative;">${emailBody}<button onclick="copyModalTemplate()" id="modalCopyBtn" style="position:absolute;top:6px;right:6px;padding:5px 12px;background:#2ee59d;color:#000;border:none;border-radius:5px;font-weight:700;font-size:11px;cursor:pointer;">Copy</button></div>
+          </div>
+
+          <div style="display:flex;gap:10px;flex-wrap:wrap;">
+            ${email ? `<a href="mailto:${email}?subject=${encodeURIComponent('Your Moving Quote from ' + companyName)}&body=${encodeURIComponent(emailBody)}" style="flex:1;text-align:center;padding:12px;background:#2ee59d;color:#000;border:none;border-radius:8px;font-weight:700;font-size:14px;text-decoration:none;cursor:pointer;">📧 Email</a>` : ''}
+            ${phone ? `<a href="tel:${phone}" style="flex:1;text-align:center;padding:12px;background:rgba(46,229,157,.2);color:#2ee59d;border:none;border-radius:8px;font-weight:700;font-size:14px;text-decoration:none;cursor:pointer;">📱 Call</a>` : ''}
+            <button onclick="closeApprovalModal()" style="flex:1;padding:12px;background:rgba(255,255,255,.1);color:var(--text);border:none;border-radius:8px;font-weight:600;font-size:14px;cursor:pointer;">Close</button>
+          </div>
+        </div>
+      `;
+      document.body.appendChild(modal);
+
+      // Close on backdrop click
+      modal.addEventListener('click', (e) => {
+        if (e.target === modal) closeApprovalModal();
+      });
+    }
+
+    function copyModalTemplate() {
+      const el = document.getElementById('modalEmailTemplate');
+      const btn = document.getElementById('modalCopyBtn');
+      const text = el.textContent.replace('Copy', '').trim();
+      navigator.clipboard.writeText(text).then(() => {
+        btn.textContent = 'Copied!';
+        setTimeout(() => { btn.textContent = 'Copy'; }, 2000);
+      }).catch(() => {
+        btn.textContent = 'Copied!';
+        setTimeout(() => { btn.textContent = 'Copy'; }, 2000);
+      });
+    }
+
+    function closeApprovalModal() {
+      const modal = document.getElementById('approvalModal');
+      if (modal) modal.remove();
     }
 
     // Calculate urgency and revenue
@@ -519,7 +595,15 @@
     });
 
     // ========== SURVEY LINK GENERATOR ==========
+    const companyCredits = {{ credits|default(0) }};
+
     function generateSurveyLink() {
+      // Warn if out of credits
+      if (companyCredits <= 0) {
+        const warn = document.getElementById('creditWarning');
+        if (warn) warn.style.display = 'block';
+      }
+
       // Generate a random 8-character token
       const chars = 'abcdefghijklmnopqrstuvwxyz0123456789';
       let token = '';

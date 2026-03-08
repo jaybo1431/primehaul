@@ -44,7 +44,7 @@ class Company(Base):
     free_surveys_remaining = Column(Integer, default=3)  # Legacy - kept for historical data
 
     # Prepaid credits system (new)
-    credits = Column(Integer, default=3)  # Prepaid survey credits (3 free on signup)
+    credits = Column(Integer, default=3, server_default='3')  # Prepaid survey credits (3 free on signup)
 
     # Branding
     logo_url = Column(Text)

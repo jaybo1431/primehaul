@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+  <meta name="theme-color" content="#0b0b0c" id="themeColor"/>
+  <title>Quote Approved - {{ company.company_name }}</title>
+  <link rel="stylesheet" href="/static/app.css?v=7"/>
+  <script>
+    (function(){
+      var stored = localStorage.getItem('ph-admin-theme');
+      if(stored === 'light') document.documentElement.classList.add('light-mode');
+    })();
+  </script>
+  <style>
+    .approved-card {
+      background: rgba(46,229,157,.08);
+      border: 1px solid rgba(46,229,157,.3);
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 16px;
+    }
+    .contact-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 0;
+      border-bottom: 1px solid var(--hair);
+      font-size: 15px;
+    }
+    .contact-row:last-child { border-bottom: none; }
+    .contact-row a {
+      color: #2ee59d;
+      text-decoration: none;
+      font-weight: 600;
+    }
+    .contact-row a:hover { text-decoration: underline; }
+    .email-template-box {
+      background: rgba(0,0,0,.3);
+      border: 1px solid var(--hair);
+      border-radius: 8px;
+      padding: 16px;
+      font-size: 14px;
+      line-height: 1.6;
+      color: var(--text);
+      white-space: pre-wrap;
+      position: relative;
+    }
+    .copy-template-btn {
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      padding: 6px 14px;
+      background: #2ee59d;
+      color: #000;
+      border: none;
+      border-radius: 6px;
+      font-weight: 700;
+      font-size: 12px;
+      cursor: pointer;
+    }
+    .copy-template-btn:hover { background: #25d58d; }
+    .mailto-btn {
+      display: inline-block;
+      padding: 12px 24px;
+      background: #2ee59d;
+      color: #000;
+      border: none;
+      border-radius: 8px;
+      font-weight: 700;
+      font-size: 15px;
+      text-decoration: none;
+      cursor: pointer;
+      transition: all 150ms;
+    }
+    .mailto-btn:hover { background: #25d58d; transform: scale(1.02); }
+    .back-btn {
+      display: inline-block;
+      padding: 12px 24px;
+      background: rgba(255,255,255,.1);
+      color: var(--text);
+      border: none;
+      border-radius: 8px;
+      font-weight: 600;
+      font-size: 15px;
+      text-decoration: none;
+      cursor: pointer;
+    }
+    .back-btn:hover { background: rgba(255,255,255,.15); }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <!-- Navigation -->
+    <div class="nav">
+      <div class="nav-inner">
+        <div style="font-size:20px;">👔</div>
+        <div class="nav-center">Quote Approved</div>
+        <a href="/{{ company_slug }}/admin/dashboard" style="color:var(--text); text-decoration:none; font-size:14px; opacity:.8;">Dashboard</a>
+      </div>
+    </div>
+
+    <div style="padding:16px; max-width:600px; margin:0 auto;">
+      <!-- Success Banner -->
+      <div style="text-align:center; padding:24px 16px; margin-bottom:20px;">
+        <div style="font-size:48px; margin-bottom:8px;">✅</div>
+        <h1 style="font-size:22px; font-weight:800; color:#2ee59d; margin:0 0 4px 0;">Quote Approved!</h1>
+        <div style="color:var(--muted); font-size:14px;">
+          £{{ final_price }} for {{ job.customer_name or 'Customer' }}
+        </div>
+      </div>
+
+      <!-- Customer Contact Card -->
+      <div class="approved-card">
+        <div style="font-weight:700; font-size:16px; margin-bottom:12px;">Customer Details</div>
+
+        {% if job.customer_name %}
+        <div class="contact-row">
+          <span>👤</span>
+          <span>{{ job.customer_name }}</span>
+        </div>
+        {% endif %}
+
+        {% if job.customer_email %}
+        <div class="contact-row">
+          <span>📧</span>
+          <a href="mailto:{{ job.customer_email }}">{{ job.customer_email }}</a>
+        </div>
+        {% endif %}
+
+        {% if job.customer_phone %}
+        <div class="contact-row">
+          <span>📱</span>
+          <a href="tel:{{ job.customer_phone }}">{{ job.customer_phone }}</a>
+        </div>
+        {% endif %}
+      </div>
+
+      <!-- Move Details -->
+      <div class="approved-card">
+        <div style="font-weight:700; font-size:16px; margin-bottom:12px;">Move Details</div>
+        {% if pickup_label %}
+        <div class="contact-row">
+          <span>📍</span>
+          <span><strong>From:</strong> {{ pickup_label }}</span>
+        </div>
+        {% endif %}
+        {% if dropoff_label %}
+        <div class="contact-row">
+          <span>📍</span>
+          <span><strong>To:</strong> {{ dropoff_label }}</span>
+        </div>
+        {% endif %}
+        <div class="contact-row">
+          <span>💰</span>
+          <span><strong>Estimate:</strong> £{{ estimate_low }} – £{{ estimate_high }}</span>
+        </div>
+        <div class="contact-row">
+          <span>🏷️</span>
+          <span><strong>Final Price:</strong> £{{ final_price }}</span>
+        </div>
+      </div>
+
+      <!-- Email Template -->
+      <div style="margin-bottom:20px;">
+        <div style="font-weight:700; font-size:16px; margin-bottom:10px;">Email Template</div>
+        <div class="email-template-box" id="emailTemplate">
+          <button class="copy-template-btn" onclick="copyTemplate()">Copy</button>
+Hi {{ job.customer_name or 'there' }},
+
+Great news! We've reviewed your moving survey and prepared your quote.
+
+Your estimated price is £{{ final_price }}{% if pickup_label %} for your move from {{ pickup_label }}{% endif %}{% if dropoff_label %} to {{ dropoff_label }}{% endif %}.
+
+Please get in touch if you'd like to go ahead or have any questions. We're happy to help!
+
+Best regards,
+{{ company.company_name }}{% if company.phone %}
+{{ company.phone }}{% endif %}</div>
+      </div>
+
+      <!-- Action Buttons -->
+      {% set email_subject = "Your Moving Quote from " + company.company_name %}
+      {% set email_body = "Hi " + (job.customer_name or "there") + ",\n\nGreat news! We've reviewed your moving survey and prepared your quote.\n\nYour estimated price is £" + (final_price|string) + ".\n\nPlease get in touch if you'd like to go ahead or have any questions.\n\nBest regards,\n" + company.company_name %}
+      <div style="display:flex; gap:12px; flex-wrap:wrap;">
+        {% if job.customer_email %}
+        <a href="mailto:{{ job.customer_email }}?subject={{ email_subject|urlencode }}&body={{ email_body|urlencode }}" class="mailto-btn">
+          📧 Email Customer
+        </a>
+        {% endif %}
+        {% if job.customer_phone %}
+        <a href="tel:{{ job.customer_phone }}" class="mailto-btn" style="background:rgba(46,229,157,.2); color:#2ee59d;">
+          📱 Call Customer
+        </a>
+        {% endif %}
+        <a href="/{{ company_slug }}/admin/dashboard" class="back-btn">
+          ← Back to Dashboard
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function copyTemplate() {
+      const el = document.getElementById('emailTemplate');
+      const btn = el.querySelector('.copy-template-btn');
+      // Get text content without the button text
+      const text = el.textContent.replace('Copy', '').trim();
+      navigator.clipboard.writeText(text).then(() => {
+        btn.textContent = 'Copied!';
+        btn.style.background = '#25d58d';
+        setTimeout(() => { btn.textContent = 'Copy'; btn.style.background = '#2ee59d'; }, 2000);
+      }).catch(() => {
+        // Fallback
+        const range = document.createRange();
+        range.selectNodeContents(el);
+        const sel = window.getSelection();
+        sel.removeAllRanges();
+        sel.addRange(range);
+        document.execCommand('copy');
+        btn.textContent = 'Copied!';
+        setTimeout(() => { btn.textContent = 'Copy'; }, 2000);
+      });
+    }
+  </script>
+</body>
+</html>

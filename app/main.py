@@ -162,28 +162,12 @@ async def resolve_and_check_company(request: Request, call_next):
                     content={"error": f"Company '{company_slug}' not found"}
                 )
 
-            # Check subscription status
-            now = datetime.utcnow()
-
-            # Trial expired?
-            if company.subscription_status == 'trial' and company.trial_ends_at:
-                # Make comparison timezone-naive safe
-                trial_end = company.trial_ends_at.replace(tzinfo=None) if company.trial_ends_at.tzinfo else company.trial_ends_at
-                if now > trial_end:
-                    return templates.TemplateResponse("trial_expired.html", {
-                        "request": request,
-                        "company": company,
-                        "company_slug": company_slug
-                    })
-
-            # Subscription required?
-            if company.subscription_status not in ['trial', 'active', 'past_due']:
-                return templates.TemplateResponse("subscription_expired.html", {
-                    "request": request,
-                    "company": company,
-                    "company_slug": company_slug,
-                    "status": company.subscription_status
-                })
+            # Credits handle billing now — only check company is active
+            if not company.is_active:
+                return JSONResponse(
+                    status_code=403,
+                    content={"error": "This company account is currently inactive"}
+                )
 
             # Attach company to request state
             request.state.company = company
@@ -3990,7 +3974,43 @@ def admin_approve_job(
                 smtp_config=company_smtp
             )
 
-    return RedirectResponse(url=f"/{company_slug}/admin/dashboard", status_code=303)
+    return RedirectResponse(url=f"/{company_slug}/admin/job/{token}/approved", status_code=303)
+
+
+@app.get("/{company_slug}/admin/job/{token}/approved")
+def admin_job_approved(
+    company_slug: str,
+    token: str,
+    request: Request,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """Show customer details after a job is approved"""
+    company = verify_company_access(company_slug, current_user)
+
+    job = db.query(Job).filter(
+        Job.token == token,
+        Job.company_id == company.id
+    ).first()
+
+    if not job or job.status != "approved":
+        return RedirectResponse(url=f"/{company_slug}/admin/dashboard", status_code=303)
+
+    quote = calculate_quote(job, db)
+    pickup_label = (job.pickup or {}).get("label", "")
+    dropoff_label = (job.dropoff or {}).get("label", "")
+
+    return templates.TemplateResponse("admin_job_approved.html", {
+        "request": request,
+        "company": company,
+        "company_slug": company_slug,
+        "job": job,
+        "estimate_low": quote["estimate_low"],
+        "estimate_high": quote["estimate_high"],
+        "pickup_label": pickup_label,
+        "dropoff_label": dropoff_label,
+        "final_price": job.final_quote_price
+    })
 
 
 @app.post("/{company_slug}/admin/job/{token}/reject")
@@ -4172,7 +4192,18 @@ def admin_quick_approve(
                 smtp_config=company_smtp
             )
 
-        return JSONResponse({"success": True, "final_price": final_price})
+        return JSONResponse({
+            "success": True,
+            "final_price": final_price,
+            "customer_name": job.customer_name or "",
+            "customer_email": job.customer_email or "",
+            "customer_phone": job.customer_phone or "",
+            "estimate_low": estimate_low,
+            "estimate_high": estimate_high,
+            "pickup_label": (job.pickup or {}).get("label", ""),
+            "dropoff_label": (job.dropoff or {}).get("label", ""),
+            "company_name": company.company_name
+        })
 
     return JSONResponse({"error": "Job not found"}, status_code=404)
 
